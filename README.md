@@ -57,11 +57,25 @@ uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 | POST | `/api/bloco/gerar` | admin/Hermes cria bloco (JSON) |
 | POST | `/api/admin/*` | admin cria concurso/tópico/aluno |
 
-## Integração com o Hermes
-Veja `skills/tutor-concurso/SKILL.md`. O Hermes usa a skill para:
-1. Gerar o bloco diário a partir do edital (com pesquisa real).
-2. Corrigir questões discursivas pendentes.
-3. Enviar lembrete diário no Telegram (cron).
+## Integração com o Hermes / Pi (geração de conteúdo)
+A geração de blocos é feita por um "professor" IA que pesquisa o edital real e
+chama a API. Dois caminhos:
+
+- **Hermes (cron diário 07:00):** usa a skill `tutor-concurso` (em
+  `skills/tutor-concurso/SKILL.md`) para gerar o bloco de cada aluno e avisar no
+  Telegram. Job já criado e testado.
+- **Pi orquestrado (população em massa):** para encher a plataforma de uma vez,
+  orquestramos N instâncias do Pi (`~/.pi/agent`) — uma por concurso — via `tmux`,
+  cada uma guiada pela skill `tutor-concurso` (web research + `curl` na API local).
+  Exemplo usado: 2 sessões (`pipf`, `pienf`) geraram PF (7 blocos/42 questões,
+  cobertura 100%) e Enfermagem (3 blocos/30 questões). Ver skills
+  `pi-coding-agent-orchestrator`.
+- **Grok CLI:** há `grok_populate_prompt.md` com o prompt equivalente, mas o CLI
+  `grok` neste ambiente não está autenticado (XAI_API_KEY=dummy, sessão vazia);
+  o backend (shim→OpenRouter) funciona. Falta `grok login --device-code`.
+
+Conteúdo NUNCA é inventado: sempre ancorado em fontes (Estratégia, Gran, Direção,
+Cofen, Planalto/CF88, editais UFMG/UFES).
 
 ## Modelo de dados
 `Concurso → Topico (árvore) → Bloco → Questao → Resposta → Progresso (dominância)`
