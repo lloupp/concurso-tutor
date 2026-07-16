@@ -1,0 +1,10 @@
+services:
+  tutor:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_PATH=/app/data/concurso.db
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
