@@ -1,0 +1,126 @@
+{
+  "concurso_id": 1,
+  "bloco": {
+    "titulo": "PF Agente Administrativo - Bloco 1: Básicos + Constitucional + Direitos Humanos",
+    "introducao": "Mini-aula (1h). 10 questões (7 MCQ + 3 discursivas) ancoradas no edital PF Administrativo 2025 (Cebraspe) e na CF/88. Fontes: Direção Concursos (direcaoconcursos.com.br/noticias/concurso-pf-administrativo-conteudo-programatico) e Planalto (CF/88).",
+    "duracao_min": 60,
+    "topicos_ids": [1, 2, 4, 12],
+    "questoes": [
+      {
+        "topico_id": 1,
+        "tipo": "mcq",
+        "enunciado": "Assinale a alternativa em que o emprego do sinal indicativo de crase está INCORRETO.",
+        "alternativas": [
+          "A) Entreguei o relatório à Diretoria.",
+          "B) Vou à Bahia nas férias.",
+          "C) Referiu-se a empresa com respeito.",
+          "D) Entreguei os documentos às partes."
+        ],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 1,
+        "tipo": "mcq",
+        "enunciado": "Assinale a alternativa em que a concordância verbal está de acordo com a norma-padrão.",
+        "alternativas": [
+          "A) Fazem dois anos que te espero.",
+          "B) Havia duas soluções possíveis.",
+          "C) A gente vamos ao encontro amanhã.",
+          "D) Provavelmente hajam erros no texto."
+        ],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 2,
+        "tipo": "mcq",
+        "enunciado": "Segundo as leis de De Morgan, a negação de (p E q) é logicamente equivalente a:",
+        "alternativas": [
+          "A) Não p E não q",
+          "B) Não p OU não q",
+          "C) p OU q",
+          "D) p E não q"
+        ],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 2,
+        "tipo": "mcq",
+        "enunciado": "Considere a proposição 'Se chove, então a rua fica molhada'. Qual situação torna a proposição FALSA?",
+        "alternativas": [
+          "A) Chove e a rua fica molhada.",
+          "B) Não chove e a rua fica molhada.",
+          "C) Chove e a rua não fica molhada.",
+          "D) Não chove e a rua não fica molhada."
+        ],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 4,
+        "tipo": "mcq",
+        "enunciado": "Conforme a Constituição Federal de 1988 (art. 144), a segurança pública é:",
+        "alternativas": [
+          "A) dever exclusivo das Polícias Militares dos Estados.",
+          "B) dever do Estado, direito e responsabilidade de todos, protegendo-se a liberdade, a ordem e o patrimônio.",
+          "C) competência privativa da União, vedada aos Estados.",
+          "D) serviço prestado apenas pela Polícia Federal."
+        ],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 12,
+        "tipo": "mcq",
+        "enunciado": "A Convenção Americana sobre Direitos Humanos (Pacto de São José da Costa Rica) foi ratificada pelo Brasil e:",
+        "alternativas": [
+          "A) não possui status constitucional no ordenamento brasileiro.",
+          "B) foi recepcionada com status de emenda constitucional (art. 5º, § 3º, CF/88).",
+          "C) revogou a Constituição Federal de 1988.",
+          "D) aplica-se apenas a estrangeiros residentes no Brasil."
+        ],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 12,
+        "tipo": "mcq",
+        "enunciado": "De acordo com o art. 5º, XLIII, da Constituição Federal, é crime inafiançável e imprescritível a prática da:",
+        "alternativas": [
+          "A) tortura.",
+          "B) difamação.",
+          "C) injúria.",
+          "D) apropriação indébita."
+        ],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 1,
+        "tipo": "discursiva",
+        "enunciado": "Explique a diferença entre os expedientes oficiais 'ofício' e 'memorando', segundo o Manual de Redação da Presidência da República.",
+        "resposta_modelo": "Ofício é o expediente usado para comunicação escrita entre unidades da administração e entre estas e particulares (comunicação externa ao órgão). Memorando (memorando) é usado para comunicação interna entre unidades da mesma organização. Ambos seguem o padrão ofício previsto no Manual de Redação da PR.",
+        "rubric": "Deve citar: ofício = comunicação externa; memorando = comunicação interna; referência ao Manual de Redação da Presidência da República.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 4,
+        "tipo": "discursiva",
+        "enunciado": "Cite e explique brevemente os órgãos que compõem o sistema de segurança pública, conforme o art. 144 da Constituição Federal.",
+        "resposta_modelo": "Compõem o sistema: Polícia Federal (polícia judiciária da União e fiscalização de imigração), Polícia Rodoviária Federal, Polícia Ferroviária Federal, Polícias Civis (polícia judiciária dos Estados) e Polícias Militares e Corpo de Bombeiros Militar (polícia ostensiva e de preservação da ordem pública).",
+        "rubric": "Citou corretamente ao menos 3 dos órgãos (PF, PRF, PFF, Polícias Civis, Polícias Militares/Bombeiros) e caracterizou a função da PF.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 12,
+        "tipo": "discursiva",
+        "enunciado": "Explique o princípio da universalidade dos direitos humanos e dê um exemplo previsto no art. 5º da CF/88.",
+        "resposta_modelo": "A universalidade significa que os direitos humanos pertencem a todos os seres humanos, sem qualquer distinção. Exemplo no art. 5º, caput: todos são iguais perante a lei, sendo invioláveis a liberdade, a vida e a segurança; ninguém será submetido a tortura (art. 5º, XLIII).",
+        "rubric": "Definiu universalidade (a todos, sem distinção) e citou ao menos 1 direito previsto no art. 5º da CF/88.",
+        "dificuldade": 3
+      }
+    ]
+  }
+}

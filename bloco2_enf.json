@@ -1,0 +1,91 @@
+{
+  "concurso_id": 2,
+  "bloco": {
+    "titulo": "Procedimentos de Enfermagem, Farmacologia e Saude Coletiva (dia 2)",
+    "introducao": "Mini-aula de 1h. 10 questoes (7 MCQ + 3 discursivas) ancoradas em fontes de sinais vitais, vias de administracao de medicamentos, higiene das maos (Anvisa) e Estrategia Saude da Familia / SUS. Fontes: Anvisa, UFRGS Telessaude, MSD Manual, ccs.saude.gov.br.",
+    "duracao_min": 60,
+    "topicos_ids": [8, 10, 14],
+    "questoes": [
+      {
+        "topico_id": 8,
+        "tipo": "mcq",
+        "enunciado": "Qual a faixa de temperatura corporal axilar considerada normal em um adulto em repouso?",
+        "alternativas": ["A) 36,0 a 37,0 °C", "B) 38,5 a 39,5 °C", "C) 34,0 a 35,0 °C", "D) 35,0 a 35,5 °C"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 8,
+        "tipo": "mcq",
+        "enunciado": "Quais sao os sinais vitais basicos habitualmente aferidos pela enfermagem?",
+        "alternativas": ["A) Temperatura, Pressao Arterial, Frequencia Cardiaca e Frequencia Respiratoria", "B) Temperatura, Glicemia, Pressao Arterial e Peso", "C) Frequencia Cardiaca, Altura, Frequencia Respiratoria e Pressao Arterial", "D) SpO2, Temperatura, Peso e Pressao Arterial"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 10,
+        "tipo": "mcq",
+        "enunciado": "Na administracao de medicamentos via intramuscular (IM), qual o angulo de insercao da agulha recomendado?",
+        "alternativas": ["A) 15 graus", "B) 45 graus", "C) 90 graus", "D) 30 graus"],
+        "gabarito": "2",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 10,
+        "tipo": "mcq",
+        "enunciado": "Entre as opcoes abaixo, qual e uma via de administracao enteral (medicamento absorvido pelo trato gastrointestinal)?",
+        "alternativas": ["A) Subcutanea", "B) Intramuscular", "C) Endovenosa", "D) Oral"],
+        "gabarito": "3",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 8,
+        "tipo": "mcq",
+        "enunciado": "Segundo a Anvisa, qual e considerada a medida individual mais eficaz de prevencao e controle de infeccoes relacionadas a assistencia a saude?",
+        "alternativas": ["A) Higiene das maos", "B) Uso profilatico de antibioticos", "C) Ventilacao do ambiente", "D) Uso de luvas estereis em todos os contatos"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 8,
+        "tipo": "mcq",
+        "enunciado": "Ao realizar o curativo de uma ferida, o tecnico de enfermagem deve adotar:",
+        "alternativas": ["A) Reutilizar o mesmo material para economia", "B) Tecnica assiptica com material esterel", "C) Tocar a ferida com luvas nao estereis", "D) Nao limpar a ferida antes de cobri-la"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 14,
+        "tipo": "mcq",
+        "enunciado": "No SUS, qual nivel de atencao e organizado pela Estrategia Saude da Familia (ESF) e funciona como porta de entrada preferencial do sistema?",
+        "alternativas": ["A) Atencao Primaria a Saude (via ESF)", "B) Hospital de alta complexidade", "C) Servico de Atendimento Movel de Urgencia (SAMU)", "D) Vigilancia Sanitaria"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 8,
+        "tipo": "discursiva",
+        "enunciado": "Descreva a higiene das maos como medida de prevencao e cite os momentos recomendados (OMS). Qual a importancia dela?",
+        "resposta_modelo": "A higiene das maos e a medida de maior evidencia cientifica para prevencao e controle de infeccoes (PCI). Deve ser feita com agua e sabao ou preparacao a base de alcool nos 5 momentos da OMS: (1) antes do contato com o paciente; (2) antes de procedimento limpo/assiptico; (3) apos risco de exposicao a fluidos corporais; (4) apos contato com o paciente; (5) apos contato com areas do entorno do paciente. Fonte: Anvisa - Nota Tecnica GVIMS/GGTES/DIRE3 n. 05/2024.",
+        "rubric": "Deve citar: (1) e a principal medida de PCI (maior evidencia); (2) tecnica (agua e sabao ou alcool); (3) os 5 momentos da OMS; (4) citar fonte (Anvisa).",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 10,
+        "tipo": "discursiva",
+        "enunciado": "Cite as principais vias de administracao de medicamentos e indique o angulo de insercao da via intramuscular (IM).",
+        "resposta_modelo": "Principais vias: oral/enteral, subcutanea (SC, cerca de 45 graus, podendo 90 graus em tecido adiposo abundante), intradermica (ID, cerca de 15 graus), intramuscular (IM, 90 graus) e endovenosa (EV). A via intramuscular utiliza angulo de 90 graus para atingir o musculo. Fonte: UFRGS Telessaude e material de tecnicas de injecao (wkcursosesaude.com.br).",
+        "rubric": "Deve citar ao menos 3 vias (oral, SC, ID, IM, EV) e afirmar corretamente que a via IM usa angulo de 90 graus; citar fonte de suporte.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 14,
+        "tipo": "discursiva",
+        "enunciado": "O que e a Estrategia Saude da Familia (ESF) e qual o seu papel na Saude Coletiva e no SUS?",
+        "resposta_modelo": "A ESF e a estrategia central da Atencao Primaria a Saude (APS) no SUS. E organizada por equipes multiprofissionais (medico, enfermeiro, tecnico de enfermagem e agente comunitario de saude) que atuam em territorio adscrito, sendo a porta de entrada preferencial do sistema e a base da Saude Coletiva (acao sobre os determinantes sociais da saude). Fonte: Ministerio da Saude / ccs.saude.gov.br (principios do SUS).",
+        "rubric": "Deve citar: (1) ESF como estrategia da APS no SUS; (2) atuacao em equipe multiprofissional e territorio adscrito; (3) porta de entrada preferencial do SUS; (4) relacao com Saude Coletiva; citar fonte.",
+        "dificuldade": 3
+      }
+    ]
+  }
+}

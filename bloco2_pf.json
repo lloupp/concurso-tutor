@@ -1,0 +1,126 @@
+{
+  "concurso_id": 1,
+  "bloco": {
+    "titulo": "PF Agente Administrativo - Bloco 2: Dir. Administrativo + Informática + Penal + Legislação PF",
+    "introducao": "Mini-aula (1h). 10 questões (7 MCQ + 3 discursivas) ancoradas no edital PF Administrativo 2025 (Cebraspe), CF/88 e leis citadas (Lei 10.683/2003, Lei 10.826/2003, Lei 14.133/2021, LGPD 13.709/2018). Fontes: Direção Concursos e Planalto (planalto.gov.br/ccivil_03/leis/2003/l10.683.htm).",
+    "duracao_min": 60,
+    "topicos_ids": [3, 5, 11, 13],
+    "questoes": [
+      {
+        "topico_id": 3,
+        "tipo": "mcq",
+        "enunciado": "O art. 37, caput, da Constituição Federal estabelece os princípios da administração pública. Assinale a alternativa que os relaciona corretamente:",
+        "alternativas": [
+          "A) legalidade, impessoalidade, moralidade, publicidade e eficiência.",
+          "B) legalidade, celeridade, gratuidade, publicidade e eficiência.",
+          "C) moralidade, persuasão, impessoalidade, publicidade e eficácia.",
+          "D) legalidade, impessoalidade, sigilo, moralidade e eficiência."
+        ],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 3,
+        "tipo": "mcq",
+        "enunciado": "Nos termos da Lei nº 14.133/2021 (Nova Lei de Licitações), são modalidades de licitação:",
+        "alternativas": [
+          "A) concorrência, concurso, leilão, pregão e diálogo competitivo.",
+          "B) concorrência, tomada de preços, convite, concurso e leilão.",
+          "C) pregão, chamada pública, concessão, permissão e concorrência.",
+          "D) carta convite, tomada de preços, concorrência, concurso e leilão."
+        ],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 5,
+        "tipo": "mcq",
+        "enunciado": "A Lei Geral de Proteção de Dados (LGPD), que trata do tratamento de dados pessoais no Brasil, é a:",
+        "alternativas": [
+          "A) Lei nº 12.965/2014 (Marco Civil da Internet).",
+          "B) Lei nº 13.709/2018.",
+          "C) Lei nº 9.613/1998 (prevenção à lavagem de dinheiro).",
+          "D) Lei nº 8.078/1990 (Código de Defesa do Consumidor)."
+        ],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 5,
+        "tipo": "mcq",
+        "enunciado": "Em segurança da informação, 'malware' é o termo genérico para:",
+        "alternativas": [
+          "A) software malicioso projetado para causar dano ou obter acesso indevido.",
+          "B) um tipo de firewall de hardware.",
+          "C) um protocolo de criptografia de ponta a ponta.",
+          "D) um sistema de backup automático em nuvem."
+        ],
+        "gabarito": "0",
+        "dificuldade": 1
+      },
+      {
+        "topico_id": 11,
+        "tipo": "mcq",
+        "enunciado": "O Código Penal brasileiro vigente foi instituído pelo:",
+        "alternativas": [
+          "A) Decreto-Lei nº 2.848/1940.",
+          "B) Decreto-Lei nº 3.689/1941 (Código de Processo Penal).",
+          "C) Lei nº 7.209/1984.",
+          "D) Constituição Federal de 1988."
+        ],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 13,
+        "tipo": "mcq",
+        "enunciado": "A Lei nº 10.683/2003 dispõe sobre:",
+        "alternativas": [
+          "A) a organização da Presidência da República e dos Ministérios.",
+          "B) o Estatuto do Desarmamento.",
+          "C) a Lei de Migração.",
+          "D) a investigação criminal conduzida por delegado de polícia."
+        ],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 13,
+        "tipo": "mcq",
+        "enunciado": "A Lei nº 10.826/2003, conhecida como Estatuto do Desarmamento, tem por objeto, entre outros:",
+        "alternativas": [
+          "A) disciplinar o Sistema Nacional de Armas (SINARM) e o controle de aquisição de armas de fogo.",
+          "B) criar a Polícia Federal.",
+          "C) regular a situação jurídica de estrangeiros no Brasil.",
+          "D) instituir a segurança privada e das instituições financeiras."
+        ],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 3,
+        "tipo": "discursiva",
+        "enunciado": "Explique o princípio da eficiência na administração pública e relacione-o com a motivação dos atos administrativos (Decreto nº 9.830/2019).",
+        "resposta_modelo": "A eficiência (art. 37, caput, CF/88) exige que a administração empregue recursos de modo econômico e com resultados. O Decreto nº 9.830/2019 regulamenta a motivação de decisões administrativas, exigindo que os atos sejam fundamentados, o que garante transparência e boa gestão. Ambos visam qualidade, racionalidade e responsabilidade na gestão pública.",
+        "rubric": "Mencionar art. 37 (eficiência) e Decreto 9.830/2019 (motivação dos atos); vincular ambos à qualidade/transparência da gestão.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 5,
+        "tipo": "discursiva",
+        "enunciado": "O que é computação em nuvem (cloud computing) e cite um risco de segurança da informação a ele associado, com forma de mitigação.",
+        "resposta_modelo": "Computação em nuvem é a disponibilização sob demanda, via internet, de recursos computacionais (armazenamento, processamento, software). Risco: vazamento de dados por acesso não autorizado. Mitigação: criptografia dos dados, autenticação forte e controle de acesso.",
+        "rubric": "Definir nuvem (recursos via internet sob demanda) e citar ao menos 1 risco (vazamento, acesso indevido) com medida de mitigação.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 13,
+        "tipo": "discursiva",
+        "enunciado": "Cite os órgãos essenciais que compõem a Presidência da República conforme a Lei nº 10.683/2003 e explique a função da Casa Civil.",
+        "resposta_modelo": "A Presidência é composta essencialmente por: Casa Civil, Secretaria-Geral, Secretaria de Relações Institucionais, Gabinete Pessoal, Gabinete de Segurança Institucional e Núcleo de Assuntos Estratégicos. A Casa Civil assessia o Presidente na coordenação das ações do Governo e na articulação com os Ministérios.",
+        "rubric": "Citou ao menos 3 órgãos da PR e descreveu a função de coordenação da Casa Civil.",
+        "dificuldade": 3
+      }
+    ]
+  }
+}

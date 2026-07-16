@@ -1,0 +1,91 @@
+{
+  "concurso_id": 2,
+  "bloco": {
+    "titulo": "Legislacao do Exercicio Profissional e SUS (dia 1)",
+    "introducao": "Mini-aula de 1h. 10 questoes (7 MCQ + 3 discursivas) ancoradas na Lei 7.498/86, Decreto 94.406/87, Lei 14.434/22 (Cofen) e Lei 8.080/90 (Lei Orgaica da Saude / SUS). Fontes: cofen.gov.br, planalto.gov.br, ccs.saude.gov.br.",
+    "duracao_min": 60,
+    "topicos_ids": [9, 15],
+    "questoes": [
+      {
+        "topico_id": 15,
+        "tipo": "mcq",
+        "enunciado": "Qual lei federal, de 25 de junho de 1986, regulamenta o exercicio da Enfermagem em todo o territorio nacional?",
+        "alternativas": ["A) Lei 8.080/90", "B) Lei 7.498/86", "C) Decreto 94.406/87", "D) Lei 14.434/22"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 15,
+        "tipo": "mcq",
+        "enunciado": "A Lei 7.498/86 e regulamentada por um decreto que especifica as atribuicoes dos profissionais de enfermagem. Qual e esse decreto?",
+        "alternativas": ["A) Lei 7.498/86", "B) Lei 14.434/22", "C) Decreto 94.406/87", "D) Lei 8.142/90"],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 15,
+        "tipo": "mcq",
+        "enunciado": "Segundo o Art. 2o da Lei 7.498/86, a Enfermagem e exercida privativamente por quais profissionais?",
+        "alternativas": ["A) Enfermeiro, Tecnico de Enfermagem, Auxiliar de Enfermagem e Parteira", "B) Medico, Enfermeiro e Farmaceutico", "C) Apenas o Enfermeiro", "D) Enfermeiro e Tecnico de Enfermagem somente"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 15,
+        "tipo": "mcq",
+        "enunciado": "Pela Lei 7.498/86, o exercicio da Enfermagem depende de inscricao em qual orgao, com jurisdicao na area onde ocorre o exercicio?",
+        "alternativas": ["A) Conselho Regional de Enfermagem (COREN)", "B) Conselho Federal de Medicina (CFM)", "C) Conselho Regional de Biomedicina", "D) Conselho Nacional de Saude"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 15,
+        "tipo": "mcq",
+        "enunciado": "A Lei 14.434/2022 alterou a Lei 7.498/86 principalmente para instituir o que?",
+        "alternativas": ["A) A criacao do SUS", "B) A regulamentacao do exercicio da enfermagem", "C) O piso salarial nacional do Enfermeiro, Tecnico, Auxiliar e Parteira", "D) A criacao do COFEN"],
+        "gabarito": "2",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 9,
+        "tipo": "mcq",
+        "enunciado": "Quais sao os tres principios doutrinarios do SUS, previstos no Art. 7o da Lei 8.080/90?",
+        "alternativas": ["A) Universalidade, Integralidade e Equidade", "B) Competitividade, Lucro e Eficiencia", "C) Privatizacao e Livre Mercado", "D) Centralizacao e Hierarquia exclusiva"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 9,
+        "tipo": "mcq",
+        "enunciado": "Qual lei e conhecida como Lei Orgaica da Saude e dispoe sobre as condicoes para a promocao, protecao e recuperacao da saude (criacao do SUS)?",
+        "alternativas": ["A) Decreto 94.406/87", "B) Lei 7.498/86", "C) Lei 8.080/90", "D) Lei 14.434/22"],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 15,
+        "tipo": "discursiva",
+        "enunciado": "Explique o que dispoe a Lei 7.498/86 quanto ao exercicio da Enfermagem e quais sao os profissionais que a exercem privativamente. Cite a fonte.",
+        "resposta_modelo": "A Lei 7.498/86, de 25 de junho de 1986, regulamenta o exercicio da Enfermagem em todo o territorio nacional (Art. 1o) e e livre, observadas suas disposicoes. O Art. 2o (paragrafo unico) estabelece que a Enfermagem e exercida privativamente pelo Enfermeiro, pelo Tecnico de Enfermagem, pelo Auxiliar de Enfermagem e pela Parteira, respeitados os respectivos graus de habilitacao. O exercicio exige inscricao no COREN com jurisdicao na area. Fonte: cofen.gov.br/lei-n-749886-de-25-de-junho-de-1986/.",
+        "rubric": "Deve citar: (1) ano/objeto da lei (regulamenta o exercicio da enfermagem, 1986); (2) os 4 profissionais do Art. 2o (enfermeiro, tecnico, auxiliar e parteira); (3) necessidade de habilitacao/inscricao no COREN; (4) citar a fonte (Cofen ou texto da Lei).",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 9,
+        "tipo": "discursiva",
+        "enunciado": "Quais sao os principios doutrinarios do SUS previstos na Lei 8.080/90? Defina brevemente cada um.",
+        "resposta_modelo": "Universalidade de acesso (Art. 7o, I - acesso aos servicos de saude em todos os niveis de assistencia); Integralidade da assistencia (Art. 7o, II - conjunto articulado e continuo das acoes preventivas e curativas, individuais e coletivas); e Equidade/Igualdade na assistencia sem preconceitos ou privilegios (Art. 7o, IV). Fonte: Lei 8.080/90, Art. 7o (ccs.saude.gov.br/sus/principios.php).",
+        "rubric": "Deve citar universalidade, integralidade e equidade (ou igualdade sem preconceitos), referenciando a Lei 8.080/90 / Art. 7o, e definir cada um de forma coerente.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 15,
+        "tipo": "discursiva",
+        "enunciado": "O que institui a Lei 14.434/2022 e qual a sua relacao com a Lei 7.498/86?",
+        "resposta_modelo": "A Lei 14.434/2022 altera a Lei 7.498/86 para instituir o piso salarial nacional do Enfermeiro, do Tecnico de Enfermagem, do Auxiliar de Enfermagem e da Parteira. Ou seja, e uma lei posterior que modifica a Lei de regulamentacao do exercicio para garantir remuneracao minima as categorias de enfermagem. Fonte: planalto.gov.br/ccivil_03/_ato2019-2022/2022/lei/l14434.htm.",
+        "rubric": "Deve citar: (1) piso salarial nacional; (2) abrange as 4 categorias (enfermeiro, tecnico, auxiliar e parteira); (3) relacao de alteracao da Lei 7.498/86; (4) citar fonte.",
+        "dificuldade": 3
+      }
+    ]
+  }
+}
