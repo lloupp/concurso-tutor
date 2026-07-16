@@ -237,6 +237,32 @@ def criar_topico(concurso_id: int, nome: str, pai_id: int = None,
     return {"topico_id": t.id}
 
 
+@app.get(f"{API}/admin/topicos-selecao")
+def topicos_selecao(concurso_id: int, n: int = 2,
+                    db: Session = Depends(get_db),
+                    u: models.User = Depends(auth.get_current_user)):
+    """Hermes usa para saber QUAIS tópicos gerar (baseado em cobertura + domínio)."""
+    if u.role != "admin":
+        raise HTTPException(403, "Apenas admin/Hermes")
+    return {"topicos": planner.proximos_topicos_admin(db, concurso_id, n)}
+
+
+@app.get(f"{API}/admin/alunos")
+def listar_alunos(concurso_id: int = None,
+                  db: Session = Depends(get_db),
+                  u: models.User = Depends(auth.get_current_user)):
+    """Hermes usa para saber quais alunos (e concursos) gerar blocos."""
+    if u.role != "admin":
+        raise HTTPException(403, "Apenas admin/Hermes")
+    q = db.query(models.User).filter_by(role="aluno")
+    if concurso_id:
+        q = q.filter_by(concurso_id=concurso_id)
+    alunos = q.all()
+    return {"alunos": [{"id": a.id, "username": a.username,
+                        "full_name": a.full_name, "concurso_id": a.concurso_id}
+                       for a in alunos]}
+
+
 @app.post(f"{API}/admin/usuario")
 def criar_usuario(username: str, password: str, full_name: str = "",
                   concurso_id: int = None,

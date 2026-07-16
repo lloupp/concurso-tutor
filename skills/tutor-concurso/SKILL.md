@@ -14,19 +14,26 @@ CONTEÚDO NUNCA INVENTADO. Tudo vem do edital ou de pesquisa (web/PDF). O Hermes
 a curadoria e a formulação das questões, mas a matéria é ancorada na fonte.
 
 ## Fluxo: gerar bloco diário
-1. Identificar concurso (PF Agente Admin → concurso_id X; Téc. Enfermagem → Y).
-   - Listar concursos: `GET /api/admin/concurso` (ou consultar DB).
-2. Pegar tópicos pendentes do plano:
-   - `GET /api/plano` (como admin) → próximos tópicos por aluno.
-   OU usar a lógica do `planner.py`: prioriza não-estudados (cobertura 100%) e
-   vencidos para revisão espaçada; tópicos fracos têm prioridade.
-3. Buscar fonte do edital:
-   - Se houver `edital_url`/`edital_text` no concurso, usar como base.
-   - Senão, pesquisar na web os tópicos (ex.: "Direito Administrativo princípios
-     Cebraspe agente administrativo PF"). Usar web_search / navegação real.
-4. Montar o bloco JSON no formato abaixo e enviar:
+Executado pelo cron (todo dia) OU manualmente pelo Eduardo.
+
+1. Login admin para obter token:
+   - `POST /api/login` → `{"username":"admin","password":"admin123"}` → guarda `token`.
+2. Descobrir alunos e concursos:
+   - `GET /api/admin/alunos` → lista `[{id, username, full_name, concurso_id}]`.
+   Para cada aluno, repita 3-6.
+3. Selecionar tópicos a gerar (baseado em cobertura + domínio):
+   - `GET /api/admin/topicos-selecao?concurso_id=ID&n=2` →
+     `[{id, nome, razao}]`. A lógica prioriza: (0) tópico não estudado →
+     cobertura 100%; (1) revisão espaçada vencida; (2) baixa dominância média.
+4. Buscar fonte do edital:
+   - Se o concurso tiver `edital_url`/`edital_text`, usar como base. Senão, pesquisar
+     na web os tópicos (ex.: "Direito Administrativo princípios Cebraspe agente
+     administrativo PF"). Usar web_search / navegação real. NÃO inventar fatos.
+5. Montar o bloco JSON (formato abaixo) com 10 questões (padrão 7 MCQ + 3 discursiva)
+   ancoradas na fonte, e enviar:
    - `POST /api/bloco/gerar` (header `Authorization: Bearer <token_admin>`)
    - Body: `{"concurso_id": ID, "bloco": {...}}`
+6. Confirmar e avisar o Eduardo no Telegram que o bloco do aluno X está pronto.
 
 ### Formato BlocoSchema
 ```json
@@ -58,11 +65,21 @@ A plataforma marca `corrigido_por=null` para discursivas. O Hermes:
 3. `POST /api/bloco/responder/corrigir` com `{resposta_id, nota (0..1), feedback, correta}`.
 4. A plataforma atualiza o progresso (dominância) do aluno.
 
-## Nudge diário (cron)
-Criar cron no Hermes para, todo dia às 07:00, gerar o bloco de cada aluno e enviar
-um lembrete no Telegram (assíncrono). Exemplo de prompt do cron:
-"Gere o bloco de hoje para o aluno PF (concurso_id=1) via skill tutor-concurso
-e avise o Eduardo no Telegram que está pronto."
+## Nudge diário (cron do Hermes)
+Crie um cron no Hermes para, todo dia (ex.: 07:00), gerar o bloco de cada aluno e
+avisar no Telegram. Exemplo de `prompt` do cron (auto-contido):
+
+```
+Use a skill 'tutor-concurso'. Para cada aluno listado em GET /api/admin/alunos
+(plataforma concurso-tutor rodando em http://127.0.0.1:8000), gere o bloco do dia:
+1) login admin (admin/admin123) p/ pegar token; 2) GET /api/admin/topicos-selecao
+para o concurso do aluno (n=2); 3) pesquise o edital/tópicos na web (sem inventar);
+4) POST /api/bloco/gerar com 10 questões (7 MCQ + 3 discursiva) ancoradas na fonte;
+5) ao fim, envie UMA mensagem no Telegram para o Eduardo listando os blocos gerados
+por aluno e os tópicos escolhidos. Se a plataforma não responder, reporte o erro.
+```
+
+O cron roda autônomo; o Hermes usa web_search para o conteúdo e a API para gravar.
 
 ## Usuários demo
 - admin / admin123 (role admin — gera conteúdo)

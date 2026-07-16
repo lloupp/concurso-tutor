@@ -75,7 +75,7 @@ def cobertura(db: Session, concurso_id: int):
 
 
 def proximo_plano(db: Session, user_id: int, concurso_id: int, n_topicos: int = 2):
-    """Seleciona tópicos para o próximo bloco.
+    """Seleciona tópicos para o próximo bloco (visão do aluno).
 
     Prioridade: (1) não estudados (garante 100% de cobertura),
     (2) vencidos para revisão (proxima_revisao <= hoje),
@@ -87,10 +87,37 @@ def proximo_plano(db: Session, user_id: int, concurso_id: int, n_topicos: int = 
     def score(t):
         p = db.query(Progresso).filter_by(user_id=user_id, topico_id=t.id).first()
         if not t.estudado:
-            return (0, 0)  # prioridade máxima: cobertura
+            return (0, 0)
         if p and p.proxima_revisao and p.proxima_revisao <= hoje:
             return (1, -(p.dominio or 0))
         return (2, -(p.dominio if p else 0))
 
     ordenados = sorted(topicos, key=score)
     return ordenados[:n_topicos]
+
+
+def proximos_topicos_admin(db: Session, concurso_id: int, n: int = 2):
+    """Seleção de tópicos para geração (visão do Hermes/admin).
+
+    Usa média de dominância de TODOS os alunos do concurso. Prioridade:
+    (0) não estudado -> cobertura 100%; (1) revisão espaçada vencida;
+    (2) menor dominância média. Retorna razão legível p/ o Hermes.
+    """
+    topicos = db.query(Topico).filter_by(concurso_id=concurso_id).all()
+    hoje = date.today()
+    out = []
+    for t in topicos:
+        progs = db.query(Progresso).filter_by(topico_id=t.id).all()
+        media = sum(p.dominio for p in progs) / len(progs) if progs else 0.0
+        vencido = any((p.proxima_revisao and p.proxima_revisao <= hoje) for p in progs)
+        if not t.estudado:
+            ordem, razao = 0, "cobertura (tópico ainda não estudado)"
+        elif vencido:
+            ordem, razao = 1, "revisão espaçada vencida"
+        else:
+            ordem, razao = 2, "reforço (baixa dominância média)"
+        out.append({"id": t.id, "nome": t.nome, "estudado": t.estudado,
+                    "dominio_medio": round(media, 3), "razao": razao,
+                    "_ordem": ordem, "_media": media})
+    out.sort(key=lambda x: (x["_ordem"], -x["_media"]))
+    return [{"id": x["id"], "nome": x["nome"], "razao": x["razao"]} for x in out[:n]]
