@@ -2,3 +2,6 @@ data/
 __pycache__/
 *.pyc
 .hermes/
+.venv/
+.coverage
+.pytest_cache/
