@@ -89,8 +89,8 @@ def proximo_plano(db: Session, user_id: int, concurso_id: int, n_topicos: int = 
         if not t.estudado:
             return (0, 0)
         if p and p.proxima_revisao and p.proxima_revisao <= hoje:
-            return (1, -(p.dominio or 0))
-        return (2, -(p.dominio if p else 0))
+            return (1, p.dominio or 0)
+        return (2, p.dominio if p else 0)
 
     ordenados = sorted(topicos, key=score)
     return ordenados[:n_topicos]
@@ -119,5 +119,5 @@ def proximos_topicos_admin(db: Session, concurso_id: int, n: int = 2):
         out.append({"id": t.id, "nome": t.nome, "estudado": t.estudado,
                     "dominio_medio": round(media, 3), "razao": razao,
                     "_ordem": ordem, "_media": media})
-    out.sort(key=lambda x: (x["_ordem"], -x["_media"]))
+    out.sort(key=lambda x: (x["_ordem"], x["_media"]))
     return [{"id": x["id"], "nome": x["nome"], "razao": x["razao"]} for x in out[:n]]

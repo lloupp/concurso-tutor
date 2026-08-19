@@ -73,9 +73,10 @@ def test_bloco_hoje_retorna_bloco_com_questoes(client, db, aluno_headers, aluno_
     body = resp.json()["bloco"]
     assert body["titulo"] == "Bloco 1"
     assert len(body["questoes"]) == 1
-    # mcq: gabarito exposto, resposta_modelo não
-    assert body["questoes"][0]["gabarito"] == "1"
+    # correção 3: o payload do aluno NÃO expõe gabarito/resposta_modelo/rubric
+    assert "gabarito" not in body["questoes"][0]
     assert body["questoes"][0]["resposta_modelo"] is None
+    assert body["questoes"][0]["rubric"] is None
 
 
 def test_listar_blocos_retorna_apenas_do_concurso_do_usuario(client, db, aluno_headers, aluno_user, concurso):
@@ -164,6 +165,24 @@ def test_responder_questao_inexistente_eh_ignorada(client, aluno_headers):
                        json={"respostas": [{"questao_id": 999999, "resposta": "x"}]})
     assert resp.status_code == 200
     assert resp.json()["resultados"] == []
+
+
+def test_responder_questao_de_outro_concurso_retorna_403(client, db, aluno_headers, aluno_user):
+    """Correção 2: aluno não pode responder questão de outro concurso."""
+    outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
+    db.add(outro); db.commit(); db.refresh(outro)
+    top = models.Topico(concurso_id=outro.id, nome="Top")
+    db.add(top); db.commit(); db.refresh(top)
+    bloco = models.Bloco(concurso_id=outro.id, titulo="B", data=date.today())
+    db.add(bloco); db.commit(); db.refresh(bloco)
+    q = models.Questao(bloco_id=bloco.id, topico_id=top.id, tipo="mcq",
+                       enunciado="?", alternativas=["a", "b"], gabarito="1")
+    db.add(q); db.commit(); db.refresh(q)
+
+    resp = client.post("/api/bloco/responder", headers=aluno_headers,
+                       json={"respostas": [{"questao_id": q.id, "resposta": "1"}]})
+    assert resp.status_code == 403
+    assert db.query(models.Resposta).filter_by(questao_id=q.id).count() == 0
 
 
 # ---------- respostas/pendentes & corrigir (admin only) ----------

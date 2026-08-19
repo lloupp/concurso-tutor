@@ -50,9 +50,10 @@ def _bloco_out(db, bloco):
             "id": q.id, "tipo": q.tipo, "enunciado": q.enunciado,
             "alternativas": q.alternativas, "dificuldade": q.dificuldade,
             "topico_id": q.topico_id,
-            "gabarito": q.gabarito if q.tipo == "mcq" else None,
-            "resposta_modelo": q.resposta_modelo if q.tipo == "discursiva" else None,
-            "rubric": q.rubric if q.tipo == "discursiva" else None,
+            # correção 3: não expõe gabarito/resposta_modelo no payload do aluno.
+            # A checagem continua no backend; o front só confirma após responder.
+            "resposta_modelo": None,
+            "rubric": None,
         })
     return {"id": bloco.id, "titulo": bloco.titulo,
             "introducao": bloco.introducao, "duracao_min": bloco.duracao_min,
@@ -90,6 +91,10 @@ def responder(payload: ResponderIn,
         q = db.query(models.Questao).filter_by(id=r["questao_id"]).first()
         if not q:
             continue
+        # Correção 2: valida dono — questão deve ser do concurso do aluno
+        bloco = db.query(models.Bloco).filter_by(id=q.bloco_id).first()
+        if not bloco or bloco.concurso_id != u.concurso_id:
+            raise HTTPException(403, "Questão não pertence ao seu concurso")
         correta, nota, feedback = None, None, None
         if q.tipo == "mcq":
             correta = str(r["resposta"]).strip() == str(q.gabarito)

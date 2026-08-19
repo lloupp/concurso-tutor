@@ -144,13 +144,10 @@ def test_proximo_plano_prioriza_revisao_vencida_sobre_dominio_baixo(db, aluno_us
     assert tops[0].id == vencido.id
 
 
-def test_proximo_plano_mesma_faixa_prioriza_maior_dominio_bug_conhecido(db, aluno_user, concurso):
-    """ATENÇÃO — mesmo padrão de bug de `proximos_topicos_admin` (ver teste acima).
-
-    Dentro da mesma faixa (nenhuma revisão vencida), o docstring promete
-    priorizar "menor dominância", mas a chave de ordenação usa `-dominio`
-    ascendente, que na prática escolhe primeiro o tópico de MAIOR domínio.
-    Este teste fixa o comportamento atual como regressão de referência.
+def test_proximo_plano_mesma_faixa_prioriza_menor_dominio(db, aluno_user, concurso):
+    """Dentro da mesma faixa (sem revisão vencida), prioriza o tópico de MENOR
+    domínio (reforço de quem está fraco). Antes era invertido (maior domínio
+    primeiro); corrigido em planner.proximo_plano.
     """
     fraco = models.Topico(concurso_id=concurso.id, nome="Fraco", estudado=True)
     forte = models.Topico(concurso_id=concurso.id, nome="Forte", estudado=True)
@@ -169,9 +166,8 @@ def test_proximo_plano_mesma_faixa_prioriza_maior_dominio_bug_conhecido(db, alun
     db.commit()
 
     tops = planner.proximo_plano(db, aluno_user.id, concurso.id, n_topicos=1)
-    # comportamento ATUAL: escolhe o tópico de maior domínio (`forte`), não o
-    # mais fraco como o docstring promete.
-    assert tops[0].id == forte.id
+    # tópico mais fraco (menor domínio) é priorizado
+    assert tops[0].id == fraco.id
 
 
 # ---------- proximos_topicos_admin ----------
@@ -184,16 +180,10 @@ def test_proximos_topicos_admin_razao_cobertura_para_nao_estudado(db, concurso):
     assert out[0]["razao"] == "cobertura (tópico ainda não estudado)"
 
 
-def test_proximos_topicos_admin_media_dominio_entre_alunos(db, concurso, topico):
-    """ATENÇÃO — possível bug de negócio detectado por este teste.
-
-    O docstring de `proximos_topicos_admin` promete priorizar tópicos com
-    "menor dominância média" (reforço para quem está fraco), mas a chave de
-    ordenação usada é `-media` em ordem ascendente, o que na prática seleciona
-    primeiro o tópico de MAIOR domínio médio. Este teste fixa o comportamento
-    ATUAL (não o pretendido) para não quebrar a suíte; ver sugestão de fix
-    reportada separadamente (inverter para ordenar por `media` sem o sinal
-    negativo, tanto aqui quanto em `proximo_plano`).
+def test_proximos_topicos_admin_prioriza_menor_dominio_medio(db, concurso, topico):
+    """`proximos_topicos_admin` deve priorizar tópicos com MENOR dominância média
+    (reforço para quem está fraco). Antes era invertido (maior média primeiro);
+    corrigido em planner.proximos_topicos_admin.
     """
     aluno1 = models.User(username="a1", password_hash="x", salt="x", concurso_id=concurso.id)
     aluno2 = models.User(username="a2", password_hash="x", salt="x", concurso_id=concurso.id)
@@ -219,6 +209,5 @@ def test_proximos_topicos_admin_media_dominio_entre_alunos(db, concurso, topico)
 
     out = planner.proximos_topicos_admin(db, concurso.id, n=2)
     ids = [x["id"] for x in out]
-    # comportamento ATUAL: maior domínio médio (`topico`, 0.9) vem antes do
-    # menor (`top2`, média 0.3) — o inverso do que o docstring promete.
-    assert ids.index(topico.id) < ids.index(top2.id)
+    # menor domínio médio (`top2`, 0.3) vem antes do maior (`topico`, 0.9)
+    assert ids.index(top2.id) < ids.index(topico.id)

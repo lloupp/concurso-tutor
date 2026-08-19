@@ -68,9 +68,7 @@ async function carregarBloco() {
         });
         inner += `</div>`;
       } else {
-        inner += `<textarea name="q${q.id}" placeholder="Sua resposta discursiva..."></textarea>
-          <details><summary>Resposta-modelo / Rubrica</summary>
-          <p><b>Modelo:</b> ${q.resposta_modelo || "-"}</p><p><b>Rubrica:</b> ${q.rubric || "-"}</p></details>`;
+        inner += `<textarea name="q${q.id}" placeholder="Sua resposta discursiva..."></textarea>`;
       }
       div.innerHTML = inner;
       form.appendChild(div);
