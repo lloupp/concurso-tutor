@@ -1,0 +1,91 @@
+{
+  "concurso_id": 3,
+  "bloco": {
+    "titulo": "Técnico em Perícias (IGP-RS) - Bloco 3: Língua Inglesa",
+    "introducao": "Mini-aula de 1h. 10 questões (7 MCQ + 3 discursivas) sobre Língua Inglesa, conforme o Anexo XI do Edital IGP-RS/FUNDATEC (Concurso Público nº 01/2025): compreensão de textos, verb tenses, modal verbs, voz passiva e orações subordinadas. Fonte: edital IGP-RS/FUNDATEC (admin.igp.rs.gov.br).",
+    "duracao_min": 60,
+    "topicos_ids": [18],
+    "questoes": [
+      {
+        "topico_id": 18,
+        "tipo": "mcq",
+        "enunciado": "Choose the correct verb tense: \"The forensic team ___ the crime scene since 8 a.m.\"",
+        "alternativas": ["A) examines", "B) has been examining", "C) will examine", "D) examined tomorrow"],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 18,
+        "tipo": "mcq",
+        "enunciado": "Choose the modal verb that best expresses OBLIGATION: \"Technicians ___ wear gloves when handling evidence.\"",
+        "alternativas": ["A) might", "B) could", "C) must", "D) would"],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 18,
+        "tipo": "mcq",
+        "enunciado": "Identify the sentence written in the PASSIVE VOICE:",
+        "alternativas": ["A) The technician collected the evidence.", "B) The evidence was collected by the technician.", "C) The technician is collecting evidence.", "D) The technician will collect evidence."],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 18,
+        "tipo": "mcq",
+        "enunciado": "Choose the correct preposition: \"The report was based ___ scientific evidence.\"",
+        "alternativas": ["A) in", "B) on", "C) at", "D) for"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 18,
+        "tipo": "mcq",
+        "enunciado": "Which sentence contains an ADVERBIAL CLAUSE OF CONDITION?",
+        "alternativas": ["A) She works at the lab, which is very modern.", "B) If the sample is contaminated, the test result will be invalid.", "C) He said that he was tired.", "D) The man who called is a witness."],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 18,
+        "tipo": "mcq",
+        "enunciado": "Choose the correct comparative form: \"This method is ___ than the previous one.\"",
+        "alternativas": ["A) more accurate", "B) most accurate", "C) accurater", "D) as accurate"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 18,
+        "tipo": "mcq",
+        "enunciado": "Read: \"Chain of custody refers to the process of maintaining and documenting the chronological history of evidence.\" According to the text, chain of custody is related to:",
+        "alternativas": ["A) The salary of forensic technicians", "B) The documentation and history of evidence", "C) The location of the police station", "D) The training schedule of new agents"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 18,
+        "tipo": "discursiva",
+        "enunciado": "Rewrite the sentence in the passive voice: \"The perito analyzed the fingerprints.\"",
+        "resposta_modelo": "The fingerprints were analyzed by the perito.",
+        "rubric": "Deve reescrever corretamente na voz passiva: sujeito 'the fingerprints', verbo auxiliar 'were' + particípio 'analyzed', preposição 'by' antes do agente.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 18,
+        "tipo": "discursiva",
+        "enunciado": "Explain, in Portuguese, the difference between the modal verbs 'must' and 'should', giving one example sentence in English for each.",
+        "resposta_modelo": "'Must' expressa uma obrigação forte ou uma regra/necessidade (ex.: 'You must wear gloves at the crime scene'). 'Should' expressa uma recomendação ou conselho, mais brando que 'must' (ex.: 'You should double-check the evidence label'). A diferença central é o grau de obrigatoriedade: 'must' é mandatório, 'should' é uma sugestão.",
+        "rubric": "Deve explicar corretamente a diferença de grau de obrigatoriedade entre 'must' (obrigação) e 'should' (recomendação/conselho), com um exemplo válido em inglês para cada.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 18,
+        "tipo": "discursiva",
+        "enunciado": "Translate to English: \"O técnico coletou o material necessário para os exames toxicológicos.\"",
+        "resposta_modelo": "The technician collected the material necessary for the toxicological examinations. (ou: ...needed for the toxicology tests.)",
+        "rubric": "Deve traduzir corretamente mantendo o sentido: sujeito 'technician', verbo no passado 'collected', objeto 'material' relacionado a exames toxicológicos ('toxicological examinations'/'toxicology tests').",
+        "dificuldade": 3
+      }
+    ]
+  }
+}

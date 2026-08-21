@@ -1,0 +1,91 @@
+{
+  "concurso_id": 2,
+  "bloco": {
+    "titulo": "Reforço/Revisão: Procedimentos, Farmacologia, Legislação do Exercício Profissional e Saúde Coletiva (dia 4)",
+    "introducao": "Mini-aula de revisão espaçada (1h). 10 questões (7 MCQ + 3 discursivas) inéditas sobre tópicos já estudados, para reforçar a dominância. Fontes: Lei 7.498/86 e Decreto 94.406/87 (COFEN/COREN), Ministério da Saúde (níveis de atenção do SUS), material de técnicas de administração de medicamentos.",
+    "duracao_min": 60,
+    "topicos_ids": [8, 9, 10, 14, 15],
+    "questoes": [
+      {
+        "topico_id": 8,
+        "tipo": "mcq",
+        "enunciado": "A frequência respiratória normal (em repouso) de um adulto saudável situa-se, aproximadamente, na faixa de:",
+        "alternativas": ["A) 4 a 8 respirações por minuto", "B) 12 a 20 respirações por minuto", "C) 30 a 40 respirações por minuto", "D) 60 a 80 respirações por minuto"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 8,
+        "tipo": "mcq",
+        "enunciado": "A posição em que o paciente fica deitado com a cabeça mais baixa que os pés (usada, por exemplo, em casos de choque ou hipotensão) é chamada de posição de:",
+        "alternativas": ["A) Trendelenburg", "B) Sims", "C) Fowler", "D) Litotômica"],
+        "gabarito": "0",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 10,
+        "tipo": "mcq",
+        "enunciado": "Na administração de medicamentos por via subcutânea (SC), o ângulo de inserção da agulha geralmente recomendado é de:",
+        "alternativas": ["A) 90 graus", "B) 45 graus (podendo chegar a 90° em tecido adiposo abundante)", "C) 180 graus", "D) 0 grau (paralelo à pele)"],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 10,
+        "tipo": "mcq",
+        "enunciado": "Entre os \"certos\" da administração segura de medicamentos, NÃO se inclui:",
+        "alternativas": ["A) Paciente certo", "B) Medicamento certo", "C) Dose certa", "D) Cor certa da embalagem"],
+        "gabarito": "3",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 15,
+        "tipo": "mcq",
+        "enunciado": "A fiscalização do exercício profissional da Enfermagem no Brasil é atribuição de qual órgão?",
+        "alternativas": ["A) Conselho Federal e Conselhos Regionais de Enfermagem (Cofen/Coren)", "B) Ministério da Saúde diretamente", "C) Conselho Federal de Medicina", "D) Agência Nacional de Vigilância Sanitária (Anvisa)"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 14,
+        "tipo": "mcq",
+        "enunciado": "No SUS, os níveis de atenção à saúde são organizados, tradicionalmente, em:",
+        "alternativas": ["A) Atenção Primária, Secundária e Terciária", "B) Atenção Municipal, Estadual e Federal", "C) Atenção Pública e Privada", "D) Atenção Ambulatorial e Hospitalar apenas"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 9,
+        "tipo": "mcq",
+        "enunciado": "Segundo o Código de Ética dos Profissionais de Enfermagem, a divulgação de informações confidenciais do paciente sem autorização, salvo por dever legal ou justa causa, constitui violação do princípio de:",
+        "alternativas": ["A) Sigilo profissional", "B) Autonomia do paciente", "C) Beneficência", "D) Não maleficência"],
+        "gabarito": "0",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 10,
+        "tipo": "discursiva",
+        "enunciado": "Cite ao menos 5 dos \"certos\" recomendados para a administração segura de medicamentos.",
+        "resposta_modelo": "Os \"certos\" da administração segura de medicamentos incluem, entre outros: paciente certo, medicamento certo, dose certa, via certa, horário certo, registro certo e orientação certa ao paciente. Essas verificações visam prevenir erros de medicação e garantir a segurança do paciente.",
+        "rubric": "Deve citar corretamente ao menos 5 dos itens listados (paciente, medicamento, dose, via, horário, registro, orientação).",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 15,
+        "tipo": "discursiva",
+        "enunciado": "Qual o papel do Cofen e dos Corens na regulação da profissão de Enfermagem, e qual a base legal que os instituiu?",
+        "resposta_modelo": "O Cofen (Conselho Federal de Enfermagem) e os Corens (Conselhos Regionais de Enfermagem) são responsáveis por normatizar, fiscalizar e disciplinar o exercício profissional da Enfermagem no Brasil, incluindo o registro dos profissionais e a apuração de infrações éticas. Foram instituídos pela Lei nº 5.905, de 12 de julho de 1973, e suas atribuições relacionam-se também à regulamentação do exercício profissional prevista na Lei nº 7.498/86.",
+        "rubric": "Deve citar: (1) função de normatizar/fiscalizar o exercício profissional; (2) menção ao Cofen (federal) e Corens (regionais); (3) idealmente citar a Lei nº 5.905/73 e/ou a relação com a Lei nº 7.498/86.",
+        "dificuldade": 4
+      },
+      {
+        "topico_id": 14,
+        "tipo": "discursiva",
+        "enunciado": "Descreva os três níveis de atenção à saúde no SUS e dê um exemplo de serviço característico de cada um.",
+        "resposta_modelo": "Atenção Primária: porta de entrada preferencial do sistema, foco em prevenção e cuidados básicos (ex.: Unidade Básica de Saúde / Estratégia Saúde da Família). Atenção Secundária: cuidados de média complexidade, com especialistas e exames mais complexos (ex.: ambulatórios de especialidades, policlínicas). Atenção Terciária: cuidados de alta complexidade, tecnologia avançada e internações complexas (ex.: hospitais de referência, UTI, cirurgias de alta complexidade).",
+        "rubric": "Deve citar corretamente os 3 níveis (primária, secundária, terciária) e um exemplo coerente de serviço para cada um.",
+        "dificuldade": 3
+      }
+    ]
+  }
+}

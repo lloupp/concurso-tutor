@@ -1,0 +1,91 @@
+{
+  "concurso_id": 3,
+  "bloco": {
+    "titulo": "Técnico em Perícias (IGP-RS) - Bloco 1: Conhecimentos Gerais (Português, Legislação Aplicada, Raciocínio Lógico, Informática)",
+    "introducao": "Mini-aula de 1h. 10 questões (7 MCQ + 3 discursivas) ancoradas no Edital de Abertura do Concurso Público nº 01/2025 do IGP-RS (banca FUNDATEC) para o cargo de Técnico em Perícias: Anexo XI (Programas) - Língua Portuguesa, Legislação Aplicada e Raciocínio Lógico; e noções de Informática. Fontes: edital IGP-RS/FUNDATEC (admin.igp.rs.gov.br), CF/88 (Planalto), Lei nº 14.519/2014.",
+    "duracao_min": 60,
+    "topicos_ids": [16, 17, 19, 20],
+    "questoes": [
+      {
+        "topico_id": 16,
+        "tipo": "mcq",
+        "enunciado": "Assinale a alternativa em que o acento indicativo de crase foi empregado corretamente:",
+        "alternativas": ["A) O perito compareceu à local do crime.", "B) Entreguei o laudo à autoridade policial.", "C) O técnico se referiu à ele durante o depoimento.", "D) Chegamos à agir com cautela na cena do crime."],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 16,
+        "tipo": "mcq",
+        "enunciado": "Em relação à coesão textual, o uso de pronomes relativos, conjunções e advérbios para conectar as partes de um texto e garantir a continuidade das ideias é denominado:",
+        "alternativas": ["A) Coerência textual", "B) Coesão textual", "C) Intertextualidade", "D) Polissemia"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 19,
+        "tipo": "mcq",
+        "enunciado": "Considere a proposição composta \"Se o local está preservado, então a perícia pode ser realizada corretamente\". Essa estrutura lógica é chamada de:",
+        "alternativas": ["A) Conjunção", "B) Disjunção", "C) Condicional", "D) Bicondicional"],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 19,
+        "tipo": "mcq",
+        "enunciado": "A negação da proposição \"Todos os peritos usam luvas\" é:",
+        "alternativas": ["A) Nenhum perito usa luvas", "B) Algum perito não usa luvas", "C) Todos os peritos não usam luvas", "D) Alguns peritos usam luvas"],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 17,
+        "tipo": "mcq",
+        "enunciado": "O art. 37, caput, da Constituição Federal de 1988 estabelece que a Administração Pública direta e indireta obedecerá aos princípios de:",
+        "alternativas": ["A) Legalidade, impessoalidade, moralidade, publicidade e eficiência", "B) Autonomia, hierarquia, disciplina e centralização", "C) Livre iniciativa, propriedade e concorrência", "D) Democracia, soberania e cidadania apenas"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 17,
+        "tipo": "mcq",
+        "enunciado": "Segundo a Lei nº 14.519, de 8 de abril de 2014, é atribuição do cargo de Técnico em Perícias:",
+        "alternativas": ["A) Realizar exames periciais relativos à formação acadêmica de nível superior", "B) Executar operações técnicas nos cadáveres, tais como dissecação da pele e do tecido celular subcutâneo", "C) Presidir inquéritos policiais", "D) Assinar laudos periciais de nível superior sem supervisão"],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 20,
+        "tipo": "mcq",
+        "enunciado": "A propriedade da segurança da informação que garante que os dados não foram alterados de forma indevida entre o momento em que foram criados e o momento em que são acessados é a:",
+        "alternativas": ["A) Confidencialidade", "B) Disponibilidade", "C) Integridade", "D) Autenticidade"],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 17,
+        "tipo": "discursiva",
+        "enunciado": "Cite ao menos três atribuições do cargo de Técnico em Perícias previstas na Lei nº 14.519/2014.",
+        "resposta_modelo": "Entre as atribuições previstas na Lei nº 14.519/2014 estão: executar operações técnicas nos cadáveres (dissecação da pele, tecido celular subcutâneo, músculos, artérias, nervos e articulações); proceder à abertura do crânio, da cavidade torácica e abdominal; realizar a coleta de material necessário a exames de DNA, citopatológicos e toxicológicos; operar aparelhos de Raios-X quando habilitado; e prestar suporte técnico aos peritos e papiloscopistas em tarefas afins da criminalística.",
+        "rubric": "Deve citar corretamente ao menos 3 das atribuições descritas na Lei nº 14.519/2014, relacionadas ao suporte técnico em necropsia, coleta de material pericial ou apoio aos peritos.",
+        "dificuldade": 4
+      },
+      {
+        "topico_id": 16,
+        "tipo": "discursiva",
+        "enunciado": "Explique a diferença entre coesão e coerência textuais, citando um recurso linguístico típico de cada uma.",
+        "resposta_modelo": "Coesão é a articulação gramatical/linguística entre as partes do texto, obtida por meio de conectivos, pronomes, advérbios e outros elementos que ligam frases e parágrafos (ex.: uso de 'portanto', 'esse', 'ali'). Coerência é a construção do sentido global do texto, isto é, a lógica interna das ideias, que permite ao leitor compreender a mensagem como um todo coerente, mesmo quando a coesão gramatical não é explícita.",
+        "rubric": "Deve diferenciar corretamente coesão (ligação gramatical/lexical entre partes do texto) de coerência (sentido lógico global) e citar ao menos um exemplo de recurso coesivo.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 19,
+        "tipo": "discursiva",
+        "enunciado": "Diferencie proposição simples de proposição composta, dando um exemplo de cada.",
+        "resposta_modelo": "Proposição simples é aquela que não contém nenhum conectivo lógico e expressa uma única ideia (ex.: 'O local do crime está preservado'). Proposição composta é formada por duas ou mais proposições simples unidas por conectivos lógicos, como 'e' (conjunção), 'ou' (disjunção), 'se...então' (condicional) (ex.: 'O local do crime está preservado e a perícia foi iniciada').",
+        "rubric": "Deve definir corretamente proposição simples (sem conectivo) e composta (com conectivo lógico), com um exemplo válido de cada.",
+        "dificuldade": 3
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "concurso_id": 1,
+  "bloco": {
+    "titulo": "PF Agente Administrativo - Bloco 4: Reforço/Revisão (Português, RLM, Dir. Administrativo, Constitucional, Penal, Legislação PF, Informática)",
+    "introducao": "Mini-aula de revisão espaçada (1h). 10 questões (7 MCQ + 3 discursivas) cobrindo novamente os tópicos já estudados, com questões inéditas, para reforçar a dominância. Fontes: CF/88 (Planalto), Lei 9.266/1996 (organização da carreira da PF), Lei 10.826/2003 (Estatuto do Desarmamento).",
+    "duracao_min": 60,
+    "topicos_ids": [1, 2, 3, 4, 5, 11, 12, 13],
+    "questoes": [
+      {
+        "topico_id": 1,
+        "tipo": "mcq",
+        "enunciado": "Assinale a alternativa em que a concordância nominal está de acordo com a norma-padrão:",
+        "alternativas": ["A) Seguem anexo os documentos solicitados.", "B) Segue anexa os documentos solicitados.", "C) Vão anexos os documentos solicitados.", "D) Vai anexo os documento solicitado."],
+        "gabarito": "2",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 2,
+        "tipo": "mcq",
+        "enunciado": "Na sequência 3, 6, 12, 24, 48, o próximo número é:",
+        "alternativas": ["A) 72", "B) 84", "C) 96", "D) 60"],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 3,
+        "tipo": "mcq",
+        "enunciado": "O princípio da Administração Pública (art. 37, caput, CF/88) segundo o qual o agente público deve agir sem buscar interesses pessoais, atribuindo os atos ao órgão/entidade e não à sua própria pessoa, é o princípio da:",
+        "alternativas": ["A) Legalidade", "B) Impessoalidade", "C) Publicidade", "D) Autotutela"],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 4,
+        "tipo": "mcq",
+        "enunciado": "São direitos sociais previstos no art. 6º da Constituição Federal de 1988:",
+        "alternativas": ["A) Educação, saúde, trabalho, moradia, lazer, segurança, previdência social", "B) Apenas direito ao voto e à propriedade", "C) Apenas liberdade de expressão e de culto", "D) Apenas direito à vida e à igualdade"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 5,
+        "tipo": "mcq",
+        "enunciado": "A cópia de segurança de arquivos e dados, realizada periodicamente para permitir sua recuperação em caso de perda, é chamada de:",
+        "alternativas": ["A) Backup", "B) Firewall", "C) Cache", "D) Cookie"],
+        "gabarito": "0",
+        "dificuldade": 1
+      },
+      {
+        "topico_id": 11,
+        "tipo": "mcq",
+        "enunciado": "No Direito Penal, o crime em que o agente quer o resultado ou assume o risco de produzi-lo é classificado como:",
+        "alternativas": ["A) Crime culposo", "B) Crime doloso", "C) Crime omissivo puro", "D) Crime impossível"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 13,
+        "tipo": "mcq",
+        "enunciado": "A Lei nº 9.266, de 15 de março de 1996, tem por objeto:",
+        "alternativas": ["A) Reorganizar as classes da Carreira Policial Federal e fixar a remuneração dos cargos que a integram", "B) Instituir o Estatuto do Desarmamento", "C) Criar a Lei Geral de Proteção de Dados", "D) Regular as licitações e contratos administrativos"],
+        "gabarito": "0",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 3,
+        "tipo": "discursiva",
+        "enunciado": "Explique o princípio da impessoalidade na Administração Pública, distinguindo-o do princípio da moralidade.",
+        "resposta_modelo": "A impessoalidade determina que o agente público deve agir de forma neutra, sem favorecimentos pessoais, atribuindo os atos praticados ao órgão/entidade que representa, e não a si mesmo (vedação à promoção pessoal). Já a moralidade exige que a conduta administrativa observe padrões éticos de honestidade, boa-fé e lealdade, para além da mera legalidade formal.",
+        "rubric": "Deve citar: (1) impessoalidade = ausência de favorecimento pessoal, imputação dos atos ao órgão; (2) moralidade = padrões éticos, honestidade e boa-fé; (3) diferenciação clara entre os dois princípios.",
+        "dificuldade": 4
+      },
+      {
+        "topico_id": 12,
+        "tipo": "discursiva",
+        "enunciado": "Cite dois tratados/pactos internacionais de Direitos Humanos ratificados pelo Brasil e explique brevemente sua relevância.",
+        "resposta_modelo": "Exemplos: a Declaração Universal dos Direitos Humanos (1948), documento base do sistema internacional de proteção aos direitos humanos; e a Convenção Americana sobre Direitos Humanos (Pacto de San José da Costa Rica, 1969), que instituiu a Corte Interamericana de Direitos Humanos e é incorporada ao ordenamento jurídico brasileiro desde 1992.",
+        "rubric": "Deve citar corretamente ao menos 2 documentos/pactos de Direitos Humanos e explicar, ainda que brevemente, sua função ou relevância.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 11,
+        "tipo": "discursiva",
+        "enunciado": "Diferencie dolo e culpa no Direito Penal, dando um exemplo de cada.",
+        "resposta_modelo": "Dolo é a vontade livre e consciente de praticar a conduta criminosa, querendo o resultado ou assumindo o risco de produzi-lo (ex.: atirar em alguém com intenção de matar). Culpa é a violação de um dever de cuidado, sem a intenção de causar o resultado, que ocorre por imprudência, negligência ou imperícia (ex.: causar acidente de trânsito por dirigir em velocidade excessiva, sem intenção de ferir ninguém).",
+        "rubric": "Deve citar: (1) dolo = vontade/consciência do resultado ou assunção do risco, com exemplo; (2) culpa = imprudência/negligência/imperícia, sem intenção do resultado, com exemplo.",
+        "dificuldade": 3
+      }
+    ]
+  }
+}

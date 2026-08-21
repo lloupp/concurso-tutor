@@ -1,0 +1,91 @@
+{
+  "concurso_id": 3,
+  "bloco": {
+    "titulo": "Técnico em Perícias (IGP-RS) - Bloco 2: Conhecimentos Específicos (Criminalística, Química, Física, Biologia)",
+    "introducao": "Mini-aula de 1h. 10 questões (7 MCQ + 3 discursivas) ancoradas no Anexo XI (Conhecimentos Específicos) do Edital de Abertura do Concurso Público nº 01/2025 do IGP-RS (banca FUNDATEC), cargo Técnico em Perícias: Criminalística (postulados, corpo de delito, classificação de locais de crime, cadeia de custódia), Química (ligações químicas, ácidos e bases), Física (eletricidade, óptica) e Biologia (citologia, genética). Fonte: edital IGP-RS/FUNDATEC (admin.igp.rs.gov.br).",
+    "duracao_min": 60,
+    "topicos_ids": [21, 22, 23, 24],
+    "questoes": [
+      {
+        "topico_id": 24,
+        "tipo": "mcq",
+        "enunciado": "Quanto à natureza da área, o local de crime pode ser classificado em interno ou externo. Um exemplo de local de crime INTERNO é:",
+        "alternativas": ["A) Um homicídio ocorrido em via pública", "B) Um furto ocorrido dentro de uma residência", "C) Um acidente em rodovia", "D) Um crime ambiental em área de mata"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 24,
+        "tipo": "mcq",
+        "enunciado": "Quanto à divisão, o local de crime classifica-se em local mediato, imediato e relacionado. O local IMEDIATO corresponde a:",
+        "alternativas": ["A) Qualquer local distante do fato, sem relação com ele", "B) O lugar onde ocorreu efetivamente a ação criminosa", "C) Apenas o local onde o corpo foi encontrado, mesmo que distinto do crime", "D) O trajeto percorrido pela viatura policial"],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 23,
+        "tipo": "mcq",
+        "enunciado": "Uma ligação química caracterizada pela transferência de elétrons de um átomo metálico para um átomo não metálico, resultando em atração eletrostática entre íons de cargas opostas, é chamada de ligação:",
+        "alternativas": ["A) Covalente", "B) Metálica", "C) Iônica", "D) De hidrogênio"],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 23,
+        "tipo": "mcq",
+        "enunciado": "Substâncias que, em solução aquosa, liberam íons H+ (ou H3O+) e apresentam pH menor que 7 são classificadas, segundo Arrhenius, como:",
+        "alternativas": ["A) Bases", "B) Sais", "C) Ácidos", "D) Óxidos"],
+        "gabarito": "2",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 22,
+        "tipo": "mcq",
+        "enunciado": "Em um circuito elétrico, a Lei de Ohm relaciona a tensão (V), a resistência (R) e a corrente elétrica (I) pela fórmula:",
+        "alternativas": ["A) V = R / I", "B) V = R x I", "C) V = I / R", "D) V = R + I"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 21,
+        "tipo": "mcq",
+        "enunciado": "A Primeira Lei de Mendel, também chamada de Lei da Segregação, estabelece que:",
+        "alternativas": ["A) Os alelos de um par se separam durante a formação dos gametas, cada gameta recebendo apenas um alelo do par", "B) Todos os genes de um indivíduo passam integralmente para cada gameta", "C) As características adquiridas ao longo da vida são herdadas", "D) A cor dos olhos é sempre determinada por um único gene dominante"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 21,
+        "tipo": "mcq",
+        "enunciado": "No sistema sanguíneo ABO, um indivíduo do tipo sanguíneo O, considerado doador universal, apresenta em suas hemácias:",
+        "alternativas": ["A) Antígenos A e B", "B) Apenas antígeno A", "C) Apenas antígeno B", "D) Nenhum antígeno A ou B"],
+        "gabarito": "3",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 24,
+        "tipo": "discursiva",
+        "enunciado": "O que é a cadeia de custódia e qual sua finalidade no processamento de um local de crime?",
+        "resposta_modelo": "A cadeia de custódia é o conjunto de procedimentos utilizados para manter e documentar a história cronológica de um vestígio (evidência), desde sua coleta no local de crime até seu descarte ou uso em juízo. Sua finalidade é garantir a idoneidade e a rastreabilidade da prova pericial, evitando contaminação, extravio, adulteração ou substituição do vestígio, de modo a assegurar sua validade como prova no processo criminal.",
+        "rubric": "Deve citar: (1) conceito de documentação/controle do vestígio desde a coleta; (2) finalidade de garantir a idoneidade/rastreabilidade da prova; (3) prevenção de contaminação ou adulteração.",
+        "dificuldade": 4
+      },
+      {
+        "topico_id": 22,
+        "tipo": "discursiva",
+        "enunciado": "Explique a diferença entre reflexão e refração da luz, citando um exemplo de cada fenômeno.",
+        "resposta_modelo": "Reflexão é o fenômeno em que a luz, ao incidir sobre uma superfície, retorna ao mesmo meio de origem (ex.: imagem formada em um espelho). Refração é o fenômeno em que a luz passa de um meio para outro de densidade óptica diferente, mudando sua velocidade e, geralmente, sua direção (ex.: o \"quebrar\" aparente de um lápis parcialmente mergulhado em um copo d'água).",
+        "rubric": "Deve diferenciar corretamente reflexão (retorno ao mesmo meio) de refração (mudança de meio com desvio de direção) e citar um exemplo válido de cada fenômeno.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 21,
+        "tipo": "discursiva",
+        "enunciado": "Descreva, de forma resumida, o que ocorre durante a mitose e qual sua importância biológica.",
+        "resposta_modelo": "A mitose é o processo de divisão celular no qual uma célula-mãe origina duas células-filhas geneticamente idênticas entre si e à célula original, cada uma com o mesmo número de cromossomos. Passa pelas fases de prófase, metáfase, anáfase e telófase. Sua importância biológica está no crescimento dos organismos, na reposição de células e tecidos danificados e na reprodução assexuada de organismos unicelulares.",
+        "rubric": "Deve citar: (1) mitose gera células-filhas geneticamente idênticas com o mesmo número de cromossomos; (2) ao menos uma das fases (prófase, metáfase, anáfase, telófase); (3) importância biológica (crescimento, reposição celular ou reprodução).",
+        "dificuldade": 4
+      }
+    ]
+  }
+}
