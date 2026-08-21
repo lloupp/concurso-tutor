@@ -1,0 +1,91 @@
+{
+  "concurso_id": 2,
+  "bloco": {
+    "titulo": "Anatomia e Fisiologia dos Sistemas Cardiovascular, Respiratório, Nervoso e Musculoesquelético (dia 3)",
+    "introducao": "Mini-aula de 1h. 10 questões (7 MCQ + 3 discursivas) sobre anatomia e fisiologia básicas: sistema cardiovascular (pressão arterial), sistema respiratório (hematose, vias aéreas), sistema nervoso (SNC/SNP) e sistema musculoesquelético (coluna vertebral, músculos estriados). Conteúdo alinhado ao que é cobrado em provas de Técnico em Enfermagem (bancos de questões QConcursos e Grancursos).",
+    "duracao_min": 60,
+    "topicos_ids": [6, 7],
+    "questoes": [
+      {
+        "topico_id": 6,
+        "tipo": "mcq",
+        "enunciado": "O sistema cardiovascular é formado, basicamente, por:",
+        "alternativas": ["A) Coração, vasos sanguíneos (artérias, veias e capilares) e sangue", "B) Coração, pulmões e traqueia", "C) Rins, ureteres e bexiga", "D) Encéfalo, medula espinhal e nervos"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 6,
+        "tipo": "mcq",
+        "enunciado": "Quanto à divisão anatômica das vias respiratórias, são consideradas vias aéreas SUPERIORES:",
+        "alternativas": ["A) Traqueia e brônquios", "B) Nariz, faringe e laringe", "C) Bronquíolos e alvéolos", "D) Pulmões e pleura"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 6,
+        "tipo": "mcq",
+        "enunciado": "A coluna vertebral é dividida, no sentido crânio-caudal, em cinco segmentos. Qual sequência representa corretamente essa divisão?",
+        "alternativas": ["A) Torácica, cervical, lombar, sacral, cóccix", "B) Cervical, torácica, lombar, sacral, cóccix", "C) Cervical, lombar, torácica, cóccix, sacral", "D) Sacral, lombar, torácica, cervical, cóccix"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 6,
+        "tipo": "mcq",
+        "enunciado": "O sistema muscular esquelético é composto por músculos estriados que se ligam aos ossos por meio de:",
+        "alternativas": ["A) Ligamentos", "B) Tendões", "C) Cartilagens", "D) Meninges"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 7,
+        "tipo": "mcq",
+        "enunciado": "Em relação à pressão arterial, é correto afirmar que:",
+        "alternativas": ["A) A pressão sistólica é menor que a diastólica", "B) A pressão sistólica corresponde ao momento de contração ventricular e é mais alta que a diastólica", "C) A pressão diastólica ocorre durante a contração ventricular", "D) Sistólica e diastólica têm sempre o mesmo valor"],
+        "gabarito": "1",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 7,
+        "tipo": "mcq",
+        "enunciado": "A hematose, processo fisiológico essencial da respiração, consiste em:",
+        "alternativas": ["A) Produção de hemácias na medula óssea", "B) Troca gasosa (oxigênio por gás carbônico) que ocorre nos alvéolos pulmonares", "C) Coagulação do sangue", "D) Filtração do sangue nos rins"],
+        "gabarito": "1",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 7,
+        "tipo": "mcq",
+        "enunciado": "O sistema nervoso divide-se, do ponto de vista funcional/anatômico, em:",
+        "alternativas": ["A) Sistema Nervoso Central (encéfalo e medula espinhal) e Sistema Nervoso Periférico (nervos)", "B) Sistema Nervoso Voluntário e Sistema Nervoso Circulatório", "C) Sistema Nervoso Cardíaco e Sistema Nervoso Respiratório", "D) Sistema Nervoso Superior e Sistema Nervoso Muscular"],
+        "gabarito": "0",
+        "dificuldade": 2
+      },
+      {
+        "topico_id": 7,
+        "tipo": "discursiva",
+        "enunciado": "Explique a diferença entre pressão arterial sistólica e diastólica, indicando em qual fase do ciclo cardíaco cada uma ocorre.",
+        "resposta_modelo": "A pressão sistólica é a pressão mais alta, registrada durante a sístole, quando o ventrículo esquerdo se contrai e ejeta o sangue para a artéria aorta. A pressão diastólica é a pressão mais baixa, registrada durante a diástole, quando o coração relaxa e as câmaras se enchem de sangue. A pressão arterial é expressa como sistólica/diastólica (ex.: 120/80 mmHg).",
+        "rubric": "Deve citar: (1) sistólica é a mais alta e ocorre na contração (sístole) ventricular; (2) diastólica é a mais baixa e ocorre no relaxamento (diástole); (3) notação sistólica/diastólica.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 6,
+        "tipo": "discursiva",
+        "enunciado": "Descreva a divisão da coluna vertebral em suas regiões e o número aproximado de vértebras de cada uma.",
+        "resposta_modelo": "A coluna vertebral divide-se em cinco regiões, no sentido crânio-caudal: cervical (7 vértebras), torácica (12 vértebras), lombar (5 vértebras), sacral (5 vértebras fundidas formando o sacro) e cóccix (vértebras fundidas, geralmente 4). Essa estrutura sustenta o tronco, protege a medula espinhal e permite a mobilidade do corpo.",
+        "rubric": "Deve citar as 5 regiões na ordem correta (cervical, torácica, lombar, sacral, cóccix) e, ao menos aproximadamente, o número de vértebras de cada região.",
+        "dificuldade": 3
+      },
+      {
+        "topico_id": 7,
+        "tipo": "discursiva",
+        "enunciado": "O que é hematose e em qual estrutura anatômica do sistema respiratório ela ocorre?",
+        "resposta_modelo": "Hematose é o processo fisiológico de troca gasosa entre o ar e o sangue, no qual o oxigênio (O2) do ar inspirado passa para o sangue e o gás carbônico (CO2) do sangue passa para o ar a ser expirado. Esse processo ocorre nos alvéolos pulmonares, estruturas em formato de pequenos sacos envoltas por capilares sanguíneos, ao final da árvore respiratória (após bronquíolos).",
+        "rubric": "Deve citar: (1) troca gasosa O2/CO2 entre ar e sangue; (2) local: alvéolos pulmonares; (3) relação com os capilares sanguíneos que envolvem os alvéolos.",
+        "dificuldade": 3
+      }
+    ]
+  }
+}

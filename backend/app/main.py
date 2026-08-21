@@ -282,7 +282,7 @@ def criar_usuario(username: str, password: str, full_name: str = "",
 
 
 # ---------- Frontend (estático) ----------
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FRONT = os.path.join(BASE_DIR, "frontend")
 if os.path.isdir(FRONT):
     app.mount("/", StaticFiles(directory=FRONT, html=True), name="front")
