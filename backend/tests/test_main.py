@@ -273,6 +273,139 @@ def test_plano_retorna_proximos_topicos(client, aluno_headers, topico):
     assert len(resp.json()["proximos_topicos"]) >= 1
 
 
+# ---------- concursos (livre acesso) ----------
+
+def test_concursos_lista_disponiveis_sem_token(client, db, concurso):
+    outro = models.Concurso(nome="PF", cargo="Agente", banca="Cebraspe")
+    db.add(outro)
+    db.commit()
+    resp = client.get("/api/concursos")
+    assert resp.status_code == 200
+    nomes = [c["nome"] for c in resp.json()["concursos"]]
+    assert concurso.nome in nomes
+    assert "PF" in nomes
+
+
+def test_bloco_hoje_acessa_outro_concurso_com_concurso_id(client, db, aluno_headers, aluno_user, concurso):
+    """Livro acesso: aluno padrão vê bloco de outro perfil passando concurso_id."""
+    outro = models.Concurso(nome="Outro Perfil", cargo="Cargo", banca="B")
+    db.add(outro)
+    db.commit()
+    db.refresh(outro)
+    b = models.Bloco(concurso_id=outro.id, titulo="Bloco de outro", data=date.today())
+    db.add(b)
+    db.commit()
+    resp = client.get("/api/bloco/hoje", headers=aluno_headers,
+                      params={"concurso_id": outro.id})
+    assert resp.status_code == 200
+    assert resp.json()["bloco"]["titulo"] == "Bloco de outro"
+
+
+def test_listar_blocos_de_outro_concurso_com_concurso_id(client, db, aluno_headers, aluno_user, concurso):
+    outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
+    db.add(outro)
+    db.commit()
+    db.refresh(outro)
+    b = models.Bloco(concurso_id=outro.id, titulo="BlocoOutro", data=date.today())
+    db.add(b)
+    db.commit()
+    resp = client.get("/api/blocos", headers=aluno_headers, params={"concurso_id": outro.id})
+    titulos = [x["titulo"] for x in resp.json()["blocos"]]
+    assert "BlocoOutro" in titulos
+
+
+def test_responder_questao_de_outro_perfil_ok_com_concurso_id(client, db, aluno_headers, aluno_user, concurso):
+    """Com o perfil ativo certo, o aluno responde questão de outro concurso."""
+    outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
+    db.add(outro)
+    db.commit()
+    db.refresh(outro)
+    top = models.Topico(concurso_id=outro.id, nome="Top")
+    db.add(top)
+    db.commit()
+    db.refresh(top)
+    bloco = models.Bloco(concurso_id=outro.id, titulo="B", data=date.today())
+    db.add(bloco)
+    db.commit()
+    db.refresh(bloco)
+    q = models.Questao(bloco_id=bloco.id, topico_id=top.id, tipo="mcq",
+                       enunciado="?", alternativas=["a", "b"], gabarito="1")
+    db.add(q)
+    db.commit()
+    db.refresh(q)
+    resp = client.post("/api/bloco/responder", headers=aluno_headers,
+                       params={"concurso_id": outro.id},
+                       json={"respostas": [{"questao_id": q.id, "resposta": "1"}]})
+    assert resp.status_code == 200
+    assert resp.json()["resultados"][0]["correta"] is True
+    # progresso registrado para o usuário, separado por perfil (tópico do outro concurso)
+    prog = db.query(models.Progresso).filter_by(user_id=aluno_user.id, topico_id=top.id).first()
+    assert prog is not None and prog.tentativas == 1
+
+
+def test_responder_com_perfil_errado_retorna_403(client, db, aluno_headers, aluno_user, concurso):
+    outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
+    db.add(outro)
+    db.commit()
+    db.refresh(outro)
+    top = models.Topico(concurso_id=outro.id, nome="Top")
+    db.add(top)
+    db.commit()
+    bloco = models.Bloco(concurso_id=outro.id, titulo="B", data=date.today())
+    db.add(bloco)
+    db.commit()
+    q = models.Questao(bloco_id=bloco.id, topico_id=top.id, tipo="mcq",
+                       enunciado="?", alternativas=["a", "b"], gabarito="1")
+    db.add(q)
+    db.commit()
+    db.refresh(q)
+    # concurso_id aponta para o concurso padrão do usuário, mas a questão é de outro
+    resp = client.post("/api/bloco/responder", headers=aluno_headers,
+                       params={"concurso_id": concurso.id},
+                       json={"respostas": [{"questao_id": q.id, "resposta": "1"}]})
+    assert resp.status_code == 403
+
+
+# ---------- bloco por id (conteúdo completo) ----------
+
+def test_bloco_por_id_do_perfil_ativo(client, db, aluno_headers, aluno_user, concurso):
+    bloco = models.Bloco(concurso_id=concurso.id, titulo="Bloco X", data=date.today())
+    db.add(bloco)
+    db.commit()
+    db.refresh(bloco)
+    resp = client.get(f"/api/bloco/{bloco.id}", headers=aluno_headers)
+    assert resp.status_code == 200
+    assert resp.json()["bloco"]["titulo"] == "Bloco X"
+
+
+def test_bloco_por_id_de_outro_perfil_retorna_403(client, db, aluno_headers, aluno_user, concurso):
+    outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
+    db.add(outro)
+    db.commit()
+    db.refresh(outro)
+    bloco = models.Bloco(concurso_id=outro.id, titulo="Outro bloco", data=date.today())
+    db.add(bloco)
+    db.commit()
+    db.refresh(bloco)
+    resp = client.get(f"/api/bloco/{bloco.id}", headers=aluno_headers)
+    assert resp.status_code == 403
+
+
+def test_bloco_por_id_inexistente_retorna_404(client, aluno_headers):
+    resp = client.get("/api/bloco/999999", headers=aluno_headers)
+    assert resp.status_code == 404
+
+
+def test_progresso_de_outro_perfil_com_concurso_id(client, db, aluno_headers, aluno_user, concurso):
+    outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
+    db.add(outro)
+    db.commit()
+    db.refresh(outro)
+    resp = client.get("/api/progresso", headers=aluno_headers, params={"concurso_id": outro.id})
+    assert resp.status_code == 200
+    assert "cobertura" in resp.json()
+
+
 # ---------- bloco/gerar (admin only) ----------
 
 def test_gerar_bloco_bloqueado_para_aluno(client, aluno_headers, concurso):

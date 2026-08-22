@@ -139,6 +139,22 @@ main {
   color: var(--ink);
 }
 .field input:focus { border-bottom-color: var(--blue); outline: none; }
+.perfil-select {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: .95rem;
+  text-transform: none;
+  letter-spacing: normal;
+  padding: .45rem .35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  max-width: 100%;
+}
+header#topbar .perfil-select {
+  font-size: .85rem;
+  padding: .3rem .4rem;
+}
 .hint { color: var(--muted); font-size: .78rem; line-height: 1.5; margin-top: .3rem; }
 .err { color: var(--red); min-height: 1.1rem; font-size: .85rem; font-weight: 600; }
 

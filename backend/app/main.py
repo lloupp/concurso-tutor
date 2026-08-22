@@ -41,6 +41,28 @@ def me(u: models.User = Depends(auth.get_current_user)):
             "role": u.role, "concurso_id": u.concurso_id}
 
 
+# ---------- Perfis (concursos) em livre acesso ----------
+@app.get(f"{API}/concursos")
+def listar_concursos(db: Session = Depends(get_db)):
+    """Lista os perfis disponíveis (PF, Enfermagem, Perícias...).
+    Qualquer pessoa usa para selecionar o perfil que quer estudar."""
+    conc = db.query(models.Concurso).order_by(models.Concurso.id).all()
+    return {"concursos": [{"id": c.id, "nome": c.nome, "cargo": c.cargo,
+                            "banca": c.banca} for c in conc]}
+
+
+def _resolver_concurso(db, u, concurso_id):
+    """Define o concurso ativo: query param > concurso_fixo do usuário > 400.
+    Permite a um aluno acessar qualquer perfil (livre acesso)."""
+    cid = concurso_id if concurso_id is not None else u.concurso_id
+    if cid is None:
+        raise HTTPException(400, "Selecione um perfil")
+    c = db.query(models.Concurso).filter_by(id=cid).first()
+    if not c:
+        raise HTTPException(404, "Perfil não encontrado")
+    return c
+
+
 # ---------- Bloco de estudo ----------
 def _bloco_out(db, bloco):
     questoes = db.query(models.Questao).filter_by(bloco_id=bloco.id).all()
@@ -61,40 +83,59 @@ def _bloco_out(db, bloco):
 
 
 @app.get(f"{API}/bloco/hoje")
-def bloco_hoje(u: models.User = Depends(auth.get_current_user),
+def bloco_hoje(concurso_id: int = None,
+               u: models.User = Depends(auth.get_current_user),
                db: Session = Depends(get_db)):
-    if not u.concurso_id:
-        raise HTTPException(400, "Aluno sem concurso associado")
+    c = _resolver_concurso(db, u, concurso_id)
     bloco = (db.query(models.Bloco)
-             .filter_by(concurso_id=u.concurso_id, data=date.today())
+             .filter_by(concurso_id=c.id, data=date.today())
              .order_by(models.Bloco.id.desc()).first())
     if not bloco:
-        return {"bloco": None, "msg": "Nenhum bloco para hoje. Peça ao Hermes gerar."}
+        return {"bloco": None, "msg": f"Nenhum bloco para hoje em {c.nome}. Peça ao Hermes gerar."}
+    return {"bloco": _bloco_out(db, bloco)}
+
+
+@app.get(f"{API}/bloco/{{bloco_id}}")
+def bloco_por_id(bloco_id: int,
+                 concurso_id: int = None,
+                 u: models.User = Depends(auth.get_current_user),
+                 db: Session = Depends(get_db)):
+    """Abre um bloco específico do perfil ativo (read-only, payload de aluno)."""
+    c = _resolver_concurso(db, u, concurso_id)
+    bloco = db.query(models.Bloco).filter_by(id=bloco_id).first()
+    if not bloco:
+        raise HTTPException(404, "Bloco não encontrado")
+    if bloco.concurso_id != c.id:
+        raise HTTPException(403, "Bloco não pertence ao perfil selecionado")
     return {"bloco": _bloco_out(db, bloco)}
 
 
 @app.get(f"{API}/blocos")
-def listar_blocos(u: models.User = Depends(auth.get_current_user),
+def listar_blocos(concurso_id: int = None,
+                  u: models.User = Depends(auth.get_current_user),
                   db: Session = Depends(get_db)):
-    blocos = db.query(models.Bloco).filter_by(concurso_id=u.concurso_id or -1) \
-        .order_by(models.Bloco.data.desc()).all()
+    c = _resolver_concurso(db, u, concurso_id)
+    blocos = db.query(models.Bloco).filter_by(concurso_id=c.id) \
+        .order_by(models.Bloco.data.desc(), models.Bloco.id.desc()).all()
     return {"blocos": [{"id": b.id, "titulo": b.titulo, "data": b.data.isoformat(),
                         "introducao": b.introducao} for b in blocos]}
 
 
 @app.post(f"{API}/bloco/responder")
-def responder(payload: ResponderIn,
-              u: models.User = Depends(auth.get_current_user),
-              db: Session = Depends(get_db)):
+def responder(concurso_id: int = None,
+               payload: ResponderIn = None,
+               u: models.User = Depends(auth.get_current_user),
+               db: Session = Depends(get_db)):
+    c = _resolver_concurso(db, u, concurso_id)
     resultados = []
     for r in payload.respostas:
         q = db.query(models.Questao).filter_by(id=r["questao_id"]).first()
         if not q:
             continue
-        # Correção 2: valida dono — questão deve ser do concurso do aluno
+        # valida que a questão pertence ao perfil ativo escolhido
         bloco = db.query(models.Bloco).filter_by(id=q.bloco_id).first()
-        if not bloco or bloco.concurso_id != u.concurso_id:
-            raise HTTPException(403, "Questão não pertence ao seu concurso")
+        if not bloco or bloco.concurso_id != c.id:
+            raise HTTPException(403, "Questão não pertence ao perfil selecionado")
         correta, nota, feedback = None, None, None
         if q.tipo == "mcq":
             correta = str(r["resposta"]).strip() == str(q.gabarito)
@@ -158,20 +199,20 @@ def corrigir_discursiva(resposta_id: int, nota: float, feedback: str,
     planner.atualizar_progresso(db, r.user_id, q.topico_id, correta, nota)
     return {"ok": True, "resposta_id": resposta_id}
 @app.get(f"{API}/progresso")
-def progresso(u: models.User = Depends(auth.get_current_user),
+def progresso(concurso_id: int = None,
+              u: models.User = Depends(auth.get_current_user),
               db: Session = Depends(get_db)):
-    if not u.concurso_id:
-        raise HTTPException(400, "Aluno sem concurso associado")
-    return {"dominancia": planner.dominancia(db, u.id, u.concurso_id),
-            "cobertura": planner.cobertura(db, u.concurso_id)}
+    c = _resolver_concurso(db, u, concurso_id)
+    return {"dominancia": planner.dominancia(db, u.id, c.id),
+            "cobertura": planner.cobertura(db, c.id)}
 
 
 @app.get(f"{API}/plano")
-def plano(u: models.User = Depends(auth.get_current_user),
+def plano(concurso_id: int = None,
+          u: models.User = Depends(auth.get_current_user),
           db: Session = Depends(get_db)):
-    if not u.concurso_id:
-        raise HTTPException(400, "Aluno sem concurso associado")
-    tops = planner.proximo_plano(db, u.id, u.concurso_id)
+    c = _resolver_concurso(db, u, concurso_id)
+    tops = planner.proximo_plano(db, u.id, c.id)
     return {"proximos_topicos": [{"id": t.id, "nome": t.nome} for t in tops]}
 
 

@@ -12,7 +12,10 @@
 <body>
 <header id="topbar" hidden>
   <span class="brand"><span class="brand-mark">✓</span><span class="brand-name">Concurso Tutor</span></span>
-  <span id="userinfo" class="userinfo"></span>
+  <span class="userinfo">
+    <select id="perfilTopo" class="perfil-select"></select>
+    <span id="userinfo"></span>
+  </span>
   <button id="logout" class="btn-ghost">Sair</button>
 </header>
 
@@ -21,7 +24,10 @@
   <section id="login" class="examsheet">
     <p class="eyebrow">Concurso público · acesso do candidato</p>
     <h1>Concurso Tutor</h1>
-    <p class="lead">Seu bloco de estudo diário, corrigido na hora.</p>
+    <p class="lead">Seu bloco de estudo diário, corrigido na hora. Escolha o perfil.</p>
+    <label class="field">Perfil
+      <select id="perfilLogin" class="perfil-select"></select>
+    </label>
     <label class="field">Usuário
       <input id="username" autocomplete="username" />
     </label>
@@ -43,6 +49,10 @@
 
     <section id="tab-hoje" class="tabpanel">
       <div id="blocoInfo"></div>
+      <label class="field" style="max-width:340px">
+        Ou abra outro bloco deste perfil
+        <select id="seletorBloco" class="perfil-select" onchange="abrirBlocoSelecionado()"></select>
+      </label>
       <form id="formBloco"></form>
       <div id="resultado"></div>
     </section>

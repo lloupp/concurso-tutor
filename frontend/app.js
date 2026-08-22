@@ -1,12 +1,44 @@
 const API = "/api";
 let TOKEN = localStorage.getItem("ct_token") || null;
 let ME = null;
+let CONCURSOS = [];              // perfis disponíveis
+let CONCURSO = null;             // perfil ativo (id)
+
+// carrega perfis no início (tela de login) e popula os dois selects
+async function carregarPerfis() {
+  try {
+    const data = await fetch(API + "/concursos").then(r => { if (!r.ok) throw new Error("erro"); return r.json(); });
+    CONCURSOS = data.concursos;
+  } catch (e) { console.error("perfis", e); return; }
+  if (CONCURSOS.length) {
+    document.getElementById("perfilLogin").innerHTML =
+      CONCURSOS.map(c => `<option value="${c.id}">${c.cargo} · ${c.nome}</option>`).join("");
+    document.getElementById("perfilTopo").innerHTML =
+      CONCURSOS.map(c => `<option value="${c.id}">${c.cargo}</option>`).join("");
+  }
+}
+
+// define o perfil ativo e sincroniza o select do topo
+function setPerfil(id) {
+  CONCURSO = id;
+  localStorage.setItem("ct_concurso", id);
+  const sel = document.getElementById("perfilTopo");
+  if (sel.options.length) sel.value = id;
+}
+
+function novoTomarPerfil() {
+  localStorage.removeItem("ct_concurso");
+}
 
 async function api(path, opts = {}) {
   opts.headers = opts.headers || {};
   if (TOKEN) opts.headers["Authorization"] = "Bearer " + TOKEN;
   if (opts.body) opts.headers["Content-Type"] = "application/json";
-  const r = await fetch(API + path, opts);
+  // injeta o perfil ativo apenas nas rotas de conteúdo
+  const isConteudo = /^\/(bloco|blocos|progresso|plano)/.test(path);
+  const sep = path.includes("?") ? "&" : "?";
+  const pathC = (CONCURSO && isConteudo) ? path + sep + "concurso_id=" + CONCURSO : path;
+  const r = await fetch(API + pathC, opts);
   if (!r.ok) {
     const t = await r.text();
     throw new Error(t || r.status);
@@ -25,6 +57,11 @@ async function login(u, p) {
     const data = await api("/login", { method: "POST", body: JSON.stringify({ username: u, password: p }) });
     TOKEN = data.token; ME = data.user;
     localStorage.setItem("ct_token", TOKEN);
+    // perfil ativo: escolhido no login > concurso do usuário > primeiro disponível
+    const sel = document.getElementById("perfilLogin");
+    let id = parseInt(sel.value, 10);
+    if (!CONCURSOS.some(c => c.id === id)) id = ME.concurso_id ?? CONCURSOS[0].id;
+    setPerfil(id);
     showApp();
   } catch (e) {
     document.getElementById("loginErr").textContent = "Falha: " + e.message;
@@ -32,7 +69,7 @@ async function login(u, p) {
 }
 
 function logout() {
-  TOKEN = null; ME = null; localStorage.removeItem("ct_token");
+  TOKEN = null; ME = null; localStorage.removeItem("ct_token"); novoTomarPerfil();
   document.getElementById("app").hidden = true;
   document.getElementById("login").hidden = false;
   document.getElementById("topbar").hidden = true;
@@ -43,17 +80,21 @@ async function showApp() {
   document.getElementById("app").hidden = false;
   document.getElementById("topbar").hidden = false;
   document.getElementById("userinfo").textContent = `${ME.full_name} (${ME.role})`;
+  document.getElementById("perfilTopo").value = CONCURSO;
   await carregarBloco();
+  await carregarBlocos();
   await carregarProgresso();
   await carregarPlano();
 }
 
-async function carregarBloco() {
+// renderiza o bloco (do dia ou escolhido) no form; aceita bloco_id opcional
+async function carregarBloco(blocoId = null) {
   const box = document.getElementById("blocoInfo");
   const form = document.getElementById("formBloco");
   document.getElementById("resultado").innerHTML = "";
   try {
-    const { bloco } = await api("/bloco/hoje");
+    const path = blocoId ? `/bloco/${blocoId}` : "/bloco/hoje";
+    const { bloco } = await api(path);
     if (!bloco) {
       box.innerHTML = "<p class='warn-box'>Nenhum bloco para hoje. Peça ao Hermes para gerar.</p>";
       form.innerHTML = "";
@@ -105,6 +146,22 @@ async function carregarBloco() {
     btn.onclick = enviarRespostas;
     form.appendChild(btn);
   } catch (e) { box.innerHTML = "<p class='errbox'>" + e.message + "</p>"; }
+}
+
+// lista os blocos do perfil no seletor (conteúdo completo)
+async function carregarBlocos() {
+  const sel = document.getElementById("seletorBloco");
+  try {
+    const { blocos } = await api("/blocos");
+    sel.innerHTML = `<option value="">— hoje —</option>` +
+      blocos.map(b => `<option value="${b.id}">${b.data} · ${b.titulo}</option>`).join("");
+  } catch (e) { sel.innerHTML = "<option value=''>—</option>"; }
+}
+
+async function abrirBlocoSelecionado() {
+  const sel = document.getElementById("seletorBloco");
+  if (!sel.value) { await carregarBloco(); return; }
+  await carregarBloco(sel.value);
 }
 
 async function enviarRespostas() {
@@ -169,9 +226,24 @@ async function carregarPlano() {
 }
 
 // Eventos
-document.getElementById("btnLogin").onclick = () =>
+document.getElementById("btnLogin").onclick = () => {
+  const sel = document.getElementById("perfilLogin");
+  if (sel.value) setPerfil(parseInt(sel.value, 10));
   login(document.getElementById("username").value, document.getElementById("password").value);
+};
 document.getElementById("logout").onclick = logout;
+document.getElementById("perfilTopo").onchange = async (e) => {
+  setPerfil(parseInt(e.target.value, 10));
+  // mostra a aba "Bloco do dia" e recarrega todo o conteúdo do novo perfil
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.remove("active"));
+  document.querySelector(".tabs button[data-tab='hoje']").classList.add("active");
+  document.querySelectorAll(".tabpanel").forEach(p => p.hidden = true);
+  document.getElementById("tab-hoje").hidden = false;
+  await carregarBloco();
+  await carregarBlocos();
+  await carregarProgresso();
+  await carregarPlano();
+};
 document.querySelectorAll(".tabs button").forEach(b => {
   b.onclick = () => {
     document.querySelectorAll(".tabs button").forEach(x => x.classList.remove("active"));
@@ -181,4 +253,16 @@ document.querySelectorAll(".tabs button").forEach(b => {
   };
 });
 
-if (TOKEN) { api("/me").then(u => { ME = u; showApp(); }).catch(() => logout()); }
+// boot: carrega perfis e restaura perfil ativo (login ou sessão)
+(async function boot() {
+  await carregarPerfis();
+  const salvo = parseInt(localStorage.getItem("ct_concurso"), 10);
+  if (CONCURSOS.length) {
+    const id = CONCURSOS.some(c => c.id === salvo) ? salvo : CONCURSOS[0].id;
+    setPerfil(id);
+    document.getElementById("perfilLogin").value = id;
+  }
+  if (TOKEN) {
+    api("/me").then(u => { ME = u; showApp(); }).catch(() => logout());
+  }
+})();
