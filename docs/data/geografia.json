@@ -1,0 +1,65 @@
+{
+  "materia": "Geografia",
+  "questoes": [
+    {
+      "enunciado": "O Brasil está localizado, predominantemente, nos hemisférios:",
+      "alternativas": ["Norte e Ocidental", "Sul e Ocidental", "Norte e Oriental", "Sul e Oriental"],
+      "gabarito": 1,
+      "explicacao": "A maior parte do território brasileiro está no hemisfério Sul e no hemisfério Ocidental."
+    },
+    {
+      "enunciado": "O maior bioma brasileiro em extensão territorial é:",
+      "alternativas": ["Mata Atlântica", "Cerrado", "Amazônia", "Caatinga"],
+      "gabarito": 2,
+      "explicacao": "A Amazônia é o maior bioma do Brasil, cobrindo cerca de 49% do território nacional."
+    },
+    {
+      "enunciado": "O Brasil possui, atualmente, quantas regiões oficiais na divisão do IBGE?",
+      "alternativas": ["4", "5", "6", "7"],
+      "gabarito": 1,
+      "explicacao": "São 5 regiões: Norte, Nordeste, Centro-Oeste, Sudeste e Sul."
+    },
+    {
+      "enunciado": "O fenômeno climático El Niño está relacionado ao(à):",
+      "alternativas": ["aquecimento anormal das águas do Oceano Pacífico", "resfriamento das águas do Oceano Atlântico", "aumento do buraco na camada de ozônio", "derretimento das calotas polares"],
+      "gabarito": 0,
+      "explicacao": "O El Niño é caracterizado pelo aquecimento anormal das águas superficiais do Oceano Pacífico equatorial."
+    },
+    {
+      "enunciado": "A linha imaginária que divide a Terra em hemisfério Norte e hemisfério Sul é:",
+      "alternativas": ["o Meridiano de Greenwich", "o Trópico de Câncer", "a Linha do Equador", "o Trópico de Capricórnio"],
+      "gabarito": 2,
+      "explicacao": "A Linha do Equador (latitude 0°) divide a Terra em hemisférios Norte e Sul."
+    },
+    {
+      "enunciado": "O Mercosul é um bloco econômico formado, entre outros, por:",
+      "alternativas": ["Brasil, Argentina, Uruguai e Paraguai", "Brasil, México e Estados Unidos", "Brasil, Chile e Peru", "Brasil, Portugal e Espanha"],
+      "gabarito": 0,
+      "explicacao": "O Mercosul (Mercado Comum do Sul) tem como membros plenos Brasil, Argentina, Uruguai e Paraguai."
+    },
+    {
+      "enunciado": "A capital federal do Brasil é:",
+      "alternativas": ["Rio de Janeiro", "São Paulo", "Brasília", "Salvador"],
+      "gabarito": 2,
+      "explicacao": "Brasília é a capital federal do Brasil desde 1960."
+    },
+    {
+      "enunciado": "O processo de urbanização acelerada e desordenada, comum em países em desenvolvimento, é frequentemente associado à formação de:",
+      "alternativas": ["distritos industriais planejados", "favelas e periferias precárias", "zonas rurais", "parques ecológicos"],
+      "gabarito": 1,
+      "explicacao": "A urbanização acelerada e sem planejamento adequado tende a gerar ocupações irregulares, como favelas e periferias precárias."
+    },
+    {
+      "enunciado": "O Brasil faz fronteira com todos os países da América do Sul, exceto:",
+      "alternativas": ["Chile e Equador", "Argentina e Uruguai", "Peru e Bolívia", "Colômbia e Venezuela"],
+      "gabarito": 0,
+      "explicacao": "O Brasil não faz fronteira com Chile e Equador, os únicos países sul-americanos sem limites com o território brasileiro."
+    },
+    {
+      "enunciado": "Os fusos horários foram criados para padronizar a contagem do tempo em relação:",
+      "alternativas": ["à posição da Lua", "à rotação da Terra em torno de seu eixo", "à translação da Terra ao redor do Sol", "às marés oceânicas"],
+      "gabarito": 1,
+      "explicacao": "Os fusos horários dividem a Terra em 24 faixas, acompanhando a rotação do planeta em torno do próprio eixo."
+    }
+  ]
+}

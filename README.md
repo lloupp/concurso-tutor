@@ -77,6 +77,27 @@ chama a API. Dois caminhos:
 Conteúdo NUNCA é inventado: sempre ancorado em fontes (Estratégia, Gran, Direção,
 Cofen, Planalto/CF88, editais UFMG/UFES).
 
+## Simulado estático (GitHub Pages)
+Além da plataforma completa (backend), há um **simulado estático** em `docs/`
+com questões de nível médio/Enem (Português, Matemática, História, Geografia,
+Física, Química, Biologia) — roda 100% no navegador, sem backend, e pode ser
+publicado direto no GitHub Pages.
+
+**Ativar o Pages (uma vez, nas configurações do repositório):**
+Settings → Pages → Build and deployment → Source: `Deploy from a branch` →
+Branch: `main` / pasta `/docs` → Save. O site fica disponível em
+`https://<usuário>.github.io/concurso-tutor/`.
+
+**Testar localmente:**
+```bash
+cd docs
+python3 -m http.server 8080
+# abra http://localhost:8080
+```
+
+Para adicionar mais questões (inclusive pedindo a outra IA), veja o manual em
+[`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md).
+
 ## Modelo de dados
 `Concurso → Topico (árvore) → Bloco → Questao → Resposta → Progresso (dominância)`
 Usuários têm papel `aluno` (1 concurso) ou `admin`.

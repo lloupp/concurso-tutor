@@ -1,0 +1,65 @@
+{
+  "materia": "Português",
+  "questoes": [
+    {
+      "enunciado": "Assinale a alternativa em que a concordância verbal está de acordo com a norma-padrão.",
+      "alternativas": ["Fazem dois meses que não chove.", "Faz dois meses que não chove.", "Deve haver soluções, mas não fazem sentido.", "Existe muitos problemas a resolver."],
+      "gabarito": 1,
+      "explicacao": "O verbo 'fazer' indicando tempo decorrido é impessoal e fica sempre na 3ª pessoa do singular: 'Faz dois meses...'."
+    },
+    {
+      "enunciado": "Assinale a alternativa correta quanto ao uso do sinal indicativo de crase.",
+      "alternativas": ["Vou à escola todos os dias.", "Entreguei a carta à ele.", "Andei à cavalo pela fazenda.", "Cheguei à casa cedo."],
+      "gabarito": 0,
+      "explicacao": "Há crase antes de palavra feminina que admite artigo: 'à escola' (a + a). Pronomes pessoais (ele), palavras masculinas (cavalo) e 'casa' sem determinante não recebem crase."
+    },
+    {
+      "enunciado": "Assinale a alternativa em que o verbo 'assistir', no sentido de 'ver', está empregado conforme a norma-padrão.",
+      "alternativas": ["Assisti o filme ontem.", "Assisti ao filme ontem.", "Assisti no filme ontem.", "Assisti pelo filme ontem."],
+      "gabarito": 1,
+      "explicacao": "Nesse sentido, 'assistir' é transitivo indireto e exige a preposição 'a': assistir ao filme."
+    },
+    {
+      "enunciado": "A expressão 'Chorei rios de lágrimas' exemplifica qual figura de linguagem?",
+      "alternativas": ["Metáfora", "Hipérbole", "Ironia", "Eufemismo"],
+      "gabarito": 1,
+      "explicacao": "A hipérbole é o exagero proposital para dar ênfase à expressão."
+    },
+    {
+      "enunciado": "Na frase 'Ele chegou rapidamente', a palavra 'rapidamente' é classificada como:",
+      "alternativas": ["Substantivo", "Adjetivo", "Advérbio", "Pronome"],
+      "gabarito": 2,
+      "explicacao": "Palavras terminadas em '-mente' que modificam o verbo são, em geral, advérbios de modo."
+    },
+    {
+      "enunciado": "A frase 'O relatório foi entregue pelo funcionário' está na voz:",
+      "alternativas": ["Ativa", "Passiva analítica", "Passiva sintética", "Reflexiva"],
+      "gabarito": 1,
+      "explicacao": "Voz passiva analítica: verbo auxiliar (ser/foi) + particípio, com o agente da passiva introduzido por 'por'."
+    },
+    {
+      "enunciado": "Assinale a alternativa com todas as palavras grafadas corretamente.",
+      "alternativas": ["Excessão, previlégio, benefício", "Exceção, privilégio, benefício", "Exceção, privilégio, beneficio", "Excesão, previlégio, benefício"],
+      "gabarito": 1,
+      "explicacao": "As grafias corretas são: exceção, privilégio e benefício."
+    },
+    {
+      "enunciado": "O conectivo 'entretanto' estabelece, entre as orações que liga, uma relação de:",
+      "alternativas": ["Causa", "Oposição/contraste", "Conclusão", "Adição"],
+      "gabarito": 1,
+      "explicacao": "'Entretanto' é conjunção adversativa, indicando contraste ou oposição entre ideias."
+    },
+    {
+      "enunciado": "O provérbio 'Antes tarde do que nunca' expressa a ideia de que:",
+      "alternativas": ["É melhor não fazer nada.", "Fazer algo com atraso é melhor do que não fazer.", "O tempo é irrelevante.", "Sempre se deve chegar cedo."],
+      "gabarito": 1,
+      "explicacao": "O provérbio valoriza a realização de uma ação, mesmo tardia, em vez de sua omissão."
+    },
+    {
+      "enunciado": "Um texto publicitário que busca convencer o leitor a comprar um produto tem predominância da função da linguagem:",
+      "alternativas": ["Referencial", "Poética", "Conativa (apelativa)", "Fática"],
+      "gabarito": 2,
+      "explicacao": "A função conativa/apelativa centra-se no receptor, buscando persuadi-lo ou convencê-lo — típica da publicidade."
+    }
+  ]
+}

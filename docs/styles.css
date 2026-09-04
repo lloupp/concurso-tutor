@@ -1,0 +1,288 @@
+/* Simulado Ensino Médio — mesma identidade visual do Concurso Tutor (cartão-resposta / gabarito) */
+
+:root {
+  --paper: #f6f1e3;
+  --paper-2: #ede4cd;
+  --paper-3: #e4d9bd;
+  --ink: #211d16;
+  --ink-soft: #4a4438;
+  --muted: #8a8069;
+  --line: #cabb95;
+  --line-soft: #ded2ac;
+  --blue: #1d3e6e;
+  --blue-soft: #2c5490;
+  --red: #9c2b26;
+  --green: #2e6b4f;
+  --amber: #93650f;
+  --radius: 3px;
+  --shadow: 0 1px 0 rgba(33, 29, 22, 0.06), 0 8px 20px -14px rgba(33, 29, 22, 0.35);
+}
+
+* { box-sizing: border-box; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 16px;
+  color: var(--ink);
+  background:
+    radial-gradient(1100px 500px at 12% -10%, #fbf7ea 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #fbf7ea 0%, transparent 55%),
+    var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: "Zilla Slab", Georgia, serif;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 .35rem;
+  letter-spacing: -0.01em;
+}
+
+a, button, input, textarea { font-family: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 .4rem;
+}
+
+/* ---------- Topbar ---------- */
+header#topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .7rem clamp(1rem, 3vw, 2rem);
+  background: var(--paper-2);
+  border-bottom: 2px solid var(--ink);
+}
+.brand { display: flex; align-items: center; gap: .55rem; }
+.brand-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.9rem; height: 1.9rem;
+  background: var(--blue); color: var(--paper);
+  border-radius: 50%;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700; font-size: .95rem;
+}
+.brand-name {
+  font-family: "Zilla Slab", serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+.userinfo {
+  margin-left: auto;
+  color: var(--ink-soft);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: .82rem;
+  text-align: right;
+}
+
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 1.5rem) 4rem;
+}
+
+/* ---------- Config: capa ---------- */
+#config.examsheet[hidden] { display: none; }
+#config.examsheet {
+  max-width: 520px;
+  margin: clamp(1.5rem, 6vh, 3rem) auto 0;
+  padding: clamp(1.6rem, 5vw, 2.2rem);
+  background: var(--paper-2);
+  border: 1px solid var(--ink);
+  box-shadow: var(--shadow), inset 0 0 0 4px var(--paper-2), inset 0 0 0 5px var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+#config h1 { font-size: clamp(1.7rem, 6vw, 2.1rem); }
+#config .lead { color: var(--ink-soft); margin: 0 0 .6rem; font-size: .95rem; }
+
+.materias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: .5rem;
+  margin-bottom: .4rem;
+}
+.materia-check {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .5rem .6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  cursor: pointer;
+  font-size: .9rem;
+}
+.materia-check:hover { border-color: var(--blue); }
+.materia-check input { accent-color: var(--blue); width: 1.05rem; height: 1.05rem; }
+.materia-check .count { margin-left: auto; color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: .75rem; }
+
+.err { color: var(--red); min-height: 1.1rem; font-size: .85rem; font-weight: 600; }
+
+.btn-stamp {
+  align-self: flex-start;
+  margin-top: .4rem;
+  background: var(--blue);
+  color: var(--paper);
+  border: 0;
+  padding: .65rem 1.4rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: .95rem;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.btn-stamp:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+.btn-stamp:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+.btn-stamp:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: 2px 2px 0 var(--ink); }
+
+.tabpanel {
+  background: var(--paper-2);
+  border: 1px solid var(--ink);
+  padding: clamp(1rem, 3vw, 1.6rem);
+}
+
+/* ---------- Protocolo (cabeçalho do simulado) ---------- */
+.protocolo {
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 1rem;
+  margin-bottom: 1.2rem;
+}
+.protocolo h2 { font-size: clamp(1.25rem, 4vw, 1.6rem); }
+.protocolo .intro { color: var(--ink-soft); margin: .3rem 0 .9rem; line-height: 1.5; }
+.protocolo-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: .6rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: .7rem .9rem;
+}
+.protocolo-meta div { display: flex; flex-direction: column; gap: .15rem; }
+.protocolo-meta span { font-family: "IBM Plex Mono", monospace; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.protocolo-meta b { font-size: 1rem; color: var(--ink); }
+
+/* ---------- Questões ---------- */
+.q { border-top: 1px solid var(--line); padding: 1.1rem 0; }
+.q:first-child { border-top: none; padding-top: 0; }
+.q-head { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .5rem; }
+.q-num { font-family: "IBM Plex Mono", monospace; font-weight: 700; color: var(--blue); font-size: .95rem; }
+.q-type {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: .1rem .4rem;
+}
+.q-body { margin: 0 0 .8rem; line-height: 1.55; }
+
+.bubbles { display: flex; flex-direction: column; gap: .45rem; }
+.bubble-option {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .4rem .5rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.bubble-option:hover { background: var(--paper-3); }
+.bubble {
+  flex: none;
+  width: 1.9rem; height: 1.9rem;
+  border: 2px solid var(--ink-soft);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: .85rem;
+  color: var(--ink-soft);
+  background: var(--paper);
+  transition: background .1s ease, color .1s ease, border-color .1s ease;
+}
+.bubble-option input:checked + .bubble {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--paper);
+}
+.opt-text { line-height: 1.4; }
+
+/* opções marcadas na revisão (após correção) */
+.bubble-option.opt-correct .bubble { background: var(--green); border-color: var(--green); color: var(--paper); }
+.bubble-option.opt-wrong .bubble { background: var(--red); border-color: var(--red); color: var(--paper); }
+.q-explicacao { margin-top: .6rem; padding: .55rem .7rem; background: var(--paper); border: 1px dashed var(--line); border-radius: var(--radius); font-size: .87rem; color: var(--ink-soft); }
+
+#formQuiz .q:last-child { border-bottom: 1px solid var(--line); }
+#btnEnviar { margin-top: 1.2rem; }
+
+/* ---------- Resultado ---------- */
+.resultado-score {
+  text-align: center;
+  padding-bottom: 1.2rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 2px solid var(--ink);
+}
+.resultado-score .valor { font-family: "IBM Plex Mono", monospace; font-size: 2.6rem; font-weight: 700; color: var(--blue); }
+.resultado-score .valor span { font-size: 1.2rem; color: var(--muted); }
+.resultado-score .legenda { color: var(--ink-soft); margin-top: .2rem; }
+
+.stamp-row { display: flex; align-items: center; gap: .8rem; padding: .2rem 0; }
+.stamp {
+  flex: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: .7rem;
+  letter-spacing: .06em;
+  padding: .25rem .55rem;
+  border-radius: 2px;
+  border: 2px solid currentColor;
+  transform: rotate(-3deg);
+}
+.stamp-ok { color: var(--green); }
+.stamp-bad { color: var(--red); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  padding: .55rem 1rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: .85rem;
+  cursor: pointer;
+  margin-top: 1.2rem;
+}
+.btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+.errbox { color: var(--red); font-weight: 600; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 640px) {
+  header#topbar { flex-wrap: wrap; }
+  .userinfo { order: 3; margin-left: 0; width: 100%; text-align: left; }
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulado Ensino Médio</title>
+<meta name="description" content="Simulado gratuito de questões estilo concurso/Enem para o ensino médio." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header id="topbar">
+  <span class="brand"><span class="brand-mark">✓</span><span class="brand-name">Simulado Ensino Médio</span></span>
+  <span class="userinfo" id="topInfo"></span>
+</header>
+
+<main>
+  <!-- CONFIGURAÇÃO -->
+  <section id="config" class="examsheet">
+    <p class="eyebrow">Simulado gratuito · nível médio</p>
+    <h1>Simulado Ensino Médio</h1>
+    <p class="lead">Questões objetivas estilo concurso/Enem, corrigidas na hora. Escolha as matérias e comece.</p>
+    <div id="materiasBox" class="materias-grid">Carregando questões…</div>
+    <button id="btnIniciar" class="btn-stamp">Iniciar simulado</button>
+    <p id="configErr" class="err"></p>
+  </section>
+
+  <!-- SIMULADO -->
+  <section id="quiz" class="tabpanel" hidden>
+    <div id="quizInfo"></div>
+    <form id="formQuiz"></form>
+    <button id="btnEnviar" type="button" class="btn-stamp">Corrigir simulado</button>
+  </section>
+
+  <!-- RESULTADO -->
+  <section id="resultado" class="tabpanel" hidden></section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

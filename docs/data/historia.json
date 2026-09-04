@@ -1,0 +1,65 @@
+{
+  "materia": "História",
+  "questoes": [
+    {
+      "enunciado": "O processo de independência do Brasil, em 1822, teve como figura central:",
+      "alternativas": ["Dom Pedro I", "Dom Pedro II", "Getúlio Vargas", "Tiradentes"],
+      "gabarito": 0,
+      "explicacao": "Dom Pedro I proclamou a independência do Brasil em 7 de setembro de 1822."
+    },
+    {
+      "enunciado": "A Proclamação da República no Brasil ocorreu em:",
+      "alternativas": ["1822", "1888", "1889", "1891"],
+      "gabarito": 2,
+      "explicacao": "A República foi proclamada em 15 de novembro de 1889, liderada por Marechal Deodoro da Fonseca."
+    },
+    {
+      "enunciado": "A Lei Áurea, que aboliu a escravidão no Brasil, foi assinada em:",
+      "alternativas": ["1850", "1871", "1888", "1889"],
+      "gabarito": 2,
+      "explicacao": "A Lei Áurea foi assinada pela Princesa Isabel em 13 de maio de 1888."
+    },
+    {
+      "enunciado": "A Revolução Francesa (1789) teve como um de seus principais lemas:",
+      "alternativas": ["'Ordem e Progresso'", "'Liberdade, Igualdade, Fraternidade'", "'Paz e Terra'", "'Deus, Pátria e Família'"],
+      "gabarito": 1,
+      "explicacao": "O lema 'Liberté, Égalité, Fraternité' simboliza os ideais da Revolução Francesa."
+    },
+    {
+      "enunciado": "A Segunda Guerra Mundial teve início em 1939 com a invasão da:",
+      "alternativas": ["França pela Alemanha", "Polônia pela Alemanha", "URSS pela Alemanha", "Inglaterra pela Alemanha"],
+      "gabarito": 1,
+      "explicacao": "A invasão da Polônia pela Alemanha nazista, em setembro de 1939, marcou o início da Segunda Guerra Mundial."
+    },
+    {
+      "enunciado": "O período do regime militar no Brasil durou de:",
+      "alternativas": ["1945 a 1964", "1964 a 1985", "1930 a 1945", "1985 a 2000"],
+      "gabarito": 1,
+      "explicacao": "A ditadura militar brasileira teve início com o golpe de 1964 e se estendeu até 1985, com a redemocratização."
+    },
+    {
+      "enunciado": "A Era Vargas (Getúlio Vargas) é marcada, entre outros aspectos, pela criação de:",
+      "alternativas": ["leis trabalhistas (CLT)", "internet no Brasil", "Mercosul", "Plano Real"],
+      "gabarito": 0,
+      "explicacao": "A Consolidação das Leis do Trabalho (CLT) foi instituída em 1943, durante o governo Vargas."
+    },
+    {
+      "enunciado": "O Tratado de Tordesilhas (1494) dividiu as terras do Novo Mundo entre:",
+      "alternativas": ["Portugal e Espanha", "França e Inglaterra", "Holanda e Portugal", "Espanha e Inglaterra"],
+      "gabarito": 0,
+      "explicacao": "O Tratado de Tordesilhas estabeleceu uma linha de divisão das terras recém-descobertas entre Portugal e Espanha."
+    },
+    {
+      "enunciado": "A Guerra Fria foi marcada pela disputa entre:",
+      "alternativas": ["Alemanha e França", "Estados Unidos e União Soviética", "China e Japão", "Inglaterra e Portugal"],
+      "gabarito": 1,
+      "explicacao": "A Guerra Fria (1947-1991) foi a disputa ideológica, política e militar entre EUA (capitalismo) e URSS (socialismo)."
+    },
+    {
+      "enunciado": "A Inconfidência Mineira (1789), movimento que teve Tiradentes como principal mártir, buscava:",
+      "alternativas": ["manter o domínio português", "a independência de Minas Gerais em relação a Portugal", "abolir a escravidão", "instaurar o parlamentarismo"],
+      "gabarito": 1,
+      "explicacao": "A Inconfidência Mineira foi um movimento separatista que pretendia libertar Minas Gerais do domínio de Portugal."
+    }
+  ]
+}
