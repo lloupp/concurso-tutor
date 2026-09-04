@@ -1,0 +1,65 @@
+{
+  "materia": "Direito Constitucional",
+  "questoes": [
+    {
+      "enunciado": "A Constituição Federal do Brasil atualmente em vigor foi promulgada em:",
+      "alternativas": ["1967", "1988", "1946", "1998"],
+      "gabarito": 1,
+      "explicacao": "A Constituição de 1988 (CF/88), chamada 'Constituição Cidadã', está em vigor até hoje."
+    },
+    {
+      "enunciado": "Segundo o art. 1º da CF/88, o Brasil constitui-se em:",
+      "alternativas": ["uma monarquia parlamentarista", "um Estado Democrático de Direito", "uma confederação de estados", "um regime de exceção"],
+      "gabarito": 1,
+      "explicacao": "O art. 1º define o Brasil como República Federativa, formada por um Estado Democrático de Direito."
+    },
+    {
+      "enunciado": "São Poderes da União, independentes e harmônicos entre si, segundo a CF/88:",
+      "alternativas": ["Executivo, Legislativo e Judiciário", "Executivo e Legislativo apenas", "apenas o Judiciário", "Executivo, Militar e Religioso"],
+      "gabarito": 0,
+      "explicacao": "O art. 2º estabelece a clássica tripartição de poderes: Executivo, Legislativo e Judiciário."
+    },
+    {
+      "enunciado": "De acordo com o art. 5º da CF/88, garante-se aos brasileiros e estrangeiros residentes no País a inviolabilidade do direito:",
+      "alternativas": ["apenas à propriedade", "à vida, à liberdade, à igualdade, à segurança e à propriedade", "apenas ao voto", "apenas à saúde"],
+      "gabarito": 1,
+      "explicacao": "O caput do art. 5º lista esses cinco direitos fundamentais como invioláveis."
+    },
+    {
+      "enunciado": "O art. 6º da Constituição Federal prevê como direitos sociais, entre outros:",
+      "alternativas": ["apenas o lazer", "apenas a moradia", "apenas a alimentação", "educação, saúde, alimentação, trabalho, moradia e lazer, entre outros"],
+      "gabarito": 3,
+      "explicacao": "O art. 6º lista um rol amplo de direitos sociais: educação, saúde, alimentação, trabalho, moradia, transporte, lazer, segurança, previdência social, entre outros."
+    },
+    {
+      "enunciado": "Segundo a CF/88 (art. 13, §1º), são símbolos da República Federativa do Brasil:",
+      "alternativas": ["a bandeira, o hino, as armas e o selo nacionais", "apenas a bandeira nacional", "apenas o hino nacional", "o hino e a moeda nacional"],
+      "gabarito": 0,
+      "explicacao": "A Constituição define esses quatro elementos como símbolos nacionais."
+    },
+    {
+      "enunciado": "O voto é obrigatório para os maiores de 18 anos no Brasil, sendo facultativo para os analfabetos, os maiores de 16 e menores de 18 anos e para os maiores de:",
+      "alternativas": ["60 anos", "65 anos", "70 anos", "75 anos"],
+      "gabarito": 2,
+      "explicacao": "O art. 14, §1º, II, 'b', da CF/88 prevê o voto facultativo para os maiores de setenta anos."
+    },
+    {
+      "enunciado": "Compete privativamente à União, segundo o art. 22 da CF/88, legislar sobre:",
+      "alternativas": ["direito civil, comercial, penal e do trabalho", "apenas assuntos municipais", "apenas assuntos estaduais", "apenas trânsito local"],
+      "gabarito": 0,
+      "explicacao": "O art. 22, I, atribui à União a competência privativa para legislar sobre esses ramos do direito, entre outros."
+    },
+    {
+      "enunciado": "O habeas corpus, remédio constitucional previsto no art. 5º, LXVIII, da CF/88, protege o direito de:",
+      "alternativas": ["propriedade", "locomoção (ir e vir)", "informação", "reunião"],
+      "gabarito": 1,
+      "explicacao": "O habeas corpus é concedido sempre que alguém sofrer ou se achar ameaçado de sofrer violência ou coação em sua liberdade de locomoção."
+    },
+    {
+      "enunciado": "O art. 37 da CF/88 estabelece que a Administração Pública obedecerá aos princípios de:",
+      "alternativas": ["legalidade, impessoalidade, moralidade, publicidade e eficiência", "apenas legalidade e eficiência", "hierarquia, subordinação e disciplina", "autonomia, liberdade e igualdade"],
+      "gabarito": 0,
+      "explicacao": "São os cinco princípios expressos no caput do art. 37, conhecidos pelo mnemônico LIMPE."
+    }
+  ]
+}

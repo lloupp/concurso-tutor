@@ -1,0 +1,65 @@
+{
+  "materia": "Direito Administrativo",
+  "questoes": [
+    {
+      "enunciado": "O princípio da legalidade, na Administração Pública, significa que o administrador público:",
+      "alternativas": ["pode fazer tudo que a lei não proíbe, como o particular", "só pode fazer o que a lei expressamente autoriza ou determina", "está acima da lei", "pode ignorar a lei em casos de urgência"],
+      "gabarito": 1,
+      "explicacao": "Diferente do particular, o agente público só pode agir dentro do que a lei autoriza (legalidade estrita)."
+    },
+    {
+      "enunciado": "O princípio da impessoalidade impõe que a Administração Pública trate:",
+      "alternativas": ["de forma diferenciada seus amigos e familiares", "todos os administrados de forma igualitária, sem favoritismo", "apenas os contribuintes que pagam mais impostos", "de forma discricionária, conforme a vontade do agente público"],
+      "gabarito": 1,
+      "explicacao": "A impessoalidade veda perseguições ou favorecimentos pessoais, exigindo tratamento isonômico."
+    },
+    {
+      "enunciado": "O ingresso em cargo público efetivo depende, em regra, de:",
+      "alternativas": ["indicação política", "aprovação prévia em concurso público de provas ou de provas e títulos", "doação para campanhas eleitorais", "tempo de residência no município"],
+      "gabarito": 1,
+      "explicacao": "O art. 37, II, da CF/88 exige concurso público para investidura em cargo efetivo."
+    },
+    {
+      "enunciado": "São exemplos de entidades da Administração Pública Indireta:",
+      "alternativas": ["autarquias, fundações públicas, empresas públicas e sociedades de economia mista", "apenas os Ministérios", "apenas as Secretarias Estaduais", "apenas os partidos políticos"],
+      "gabarito": 0,
+      "explicacao": "Essas quatro categorias compõem, classicamente, a Administração Indireta."
+    },
+    {
+      "enunciado": "O ato administrativo praticado com desvio de finalidade é considerado:",
+      "alternativas": ["válido e eficaz", "viciado/ilegal", "discricionário legítimo", "um contrato administrativo"],
+      "gabarito": 1,
+      "explicacao": "O desvio de finalidade é um vício que torna o ato administrativo ilegal, sujeito a anulação."
+    },
+    {
+      "enunciado": "A licitação é o procedimento administrativo utilizado, em regra, para:",
+      "alternativas": ["contratar servidores públicos efetivos", "selecionar a proposta mais vantajosa para contratações da Administração Pública", "aplicar penalidades disciplinares", "eleger representantes do Poder Legislativo"],
+      "gabarito": 1,
+      "explicacao": "A licitação busca garantir isonomia entre concorrentes e a proposta mais vantajosa nas contratações públicas."
+    },
+    {
+      "enunciado": "O poder hierárquico da Administração Pública permite, entre outras coisas:",
+      "alternativas": ["que o superior distribua e revise as atribuições dos subordinados", "que qualquer cidadão dê ordens a servidores públicos", "a extinção do princípio da legalidade", "a eliminação de todos os cargos públicos"],
+      "gabarito": 0,
+      "explicacao": "O poder hierárquico organiza a estrutura interna, permitindo ordenar, coordenar, controlar e rever atos dos subordinados."
+    },
+    {
+      "enunciado": "A demissão é uma penalidade disciplinar aplicada ao servidor público que:",
+      "alternativas": ["tira férias regularmente", "comete infração grave, conforme previsto em lei", "se aposenta", "é promovido por mérito"],
+      "gabarito": 1,
+      "explicacao": "A demissão é a pena mais severa do regime disciplinar, aplicada em casos de infrações graves previstas em lei."
+    },
+    {
+      "enunciado": "O princípio da publicidade na Administração Pública exige que os atos administrativos sejam, em regra:",
+      "alternativas": ["mantidos em sigilo absoluto", "divulgados/tornados públicos, para conhecimento e controle pelos administrados", "conhecidos apenas pelos servidores do órgão", "informados apenas ao Poder Judiciário"],
+      "gabarito": 1,
+      "explicacao": "A publicidade garante transparência e permite o controle social e institucional dos atos da Administração."
+    },
+    {
+      "enunciado": "O servidor público estável é aquele que, após cumprir o estágio probatório e ser aprovado em avaliação de desempenho, adquire:",
+      "alternativas": ["direito a férias", "estabilidade no serviço público, prevista no art. 41 da CF/88", "direito a décimo terceiro salário", "direito a plano de saúde"],
+      "gabarito": 1,
+      "explicacao": "A estabilidade, prevista no art. 41 da CF/88, protege o servidor efetivo aprovado no estágio probatório contra exoneração arbitrária."
+    }
+  ]
+}

@@ -4,12 +4,11 @@
 // docs/data/ (ver docs/CONTRIBUINDO.md) e inclua uma linha aqui.
 const MATERIAS = [
   { id: "portugues", nome: "Português", arquivo: "data/portugues.json" },
-  { id: "matematica", nome: "Matemática", arquivo: "data/matematica.json" },
-  { id: "historia", nome: "História", arquivo: "data/historia.json" },
-  { id: "geografia", nome: "Geografia", arquivo: "data/geografia.json" },
-  { id: "fisica", nome: "Física", arquivo: "data/fisica.json" },
-  { id: "quimica", nome: "Química", arquivo: "data/quimica.json" },
-  { id: "biologia", nome: "Biologia", arquivo: "data/biologia.json" },
+  { id: "matematica", nome: "Matemática/RLM", arquivo: "data/matematica.json" },
+  { id: "informatica", nome: "Informática", arquivo: "data/informatica.json" },
+  { id: "direito_constitucional", nome: "Direito Constitucional", arquivo: "data/direito_constitucional.json" },
+  { id: "direito_administrativo", nome: "Direito Administrativo", arquivo: "data/direito_administrativo.json" },
+  { id: "atualidades", nome: "Atualidades", arquivo: "data/atualidades.json" },
 ];
 
 let BANCO = {};      // { materiaId: { materia, questoes: [...] } }

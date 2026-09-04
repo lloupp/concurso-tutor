@@ -1,0 +1,65 @@
+{
+  "materia": "Informática",
+  "questoes": [
+    {
+      "enunciado": "No Microsoft Word, qual atalho de teclado é usado para salvar um documento?",
+      "alternativas": ["Ctrl+P", "Ctrl+S", "Ctrl+C", "Ctrl+Z"],
+      "gabarito": 1,
+      "explicacao": "Ctrl+S ('save') é o atalho padrão para salvar em praticamente todos os editores."
+    },
+    {
+      "enunciado": "No Windows, a combinação de teclas Ctrl+Alt+Del é utilizada para:",
+      "alternativas": ["desligar o computador imediatamente", "abrir o Gerenciador de Tarefas / opções de segurança", "formatar o disco rígido", "criar uma nova pasta"],
+      "gabarito": 1,
+      "explicacao": "Essa combinação abre a tela de segurança do Windows, de onde é possível acessar o Gerenciador de Tarefas."
+    },
+    {
+      "enunciado": "No Microsoft Excel, a fórmula =SOMA(A1:A10) calcula:",
+      "alternativas": ["a média dos valores de A1 a A10", "a soma dos valores de A1 a A10", "o maior valor entre A1 e A10", "a quantidade de células preenchidas"],
+      "gabarito": 1,
+      "explicacao": "A função SOMA soma todos os valores numéricos no intervalo indicado."
+    },
+    {
+      "enunciado": "Um arquivo com extensão '.pdf' é comumente aberto por qual tipo de programa?",
+      "alternativas": ["editor de imagens", "leitor de documentos portáteis", "navegador de e-mails", "compactador de arquivos"],
+      "gabarito": 1,
+      "explicacao": "PDF (Portable Document Format) é um formato de documento, aberto por leitores como Adobe Reader ou o próprio navegador."
+    },
+    {
+      "enunciado": "O termo 'backup' refere-se a:",
+      "alternativas": ["um vírus de computador", "uma cópia de segurança de dados", "um tipo de impressora", "um protocolo de internet"],
+      "gabarito": 1,
+      "explicacao": "Backup é a cópia de segurança de arquivos/dados, feita para evitar perda em caso de falha ou acidente."
+    },
+    {
+      "enunciado": "Qual das opções abaixo é um exemplo de navegador de internet (browser)?",
+      "alternativas": ["Microsoft Word", "Google Chrome", "Windows Explorer", "Adobe Photoshop"],
+      "gabarito": 1,
+      "explicacao": "Google Chrome é um navegador de internet; as demais opções são, respectivamente, editor de texto, gerenciador de arquivos e editor de imagens."
+    },
+    {
+      "enunciado": "O protocolo utilizado para o envio de e-mails é o:",
+      "alternativas": ["HTTP", "FTP", "SMTP", "SSH"],
+      "gabarito": 2,
+      "explicacao": "SMTP (Simple Mail Transfer Protocol) é o protocolo padrão para envio de e-mails."
+    },
+    {
+      "enunciado": "Um antivírus tem como principal função:",
+      "alternativas": ["aumentar a velocidade da internet", "detectar e remover softwares maliciosos", "criar apresentações de slides", "editar planilhas eletrônicas"],
+      "gabarito": 1,
+      "explicacao": "Antivírus são programas de segurança que detectam, bloqueiam e removem malwares (vírus, trojans, etc.)."
+    },
+    {
+      "enunciado": "Na computação em nuvem (cloud computing), os arquivos são armazenados:",
+      "alternativas": ["exclusivamente no disco rígido local", "em servidores remotos, acessíveis pela internet", "apenas em pen drives", "somente em CDs/DVDs"],
+      "gabarito": 1,
+      "explicacao": "Cloud computing armazena e processa dados em servidores remotos, acessados via internet."
+    },
+    {
+      "enunciado": "Em uma planilha eletrônica, o endereço de uma célula é formado, tipicamente, por:",
+      "alternativas": ["uma letra de coluna seguida de um número de linha (ex.: B4)", "apenas números", "apenas letras maiúsculas", "o nome completo da planilha"],
+      "gabarito": 0,
+      "explicacao": "Células são referenciadas pela combinação de coluna (letra) e linha (número), como em A1, B4, C10."
+    }
+  ]
+}

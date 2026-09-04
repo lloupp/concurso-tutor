@@ -79,9 +79,10 @@ Cofen, Planalto/CF88, editais UFMG/UFES).
 
 ## Simulado estático (GitHub Pages)
 Além da plataforma completa (backend), há um **simulado estático** em `docs/`
-com questões de nível médio/Enem (Português, Matemática, História, Geografia,
-Física, Química, Biologia) — roda 100% no navegador, sem backend, e pode ser
-publicado direto no GitHub Pages.
+com questões no estilo de concursos públicos de nível médio (Português,
+Matemática/Raciocínio Lógico, Informática, Direito Constitucional, Direito
+Administrativo, Atualidades) — roda 100% no navegador, sem backend. Publicado
+em: **https://lloupp.github.io/concurso-tutor/**
 
 **Ativar o Pages (uma vez, nas configurações do repositório):**
 Settings → Pages → Build and deployment → Source: `Deploy from a branch` →

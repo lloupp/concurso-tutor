@@ -9,14 +9,21 @@ matéria é um arquivo JSON em `docs/data/`, carregado direto pelo navegador
 
 ```
 Você vai adicionar questões ao simulado estático em docs/ do repositório
-concurso-tutor. É um quiz de múltipla escolha para ensino médio/concursos
-de nível médio (Português, Matemática, História, Geografia, Física, Química,
-Biologia), sem backend — cada matéria é um arquivo JSON em docs/data/.
+concurso-tutor. É um quiz de múltipla escolha no estilo de concursos
+públicos de nível médio (cargos como Assistente/Auxiliar Administrativo,
+Técnico) — atualmente cobre Português, Matemática/Raciocínio Lógico,
+Informática, Direito Constitucional (noções), Direito Administrativo
+(noções) e Atualidades/Conhecimentos Gerais — sem backend: cada matéria é
+um arquivo JSON em docs/data/.
 
 Regras:
-1. NÃO invente fatos incertos (datas, fórmulas, leis). Use apenas conteúdo
-   consagrado de currículo de ensino médio/Enem. Se tiver dúvida sobre um
-   fato, pesquise antes de escrever a questão.
+1. NÃO invente fatos incertos (datas, artigos de lei, números). Use apenas
+   conteúdo consagrado de concursos de nível médio (CF/88, princípios da
+   Administração Pública, informática básica, etc.), ancorado em fontes
+   reais. Se tiver dúvida sobre um fato, pesquise antes de escrever a
+   questão. Em "Atualidades", prefira fatos institucionais estáveis
+   (ONU, Mercosul, SUS, IBGE etc.) em vez de notícias recentes que ficam
+   desatualizadas rápido.
 2. Sempre 4 alternativas por questão, só uma correta.
 3. "gabarito" é o índice da alternativa correta, começando em 0
    (0 = primeira alternativa, 1 = segunda, etc.).
@@ -64,7 +71,7 @@ Redação/Interpretação), depois de criar o JSON adicione uma linha no array
 `MATERIAS` no topo de `docs/app.js`:
 
 ```js
-{ id: "ingles", nome: "Inglês", arquivo: "data/ingles.json" },
+{ id: "legislacao_especifica", nome: "Legislação Específica", arquivo: "data/legislacao_especifica.json" },
 ```
 
 O `id` deve ser único, em minúsculas, sem espaços ou acentos.

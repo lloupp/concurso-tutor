@@ -1,0 +1,65 @@
+{
+  "materia": "Atualidades e Conhecimentos Gerais",
+  "questoes": [
+    {
+      "enunciado": "A Organização das Nações Unidas (ONU) tem como principal objetivo:",
+      "alternativas": ["promover exclusivamente o comércio internacional", "manter a paz e a segurança internacionais e promover a cooperação entre os países", "administrar a economia de todos os países-membros", "substituir os governos nacionais"],
+      "gabarito": 1,
+      "explicacao": "A ONU foi criada em 1945 com o propósito central de manter a paz mundial e promover cooperação entre nações."
+    },
+    {
+      "enunciado": "O Brasil é um dos países fundadores de qual bloco econômico regional, criado pelo Tratado de Assunção em 1991?",
+      "alternativas": ["União Europeia", "Mercosul", "Nafta", "Aliança do Pacífico"],
+      "gabarito": 1,
+      "explicacao": "O Mercosul foi criado em 1991 pelo Tratado de Assunção, tendo Brasil, Argentina, Uruguai e Paraguai como fundadores."
+    },
+    {
+      "enunciado": "A sigla ONG significa:",
+      "alternativas": ["Organização Não Governamental", "Órgão Nacional de Governo", "Organização Nacional Geral", "Órgão Não Gerenciável"],
+      "gabarito": 0,
+      "explicacao": "ONGs são entidades da sociedade civil, sem fins lucrativos e sem vínculo direto com o governo."
+    },
+    {
+      "enunciado": "O Sistema Único de Saúde (SUS) brasileiro é regido, entre outros, pelo princípio da:",
+      "alternativas": ["cobrança obrigatória por todos os atendimentos", "universalidade (acesso de todos os cidadãos)", "exclusividade para contribuintes do INSS", "restrição apenas a emergências"],
+      "gabarito": 1,
+      "explicacao": "A universalidade é um dos princípios do SUS: a saúde é direito de todos e dever do Estado, com acesso universal e gratuito."
+    },
+    {
+      "enunciado": "A moeda oficial adotada pelo Brasil atualmente é o:",
+      "alternativas": ["Cruzeiro", "Real", "Peso", "Dólar"],
+      "gabarito": 1,
+      "explicacao": "O Real é a moeda oficial do Brasil desde o Plano Real, em 1994."
+    },
+    {
+      "enunciado": "O Poder Legislativo federal brasileiro é exercido pelo Congresso Nacional, composto por:",
+      "alternativas": ["apenas a Câmara dos Deputados", "apenas o Senado Federal", "Câmara dos Deputados e Senado Federal", "apenas os governadores estaduais"],
+      "gabarito": 2,
+      "explicacao": "O Congresso Nacional é bicameral, formado pela Câmara dos Deputados e pelo Senado Federal."
+    },
+    {
+      "enunciado": "A sigla PIB, usada em economia, significa:",
+      "alternativas": ["Produto Interno Bruto", "Programa de Investimento Bancário", "Plano de Integração Básica", "Poder Interno do Brasil"],
+      "gabarito": 0,
+      "explicacao": "PIB é a soma de todos os bens e serviços produzidos em um país em determinado período."
+    },
+    {
+      "enunciado": "O veículo oficial responsável pela publicação de leis e atos do governo federal brasileiro é o(a):",
+      "alternativas": ["Diário Oficial da União (DOU)", "Jornal Nacional", "uma agência de notícias privada", "uma rádio exclusiva do governo"],
+      "gabarito": 0,
+      "explicacao": "O Diário Oficial da União é o instrumento oficial de publicação de leis, decretos e atos do governo federal."
+    },
+    {
+      "enunciado": "A Declaração Universal dos Direitos Humanos foi proclamada pela ONU em:",
+      "alternativas": ["1945", "1948", "1988", "2000"],
+      "gabarito": 1,
+      "explicacao": "A Declaração foi adotada pela Assembleia Geral da ONU em 10 de dezembro de 1948."
+    },
+    {
+      "enunciado": "O IBGE (Instituto Brasileiro de Geografia e Estatística) é o órgão responsável, entre outras funções, por:",
+      "alternativas": ["realizar o Censo Demográfico do Brasil", "emitir passaportes", "arrecadar impostos federais", "fiscalizar eleições"],
+      "gabarito": 0,
+      "explicacao": "O IBGE é o principal órgão de coleta de estatísticas e informações do Brasil, responsável pelo Censo Demográfico."
+    }
+  ]
+}
