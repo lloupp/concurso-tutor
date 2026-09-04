@@ -1,0 +1,65 @@
+{
+  "materia": "Química",
+  "questoes": [
+    {
+      "enunciado": "O átomo é constituído basicamente por:",
+      "alternativas": ["prótons, nêutrons e elétrons", "apenas prótons e elétrons", "apenas nêutrons", "moléculas e íons"],
+      "gabarito": 0,
+      "explicacao": "O átomo é formado por prótons e nêutrons (no núcleo) e elétrons (na eletrosfera)."
+    },
+    {
+      "enunciado": "O símbolo químico do ouro é:",
+      "alternativas": ["Ag", "Au", "Fe", "O"],
+      "gabarito": 1,
+      "explicacao": "Au (do latim 'aurum') é o símbolo químico do ouro. Ag é a prata."
+    },
+    {
+      "enunciado": "A água é uma substância composta pela combinação de:",
+      "alternativas": ["hidrogênio e oxigênio", "carbono e oxigênio", "nitrogênio e hidrogênio", "oxigênio e cloro"],
+      "gabarito": 0,
+      "explicacao": "A molécula de água (H₂O) é formada por dois átomos de hidrogênio e um de oxigênio."
+    },
+    {
+      "enunciado": "O pH de uma solução neutra, como a água pura, é aproximadamente:",
+      "alternativas": ["0", "3", "7", "14"],
+      "gabarito": 2,
+      "explicacao": "A escala de pH vai de 0 a 14; o valor 7 representa a neutralidade."
+    },
+    {
+      "enunciado": "As substâncias que doam prótons (H+) em uma reação são classificadas, segundo Brønsted-Lowry, como:",
+      "alternativas": ["bases", "ácidos", "sais", "óxidos"],
+      "gabarito": 1,
+      "explicacao": "Segundo a teoria de Brønsted-Lowry, ácidos são espécies doadoras de prótons (H+)."
+    },
+    {
+      "enunciado": "A tabela periódica organiza os elementos químicos principalmente em ordem crescente de:",
+      "alternativas": ["massa atômica apenas", "número atômico (número de prótons)", "número de nêutrons", "ordem alfabética"],
+      "gabarito": 1,
+      "explicacao": "Na tabela periódica moderna, os elementos são organizados em ordem crescente de número atômico (Z)."
+    },
+    {
+      "enunciado": "Uma reação de combustão sempre necessita da presença de:",
+      "alternativas": ["nitrogênio", "oxigênio (comburente)", "hidrogênio", "gás carbônico"],
+      "gabarito": 1,
+      "explicacao": "Toda combustão exige um comburente, geralmente o oxigênio do ar."
+    },
+    {
+      "enunciado": "O estado físico da matéria em que as partículas têm maior liberdade de movimento é o:",
+      "alternativas": ["sólido", "líquido", "gasoso", "plasma condensado"],
+      "gabarito": 2,
+      "explicacao": "No estado gasoso as partículas têm maior liberdade de movimento e maior distância entre si."
+    },
+    {
+      "enunciado": "Os elementos da família dos gases nobres se caracterizam por:",
+      "alternativas": ["alta reatividade química", "baixíssima reatividade química (estabilidade)", "serem sempre metais", "formarem ligações iônicas facilmente"],
+      "gabarito": 1,
+      "explicacao": "Os gases nobres possuem a camada de valência completa, o que os torna quimicamente muito estáveis e pouco reativos."
+    },
+    {
+      "enunciado": "Uma mistura homogênea é aquela em que:",
+      "alternativas": ["os componentes são visualmente distinguíveis", "não é possível distinguir visualmente os componentes, mesmo ao microscópio óptico comum", "os componentes sempre se separam por decantação", "só existe um componente"],
+      "gabarito": 1,
+      "explicacao": "Mistura homogênea apresenta uma única fase visível, com aspecto uniforme em toda sua extensão."
+    }
+  ]
+}
