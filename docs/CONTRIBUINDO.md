@@ -17,13 +17,18 @@ Informática, Direito Constitucional (noções), Direito Administrativo
 um arquivo JSON em docs/data/.
 
 Regras:
-1. NÃO invente fatos incertos (datas, artigos de lei, números). Use apenas
-   conteúdo consagrado de concursos de nível médio (CF/88, princípios da
-   Administração Pública, informática básica, etc.), ancorado em fontes
-   reais. Se tiver dúvida sobre um fato, pesquise antes de escrever a
-   questão. Em "Atualidades", prefira fatos institucionais estáveis
-   (ONU, Mercosul, SUS, IBGE etc.) em vez de notícias recentes que ficam
+1. PROIBIDO INVENTAR CONTEÚDO. Antes de escrever qualquer questão, pesquise
+   (web search) o fato, a lei, o artigo ou o dado envolvido em fonte
+   confiável (Planalto/planalto.gov.br para leis e CF/88, sites de bancas
+   e cursinhos de concurso consagrados, órgãos oficiais como IBGE/ONU/SUS).
+   NÃO escreva de memória um número de artigo, data, sigla ou percentual
+   sem confirmar antes — se não encontrar uma fonte confiável para o fato,
+   descarte a questão ou avise no retorno em vez de arriscar um gabarito
+   errado. Em "Atualidades", prefira fatos institucionais estáveis (ONU,
+   Mercosul, SUS, IBGE etc.) em vez de notícias recentes que ficam
    desatualizadas rápido.
+   Preencha o campo opcional "fonte" (URL ou nome da fonte pesquisada) em
+   cada questão nova, para permitir auditoria depois.
 2. Sempre 4 alternativas por questão, só uma correta.
 3. "gabarito" é o índice da alternativa correta, começando em 0
    (0 = primeira alternativa, 1 = segunda, etc.).
@@ -53,7 +58,8 @@ Tarefa: [DESCREVA AQUI quantas questões, quais matérias/tópicos você quer]
       "enunciado": "Texto da pergunta.",
       "alternativas": ["Opção A", "Opção B", "Opção C", "Opção D"],
       "gabarito": 1,
-      "explicacao": "Por que a alternativa correta está certa."
+      "explicacao": "Por que a alternativa correta está certa.",
+      "fonte": "URL ou nome da fonte pesquisada (opcional, mas recomendado)"
     }
   ]
 }
@@ -63,6 +69,8 @@ Tarefa: [DESCREVA AQUI quantas questões, quais matérias/tópicos você quer]
   "A)", "B)" — o site adiciona a letra automaticamente).
 - `gabarito`: número inteiro (índice 0-based) da alternativa correta.
 - `explicacao`: opcional, mas recomendado — aparece na correção.
+- `fonte`: opcional — de onde veio o fato pesquisado (para auditoria).
+  Não é exibida no site, só serve de rastro.
 
 ## Registrando uma matéria nova
 
