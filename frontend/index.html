@@ -12,10 +12,7 @@
 <body>
 <header id="topbar" hidden>
   <span class="brand"><span class="brand-mark">✓</span><span class="brand-name">Concurso Tutor</span></span>
-  <span class="userinfo">
-    <select id="perfilTopo" class="perfil-select"></select>
-    <span id="userinfo"></span>
-  </span>
+  <span class="userinfo"><span id="userinfo"></span></span>
   <button id="logout" class="btn-ghost">Sair</button>
 </header>
 
@@ -24,10 +21,7 @@
   <section id="login" class="examsheet">
     <p class="eyebrow">Concurso público · acesso do candidato</p>
     <h1>Concurso Tutor</h1>
-    <p class="lead">Seu bloco de estudo diário, corrigido na hora. Escolha o perfil.</p>
-    <label class="field">Perfil
-      <select id="perfilLogin" class="perfil-select"></select>
-    </label>
+    <p class="lead">Escolha sua trilha uma única vez. O plano cobre todo o conteúdo.</p>
     <label class="field">Usuário
       <input id="username" autocomplete="username" />
     </label>
@@ -35,7 +29,17 @@
       <input id="password" type="password" autocomplete="current-password" />
     </label>
     <button id="btnLogin" class="btn-stamp">Entrar</button>
-    <p class="hint">Demo: admin/admin123 · aluno_pf/123456 · aluno_enf/123456 · aluno_pericia/123456</p>
+    <div class="cadastro-box">
+      <p class="eyebrow">Primeiro acesso</p>
+      <label class="field">Nome completo<input id="cadNome" autocomplete="name" /></label>
+      <label class="field">Novo usuário<input id="cadUsuario" autocomplete="username" /></label>
+      <label class="field">Nova senha<input id="cadSenha" type="password" autocomplete="new-password" /></label>
+      <label class="field">Sua trilha<select id="cadTrilha" class="perfil-select"></select></label>
+      <label class="field">Tempo diário<select id="cadTempo" class="perfil-select"><option value="20">20 minutos</option><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>60 minutos</option><option value="90">90 minutos</option></select></label>
+      <button id="btnCadastro" class="btn-ghost" type="button">Criar perfil</button>
+      <p id="cadastroMsg" class="hint"></p>
+    </div>
+    <p class="hint">Demonstração: aluno_pf/123456 · aluno_enf/123456</p>
     <p id="loginErr" class="err"></p>
   </section>
 
@@ -59,6 +63,7 @@
 
     <section id="tab-progresso" class="tabpanel" hidden>
       <div id="cobertura"></div>
+      <div id="dashboardCards" class="dashboard-cards"></div>
       <p class="eyebrow">Domínio por tópico</p>
       <div id="heatmap"></div>
     </section>

@@ -1,20 +1,18 @@
 const API = "/api";
 let TOKEN = localStorage.getItem("ct_token") || null;
 let ME = null;
-let CONCURSOS = [];              // perfis disponíveis
-let CONCURSO = null;             // perfil ativo (id)
+let CONCURSOS = [];              // trilhas disponíveis apenas para cadastro
+let CONCURSO = null;             // trilha fixa do aluno
 
-// carrega perfis no início (tela de login) e popula os dois selects
+// carrega trilhas somente para o cadastro
 async function carregarPerfis() {
   try {
     const data = await fetch(API + "/concursos").then(r => { if (!r.ok) throw new Error("erro"); return r.json(); });
     CONCURSOS = data.concursos;
   } catch (e) { console.error("perfis", e); return; }
   if (CONCURSOS.length) {
-    document.getElementById("perfilLogin").innerHTML =
-      CONCURSOS.map(c => `<option value="${c.id}">${c.cargo} · ${c.nome}</option>`).join("");
-    document.getElementById("perfilTopo").innerHTML =
-      CONCURSOS.map(c => `<option value="${c.id}">${c.cargo}</option>`).join("");
+    document.getElementById("cadTrilha").innerHTML =
+      CONCURSOS.filter(c => c.id === 51 || c.id === 52).map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
   }
 }
 
@@ -22,8 +20,6 @@ async function carregarPerfis() {
 function setPerfil(id) {
   CONCURSO = id;
   localStorage.setItem("ct_concurso", id);
-  const sel = document.getElementById("perfilTopo");
-  if (sel.options.length) sel.value = id;
 }
 
 function novoTomarPerfil() {
@@ -34,11 +30,7 @@ async function api(path, opts = {}) {
   opts.headers = opts.headers || {};
   if (TOKEN) opts.headers["Authorization"] = "Bearer " + TOKEN;
   if (opts.body) opts.headers["Content-Type"] = "application/json";
-  // injeta o perfil ativo apenas nas rotas de conteúdo
-  const isConteudo = /^\/(bloco|blocos|progresso|plano)/.test(path);
-  const sep = path.includes("?") ? "&" : "?";
-  const pathC = (CONCURSO && isConteudo) ? path + sep + "concurso_id=" + CONCURSO : path;
-  const r = await fetch(API + pathC, opts);
+  const r = await fetch(API + path, opts);
   if (!r.ok) {
     const t = await r.text();
     throw new Error(t || r.status);
@@ -57,15 +49,25 @@ async function login(u, p) {
     const data = await api("/login", { method: "POST", body: JSON.stringify({ username: u, password: p }) });
     TOKEN = data.token; ME = data.user;
     localStorage.setItem("ct_token", TOKEN);
-    // perfil ativo: escolhido no login > concurso do usuário > primeiro disponível
-    const sel = document.getElementById("perfilLogin");
-    let id = parseInt(sel.value, 10);
-    if (!CONCURSOS.some(c => c.id === id)) id = ME.concurso_id ?? CONCURSOS[0].id;
-    setPerfil(id);
+    setPerfil(ME.concurso_id);
     showApp();
   } catch (e) {
     document.getElementById("loginErr").textContent = "Falha: " + e.message;
   }
+}
+
+async function cadastro() {
+  const msg = document.getElementById("cadastroMsg");
+  try {
+    await api("/cadastro", { method: "POST", body: JSON.stringify({
+      full_name: document.getElementById("cadNome").value,
+      username: document.getElementById("cadUsuario").value,
+      password: document.getElementById("cadSenha").value,
+      concurso_id: parseInt(document.getElementById("cadTrilha").value, 10),
+      tempo_diario: parseInt(document.getElementById("cadTempo").value, 10),
+    }) });
+    msg.textContent = "Perfil criado. Agora entre com seu usuário e senha.";
+  } catch (e) { msg.textContent = "Não foi possível criar: " + e.message; }
 }
 
 function logout() {
@@ -80,7 +82,6 @@ async function showApp() {
   document.getElementById("app").hidden = false;
   document.getElementById("topbar").hidden = false;
   document.getElementById("userinfo").textContent = `${ME.full_name} (${ME.role})`;
-  document.getElementById("perfilTopo").value = CONCURSO;
   await carregarBloco();
   await carregarBlocos();
   await carregarProgresso();
@@ -206,8 +207,13 @@ async function carregarProgresso() {
   const box = document.getElementById("heatmap");
   const cov = document.getElementById("cobertura");
   try {
-    const { dominancia, cobertura } = await api("/progresso");
+    const { dominancia, cobertura, dashboard } = await api("/progresso");
     cov.innerHTML = `<p class="cobertura-valor">${cobertura.pct}%<span>cobertura do edital · ${cobertura.estudados}/${cobertura.total} tópicos</span></p>`;
+    document.getElementById("dashboardCards").innerHTML = [
+      ["Domínio médio", `${dashboard.dominio_medio}%`], ["Respondidas", dashboard.questoes_respondidas],
+      ["Acertos", dashboard.acertos], ["Taxa de acerto", `${dashboard.taxa_acerto}%`],
+      ["Revisões pendentes", dashboard.revisoes_pendentes], ["Matérias iniciadas", `${dashboard.materias_iniciadas}/${dashboard.materias_total}`],
+    ].map(([label, value]) => `<div class="dashboard-card"><span>${label}</span><b>${value}</b></div>`).join("");
     box.innerHTML = "";
     dominancia.forEach(d => {
       const level = domLevel(d.dominio);
@@ -236,23 +242,10 @@ async function carregarPlano() {
 
 // Eventos
 document.getElementById("btnLogin").onclick = () => {
-  const sel = document.getElementById("perfilLogin");
-  if (sel.value) setPerfil(parseInt(sel.value, 10));
   login(document.getElementById("username").value, document.getElementById("password").value);
 };
+document.getElementById("btnCadastro").onclick = cadastro;
 document.getElementById("logout").onclick = logout;
-document.getElementById("perfilTopo").onchange = async (e) => {
-  setPerfil(parseInt(e.target.value, 10));
-  // mostra a aba "Bloco do dia" e recarrega todo o conteúdo do novo perfil
-  document.querySelectorAll(".tabs button").forEach(x => x.classList.remove("active"));
-  document.querySelector(".tabs button[data-tab='hoje']").classList.add("active");
-  document.querySelectorAll(".tabpanel").forEach(p => p.hidden = true);
-  document.getElementById("tab-hoje").hidden = false;
-  await carregarBloco();
-  await carregarBlocos();
-  await carregarProgresso();
-  await carregarPlano();
-};
 document.querySelectorAll(".tabs button").forEach(b => {
   b.onclick = () => {
     document.querySelectorAll(".tabs button").forEach(x => x.classList.remove("active"));
@@ -262,14 +255,12 @@ document.querySelectorAll(".tabs button").forEach(b => {
   };
 });
 
-// boot: carrega perfis e restaura perfil ativo (login ou sessão)
+// boot: carrega trilhas e restaura sessão
 (async function boot() {
   await carregarPerfis();
   const salvo = parseInt(localStorage.getItem("ct_concurso"), 10);
   if (CONCURSOS.length) {
-    const id = CONCURSOS.some(c => c.id === salvo) ? salvo : CONCURSOS[0].id;
-    setPerfil(id);
-    document.getElementById("perfilLogin").value = id;
+    if (CONCURSOS.some(c => c.id === salvo)) setPerfil(salvo);
   }
   if (TOKEN) {
     api("/me").then(u => { ME = u; showApp(); }).catch(() => logout());

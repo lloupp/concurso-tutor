@@ -67,11 +67,42 @@ def dominancia(db: Session, user_id: int, concurso_id: int):
     return out
 
 
-def cobertura(db: Session, concurso_id: int):
+def cobertura(db: Session, concurso_id: int, user_id: int | None = None):
     total = db.query(Topico).filter_by(concurso_id=concurso_id).count()
-    estudados = db.query(Topico).filter_by(concurso_id=concurso_id, estudado=True).count()
+    if user_id is None:
+        estudados = db.query(Topico).filter_by(concurso_id=concurso_id, estudado=True).count()
+    else:
+        estudados = (db.query(Progresso)
+                     .join(Topico, Topico.id == Progresso.topico_id)
+                     .filter(Progresso.user_id == user_id,
+                             Topico.concurso_id == concurso_id,
+                             Progresso.tentativas > 0).count())
     return {"total": total, "estudados": estudados,
             "pct": round(100 * estudados / total, 1) if total else 0.0}
+
+
+def painel(db: Session, user_id: int, concurso_id: int):
+    respostas = db.query(Resposta).filter_by(user_id=user_id).all()
+    corrigidas = [r for r in respostas if r.correta is not None]
+    progresso = db.query(Progresso).filter_by(user_id=user_id).all()
+    topicos = db.query(Topico).filter_by(concurso_id=concurso_id).all()
+    hoje = date.today()
+    materias = {t.nome.split(" — ", 1)[0] for t in topicos}
+    materias_iniciadas = set()
+    for t in topicos:
+        if any(p.topico_id == t.id and p.tentativas > 0 for p in progresso):
+            materias_iniciadas.add(t.nome.split(" — ", 1)[0])
+    return {
+        "questoes_respondidas": len(respostas),
+        "acertos": sum(1 for r in corrigidas if r.correta),
+        "erros": sum(1 for r in corrigidas if r.correta is False),
+        "taxa_acerto": round(100 * sum(1 for r in corrigidas if r.correta) / len(corrigidas), 1) if corrigidas else 0.0,
+        "dominio_medio": round(sum(p.dominio or 0 for p in progresso) / len(progresso) * 100, 1) if progresso else 0.0,
+        "revisoes_pendentes": sum(1 for p in progresso if p.proxima_revisao and p.proxima_revisao <= hoje),
+        "materias_iniciadas": len(materias_iniciadas),
+        "materias_total": len(materias),
+        "cobertura": cobertura(db, concurso_id, user_id),
+    }
 
 
 def proximo_plano(db: Session, user_id: int, concurso_id: int, n_topicos: int = 2):

@@ -29,3 +29,11 @@ class CriarUsuarioIn(BaseModel):
     password: str
     full_name: str = ""
     concurso_id: Optional[int] = None
+
+
+class CadastroIn(BaseModel):
+    username: str
+    password: str
+    full_name: str
+    concurso_id: int
+    tempo_diario: int = 60

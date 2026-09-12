@@ -9,7 +9,7 @@ import os
 
 from .db import get_db, engine
 from . import models, auth, planner
-from .schemas import LoginIn, ResponderIn, GerarBlocoIn, CriarUsuarioIn
+from .schemas import LoginIn, ResponderIn, GerarBlocoIn, CriarUsuarioIn, CadastroIn
 
 # Em PostgreSQL/Supabase, o schema é aplicado por migration, não em cada
 # cold start da Function. O create_all continua útil no SQLite local/demo.
@@ -79,7 +79,26 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
     return {"token": token, "user": {
         "id": u.id, "username": u.username, "full_name": u.full_name,
         "role": u.role, "concurso_id": u.concurso_id,
+        "tempo_diario": u.tempo_diario,
     }}
+
+
+@app.post(f"{API}/cadastro")
+def cadastro(payload: CadastroIn, db: Session = Depends(get_db)):
+    """Cria um aluno escolhendo apenas a trilha e o tempo diário."""
+    if len(payload.username.strip()) < 3 or len(payload.password) < 6:
+        raise HTTPException(400, "Usuário deve ter 3+ caracteres e senha 6+ caracteres")
+    if payload.tempo_diario not in {20, 30, 45, 60, 90}:
+        raise HTTPException(400, "Tempo diário inválido")
+    if not db.query(models.Concurso).filter_by(id=payload.concurso_id).first():
+        raise HTTPException(404, "Trilha não encontrada")
+    if db.query(models.User).filter_by(username=payload.username.strip()).first():
+        raise HTTPException(400, "Usuário já existe")
+    user = auth.criar_usuario(db, payload.username.strip(), payload.password,
+                              payload.full_name.strip(), "aluno", payload.concurso_id)
+    user.tempo_diario = payload.tempo_diario
+    db.commit()
+    return {"user_id": user.id, "username": user.username}
 
 
 @app.get(f"{API}/me")
@@ -101,7 +120,9 @@ def listar_concursos(db: Session = Depends(get_db)):
 def _resolver_concurso(db, u, concurso_id):
     """Define o concurso ativo: query param > concurso_fixo do usuário > 400.
     Permite a um aluno acessar qualquer perfil (livre acesso)."""
-    cid = concurso_id if concurso_id is not None else u.concurso_id
+    if u.role == "aluno" and concurso_id is not None and concurso_id != u.concurso_id:
+        raise HTTPException(403, "O aluno só pode acessar a trilha escolhida no cadastro")
+    cid = u.concurso_id if u.role == "aluno" else (concurso_id if concurso_id is not None else u.concurso_id)
     if cid is None:
         raise HTTPException(400, "Selecione um perfil")
     c = db.query(models.Concurso).filter_by(id=cid).first()
@@ -261,7 +282,16 @@ def progresso(concurso_id: int = None,
               db: Session = Depends(get_db)):
     c = _resolver_concurso(db, u, concurso_id)
     return {"dominancia": planner.dominancia(db, u.id, c.id),
-            "cobertura": planner.cobertura(db, c.id)}
+            "cobertura": planner.cobertura(db, c.id, u.id),
+            "dashboard": planner.painel(db, u.id, c.id)}
+
+
+@app.get(f"{API}/dashboard")
+def dashboard(concurso_id: int = None,
+              u: models.User = Depends(auth.get_current_user),
+              db: Session = Depends(get_db)):
+    c = _resolver_concurso(db, u, concurso_id)
+    return planner.painel(db, u.id, c.id)
 
 
 @app.get(f"{API}/plano")

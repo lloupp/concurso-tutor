@@ -41,6 +41,27 @@ def test_me_com_token_valido_retorna_dados_do_usuario(client, aluno_headers, alu
     assert resp.json()["username"] == aluno_user.username
 
 
+def test_cadastro_escolhe_trilha_e_tempo(client, db, concurso):
+    resp = client.post("/api/cadastro", json={
+        "username": "novo_aluno", "password": "senha123",
+        "full_name": "Novo Aluno", "concurso_id": concurso.id,
+        "tempo_diario": 45,
+    })
+    assert resp.status_code == 200
+    user = db.query(models.User).filter_by(username="novo_aluno").one()
+    assert user.concurso_id == concurso.id
+    assert user.tempo_diario == 45
+
+
+def test_dashboard_tem_metricas_individuais(client, aluno_headers, aluno_user, concurso, topico):
+    resp = client.get("/api/dashboard", headers=aluno_headers)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["questoes_respondidas"] == 0
+    assert body["cobertura"]["estudados"] == 0
+    assert body["materias_total"] >= 1
+
+
 # ---------- bloco/hoje, blocos ----------
 
 def test_bloco_hoje_aluno_sem_concurso_retorna_400(client, db):
@@ -315,7 +336,7 @@ def test_concursos_lista_disponiveis_sem_token(client, db, concurso):
     assert "PF" in nomes
 
 
-def test_bloco_hoje_acessa_outro_concurso_com_concurso_id(client, db, aluno_headers, aluno_user, concurso):
+def test_bloco_hoje_bloqueia_trilha_diferente(client, db, aluno_headers, aluno_user, concurso):
     """Livro acesso: aluno padrão vê bloco de outro perfil passando concurso_id."""
     outro = models.Concurso(nome="Outro Perfil", cargo="Cargo", banca="B")
     db.add(outro)
@@ -326,11 +347,10 @@ def test_bloco_hoje_acessa_outro_concurso_com_concurso_id(client, db, aluno_head
     db.commit()
     resp = client.get("/api/bloco/hoje", headers=aluno_headers,
                       params={"concurso_id": outro.id})
-    assert resp.status_code == 200
-    assert resp.json()["bloco"]["titulo"] == "Bloco de outro"
+    assert resp.status_code == 403
 
 
-def test_listar_blocos_de_outro_concurso_com_concurso_id(client, db, aluno_headers, aluno_user, concurso):
+def test_listar_blocos_bloqueia_trilha_diferente(client, db, aluno_headers, aluno_user, concurso):
     outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
     db.add(outro)
     db.commit()
@@ -339,11 +359,10 @@ def test_listar_blocos_de_outro_concurso_com_concurso_id(client, db, aluno_heade
     db.add(b)
     db.commit()
     resp = client.get("/api/blocos", headers=aluno_headers, params={"concurso_id": outro.id})
-    titulos = [x["titulo"] for x in resp.json()["blocos"]]
-    assert "BlocoOutro" in titulos
+    assert resp.status_code == 403
 
 
-def test_responder_questao_de_outro_perfil_ok_com_concurso_id(client, db, aluno_headers, aluno_user, concurso):
+def test_responder_bloqueia_trilha_diferente(client, db, aluno_headers, aluno_user, concurso):
     """Com o perfil ativo certo, o aluno responde questão de outro concurso."""
     outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
     db.add(outro)
@@ -365,11 +384,8 @@ def test_responder_questao_de_outro_perfil_ok_com_concurso_id(client, db, aluno_
     resp = client.post("/api/bloco/responder", headers=aluno_headers,
                        params={"concurso_id": outro.id},
                        json={"respostas": [{"questao_id": q.id, "resposta": "1"}]})
-    assert resp.status_code == 200
-    assert resp.json()["resultados"][0]["correta"] is True
-    # progresso registrado para o usuário, separado por perfil (tópico do outro concurso)
-    prog = db.query(models.Progresso).filter_by(user_id=aluno_user.id, topico_id=top.id).first()
-    assert prog is not None and prog.tentativas == 1
+    assert resp.status_code == 403
+    assert db.query(models.Resposta).count() == 0
 
 
 def test_responder_com_perfil_errado_retorna_403(client, db, aluno_headers, aluno_user, concurso):
@@ -425,14 +441,13 @@ def test_bloco_por_id_inexistente_retorna_404(client, aluno_headers):
     assert resp.status_code == 404
 
 
-def test_progresso_de_outro_perfil_com_concurso_id(client, db, aluno_headers, aluno_user, concurso):
+def test_progresso_bloqueia_trilha_diferente(client, db, aluno_headers, aluno_user, concurso):
     outro = models.Concurso(nome="Outro", cargo="X", banca="Y")
     db.add(outro)
     db.commit()
     db.refresh(outro)
     resp = client.get("/api/progresso", headers=aluno_headers, params={"concurso_id": outro.id})
-    assert resp.status_code == 200
-    assert "cobertura" in resp.json()
+    assert resp.status_code == 403
 
 
 # ---------- bloco/gerar (admin only) ----------

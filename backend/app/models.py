@@ -25,6 +25,7 @@ class User(Base):
     salt = Column(String(64))
     role = Column(String(20), default="aluno")  # aluno | admin
     concurso_id = Column(Integer, ForeignKey("concursos.id"), nullable=True)
+    tempo_diario = Column(Integer, default=60)
 
 
 class Sessao(Base):
