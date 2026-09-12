@@ -96,6 +96,8 @@ class Questao(Base):
     gabarito = Column(String(10), nullable=True)  # índice "0".."n" (mcq)
     resposta_modelo = Column(Text, nullable=True)  # discursiva
     rubric = Column(Text, nullable=True)            # critérios de correção
+    explicacao = Column(Text, nullable=True)       # explicação didática
+    fonte_id = Column(Integer, ForeignKey("fontes.id"), nullable=True)
     dificuldade = Column(Integer, default=2)
 
 

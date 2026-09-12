@@ -81,6 +81,8 @@ def _bloco_out(db, bloco):
             "id": q.id, "tipo": q.tipo, "enunciado": q.enunciado,
             "alternativas": q.alternativas, "dificuldade": q.dificuldade,
             "topico_id": q.topico_id,
+            "explicacao": q.explicacao,
+            "fonte_id": q.fonte_id,
             # correção 3: não expõe gabarito/resposta_modelo no payload do aluno.
             # A checagem continua no backend; o front só confirma após responder.
             "resposta_modelo": None,
@@ -258,6 +260,8 @@ def gerar_bloco(payload: GerarBlocoIn,
             gabarito=q.get("gabarito"),
             resposta_modelo=q.get("resposta_modelo"),
             rubric=q.get("rubric"),
+            explicacao=q.get("explicacao"),
+            fonte_id=q.get("fonte_id"),
             dificuldade=q.get("dificuldade", 2),
         )
         db.add(questao)
