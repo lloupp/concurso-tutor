@@ -187,9 +187,12 @@ async function enviarRespostas() {
     const radio = qdiv.querySelector('input[type=radio]:checked');
     const anyRadio = qdiv.querySelector("input[type=radio]");
       const ta = qdiv.querySelector("textarea");
-      const numeric = qdiv.querySelector(".numeric-answer");
-      const ref = radio || anyRadio || ta || numeric;
+    const numeric = qdiv.querySelector(".numeric-answer");
+    const ref = radio || anyRadio || ta || numeric;
     if (!ref) return;
+    if (anyRadio && !radio) return;
+    if (numeric && !numeric.value.trim()) return;
+    if (ta && !ta.value.trim()) return;
     const id = parseInt(ref.name.replace("q", ""));
     const val = radio ? radio.value : (numeric ? numeric.value : (ta ? ta.value : ""));
     respostas.push({ questao_id: id, resposta: val });
