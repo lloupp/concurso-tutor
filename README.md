@@ -18,7 +18,7 @@ Plataforma web (Python + FastAPI + SQLite + front vanilla) que funciona como um
 - Código **portátil** (GitHub, roda em qualquer lugar via Docker ou Termux).
 
 ## Stack
-- Backend: FastAPI + SQLAlchemy + SQLite
+- Backend: FastAPI + SQLAlchemy + SQLite local ou PostgreSQL Supabase
 - Front: HTML/CSS/JS puro (SPA, sem build)
 - IA: Hermes Agent (skill `tutor-concurso`) gera conteúdo e corrige discursivas
 

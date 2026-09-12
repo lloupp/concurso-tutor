@@ -9,3 +9,4 @@ __pycache__/
 
 # agente (pi): planos e memórias locais
 .pi/
+.vercel

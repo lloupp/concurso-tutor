@@ -10,7 +10,10 @@ from .db import get_db, engine
 from . import models, auth, planner
 from .schemas import LoginIn, ResponderIn, GerarBlocoIn, CriarUsuarioIn
 
-models.Base.metadata.create_all(bind=engine)
+# Em PostgreSQL/Supabase, o schema é aplicado por migration, não em cada
+# cold start da Function. O create_all continua útil no SQLite local/demo.
+if not os.environ.get("DATABASE_URL") or os.environ.get("AUTO_CREATE_SCHEMA") == "true":
+    models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Concurso Tutor", version="0.1.0")
 

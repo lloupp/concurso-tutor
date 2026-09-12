@@ -57,6 +57,22 @@ class Topico(Base):
     estudado = Column(Boolean, default=False)  # cobertura do edital
 
 
+class Fonte(Base):
+    __tablename__ = "fontes"
+    id = Column(Integer, primary_key=True)
+    titulo = Column(String(300), nullable=False)
+    url = Column(String(700), nullable=False)
+    tipo = Column(String(40), nullable=False, default="edital")
+    orgao = Column(String(200), nullable=True)
+    ano = Column(Integer, nullable=True)
+
+
+class TopicoFonte(Base):
+    __tablename__ = "topicos_fontes"
+    topico_id = Column(Integer, ForeignKey("topicos.id"), primary_key=True)
+    fonte_id = Column(Integer, ForeignKey("fontes.id"), primary_key=True)
+
+
 class Bloco(Base):
     __tablename__ = "blocos"
     id = Column(Integer, primary_key=True)
