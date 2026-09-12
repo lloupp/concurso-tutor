@@ -2,7 +2,6 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.pool import NullPool
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_DB = os.path.join(BASE_DIR, "data", "concurso.db")
@@ -15,8 +14,11 @@ if DATABASE_URL:
     # O pooler do Supabase (Supavisor, modo transaction) não suporta prepared
     # statements nomeados entre conexões reaproveitadas; prepare_threshold=None
     # desliga o auto-prepare do psycopg e evita erro "DuplicatePreparedStatement".
+    # Usa QueuePool com conexões reutilizáveis para evitar cold-start lento em
+    # cada requisição (NullPool criava conexão nova por request, causando lentidão
+    # e race condition no cadastro/login com pooler Supabase).
     engine = create_engine(
-        _url, poolclass=NullPool, pool_pre_ping=True,
+        _url, pool_pre_ping=True, pool_size=5, max_overflow=10,
         connect_args={"prepare_threshold": None},
     )
 else:
