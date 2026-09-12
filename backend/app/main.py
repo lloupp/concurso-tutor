@@ -171,6 +171,31 @@ def _bloco_out(db, bloco, user_id=None):
             "data": bloco.data.isoformat(), "questoes": qs}
 
 
+def _bloco_adaptado_out(db, user_id, concurso):
+    """Monta o próximo estudo com tópicos inéditos, revisões e baixa dominância."""
+    topicos = planner.proximo_plano(db, user_id, concurso.id, n_topicos=3)
+    ids_topicos = [t.id for t in topicos]
+    respondidas = {r.questao_id for r in db.query(models.Resposta)
+                   .filter_by(user_id=user_id).all()}
+    base = (db.query(models.Questao)
+            .join(models.Bloco, models.Bloco.id == models.Questao.bloco_id)
+            .filter(models.Bloco.concurso_id == concurso.id))
+    candidatas = base.filter(models.Questao.topico_id.in_(ids_topicos)).all()
+    novas = [q for q in candidatas if q.id not in respondidas]
+    if len(novas) < 10:
+        extras = [q for q in base.all() if q.id not in respondidas and q.id not in {x.id for x in novas}]
+        novas.extend(extras)
+    selecionadas = novas[:10] or candidatas[:10]
+    questoes = []
+    for q in selecionadas:
+        bloco_origem = db.query(models.Bloco).filter_by(id=q.bloco_id).first()
+        item = _bloco_out(db, bloco_origem, user_id)["questoes"]
+        questoes.extend(x for x in item if x["id"] == q.id)
+    return {"id": None, "titulo": "Próximo bloco adaptativo",
+            "introducao": "Prioriza tópicos inéditos, revisões vencidas e menor domínio sem excluir as demais matérias.",
+            "duracao_min": 60, "data": date.today().isoformat(), "questoes": questoes}
+
+
 @app.get(f"{API}/bloco/hoje")
 def bloco_hoje(concurso_id: int = None,
                u: models.User = Depends(auth.get_current_user),
@@ -179,8 +204,14 @@ def bloco_hoje(concurso_id: int = None,
     bloco = (db.query(models.Bloco)
              .filter_by(concurso_id=c.id, data=date.today())
              .order_by(models.Bloco.id.desc()).first())
+    ja_estudou = db.query(models.Resposta).filter_by(user_id=u.id).first()
+    if ja_estudou:
+        return {"bloco": _bloco_adaptado_out(db, u.id, c)}
     if not bloco:
-        return {"bloco": None, "msg": f"Nenhum bloco para hoje em {c.nome}. Peça ao Hermes gerar."}
+        adaptado = _bloco_adaptado_out(db, u.id, c)
+        if not adaptado["questoes"]:
+            return {"bloco": None, "msg": f"Nenhuma questão disponível em {c.nome}."}
+        return {"bloco": adaptado}
     return {"bloco": _bloco_out(db, bloco, u.id)}
 
 

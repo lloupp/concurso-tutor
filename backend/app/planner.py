@@ -117,7 +117,7 @@ def proximo_plano(db: Session, user_id: int, concurso_id: int, n_topicos: int = 
 
     def score(t):
         p = db.query(Progresso).filter_by(user_id=user_id, topico_id=t.id).first()
-        if not t.estudado:
+        if not p or p.tentativas == 0:
             return (0, 0)
         if p and p.proxima_revisao and p.proxima_revisao <= hoje:
             return (1, p.dominio or 0)
