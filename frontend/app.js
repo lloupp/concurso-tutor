@@ -148,7 +148,9 @@ async function carregarBloco(blocoId = null) {
       }
       if (anterior) {
         const estado = anterior.correta ? "Correto" : "A revisar";
-        inner += `<div class="answer-history"><b>${estado}</b> · ${anterior.feedback || "Resposta registrada."}</div>`;
+        const detalhe = anterior.feedback || "Resposta registrada.";
+        const explicacao = q.explicacao && !detalhe.includes(q.explicacao) ? ` ${q.explicacao}` : "";
+        inner += `<div class="answer-history"><b>${estado}</b> · ${detalhe}${explicacao}</div>`;
       }
       div.innerHTML = inner;
       form.appendChild(div);
@@ -198,7 +200,9 @@ async function enviarRespostas() {
     out.resultados.forEach(r => {
       const cls = r.correta === true ? "stamp-ok" : (r.correta === false ? "stamp-bad" : "stamp-pending");
       const label = r.correta === true ? "Correto" : (r.correta === false ? "A revisar" : "Legada");
-      html += `<div class="stamp-row"><span class="stamp ${cls}">${label}</span><span class="stamp-detail">Q${r.questao_id}${r.feedback ? " · " + r.feedback : ""}</span></div>`;
+      const detalhe = r.feedback || "";
+      const explicacao = r.explicacao && !detalhe.includes(r.explicacao) ? " " + r.explicacao : "";
+      html += `<div class="stamp-row"><span class="stamp ${cls}">${label}</span><span class="stamp-detail">Q${r.questao_id}${detalhe ? " · " + detalhe : ""}${explicacao}</span></div>`;
     });
     html += "</div>";
     document.getElementById("resultado").innerHTML = html;

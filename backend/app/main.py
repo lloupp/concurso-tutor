@@ -50,7 +50,9 @@ def _corrigir_automaticamente(q, resposta):
     recebido = str(resposta or "").strip()
     if q.tipo == "mcq":
         correta = recebido == str(q.gabarito).strip()
-        esperado = str(q.gabarito).strip()
+        indice = int(str(q.gabarito).strip())
+        alternativa = (q.alternativas or [])[indice] if 0 <= indice < len(q.alternativas or []) else ""
+        esperado = f"{chr(65 + indice)}) {alternativa}".strip()
     elif q.tipo == "verdadeiro_falso":
         normalizado = recebido.lower() in {"true", "verdadeiro", "v", "sim", "1", "certo"}
         esperado_bool = str(q.gabarito).strip().lower() in {"true", "verdadeiro", "v", "sim", "1"}
