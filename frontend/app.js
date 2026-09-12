@@ -89,12 +89,12 @@ async function showApp() {
 }
 
 // renderiza o bloco (do dia ou escolhido) no form; aceita bloco_id opcional
-async function carregarBloco(blocoId = null) {
+async function carregarBloco(blocoId = null, adaptativo = false) {
   const box = document.getElementById("blocoInfo");
   const form = document.getElementById("formBloco");
   document.getElementById("resultado").innerHTML = "";
   try {
-    const path = blocoId ? `/bloco/${blocoId}` : "/bloco/hoje";
+    const path = blocoId ? "/bloco/" + blocoId : (adaptativo ? "/bloco/proximo" : "/bloco/hoje");
     const { bloco } = await api(path);
     if (!bloco) {
       box.innerHTML = "<p class='warn-box'>Nenhum bloco para hoje. Peça ao Hermes para gerar.</p>";
@@ -111,6 +111,7 @@ async function carregarBloco(blocoId = null) {
           <div><span>Duração</span><b>${bloco.duracao_min} min</b></div>
           <div><span>Questões</span><b>${bloco.questoes.length}</b></div>
         </div>
+        <button type="button" class="btn secondary" onclick="carregarBloco(null, true)">Gerar próximo bloco adaptativo</button>
       </div>`;
     form.innerHTML = "";
     bloco.questoes.forEach((q, i) => {

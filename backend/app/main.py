@@ -172,20 +172,50 @@ def _bloco_out(db, bloco, user_id=None):
 
 
 def _bloco_adaptado_out(db, user_id, concurso):
-    """Monta o próximo estudo com tópicos inéditos, revisões e baixa dominância."""
-    topicos = planner.proximo_plano(db, user_id, concurso.id, n_topicos=3)
-    ids_topicos = [t.id for t in topicos]
-    respondidas = {r.questao_id for r in db.query(models.Resposta)
-                   .filter_by(user_id=user_id).all()}
+    """Monta um bloco sempre utilizável, com prioridade adaptativa por camadas."""
+    hoje = date.today()
+    topicos = planner.proximo_plano(db, user_id, concurso.id, n_topicos=1000)
+    prioridade_topico = {t.id: i for i, t in enumerate(topicos)}
+    progresso = {p.topico_id: p for p in db.query(models.Progresso).filter_by(user_id=user_id).all()}
+    respostas = (db.query(models.Resposta)
+                 .filter_by(user_id=user_id)
+                 .order_by(models.Resposta.id.desc()).all())
+    ultima = {}
+    for r in respostas:
+        ultima.setdefault(r.questao_id, r)
     base = (db.query(models.Questao)
             .join(models.Bloco, models.Bloco.id == models.Questao.bloco_id)
-            .filter(models.Bloco.concurso_id == concurso.id))
-    candidatas = base.filter(models.Questao.topico_id.in_(ids_topicos)).all()
-    novas = [q for q in candidatas if q.id not in respondidas]
-    if len(novas) < 10:
-        extras = [q for q in base.all() if q.id not in respondidas and q.id not in {x.id for x in novas}]
-        novas.extend(extras)
-    selecionadas = novas[:10] or candidatas[:10]
+            .filter(models.Bloco.concurso_id == concurso.id).all())
+
+    def camada(q):
+        r = ultima.get(q.id)
+        p = progresso.get(q.topico_id)
+        if r is None:
+            return 0  # inédita para este aluno
+        if p and p.proxima_revisao and p.proxima_revisao <= hoje:
+            return 1  # revisão vencida
+        if r.correta is False:
+            return 2  # erro recente
+        if p and (p.dominio or 0) < 0.6:
+            return 3  # baixa dominância
+        return 4  # reforço/reutilização
+
+    base.sort(key=lambda q: (camada(q), prioridade_topico.get(q.topico_id, 9999),
+                             ultima[q.id].id if q.id in ultima else 0, q.id))
+    selecionadas = []
+    materias = {}
+    # Garante diversidade entre matérias quando houver alternativas disponíveis.
+    for q in base:
+        if len(selecionadas) >= 10:
+            break
+        if materias.get(q.materia, 0) >= 3:
+            continue
+        selecionadas.append(q)
+        materias[q.materia] = materias.get(q.materia, 0) + 1
+    if len(selecionadas) < min(10, len(base)):
+        escolhidas = {q.id for q in selecionadas}
+        selecionadas.extend(q for q in base if q.id not in escolhidas)
+        selecionadas = selecionadas[:10]
     questoes = []
     for q in selecionadas:
         bloco_origem = db.query(models.Bloco).filter_by(id=q.bloco_id).first()
@@ -193,7 +223,10 @@ def _bloco_adaptado_out(db, user_id, concurso):
         questoes.extend(x for x in item if x["id"] == q.id)
     return {"id": None, "titulo": "Próximo bloco adaptativo",
             "introducao": "Prioriza tópicos inéditos, revisões vencidas e menor domínio sem excluir as demais matérias.",
-            "duracao_min": 60, "data": date.today().isoformat(), "questoes": questoes}
+            "duracao_min": 60, "data": hoje.isoformat(), "questoes": questoes,
+            "estrategia": {"camadas": ["inéditas", "revisões vencidas", "erros", "baixa dominância", "reforço"],
+                           "fallback_usado": any(camada(q) == 4 for q in selecionadas),
+                           "topicos_priorizados": [t.id for t in topicos[:3]]}}
 
 
 @app.get(f"{API}/bloco/hoje")
@@ -210,6 +243,15 @@ def bloco_hoje(concurso_id: int = None,
             return {"bloco": None, "msg": f"Nenhuma questão disponível em {c.nome}."}
         return {"bloco": adaptado}
     return {"bloco": _bloco_out(db, bloco, u.id)}
+
+
+@app.get(f"{API}/bloco/proximo")
+def bloco_proximo(concurso_id: int = None,
+                  u: models.User = Depends(auth.get_current_user),
+                  db: Session = Depends(get_db)):
+    """Gera o próximo bloco do aluno, inclusive após esgotar os inéditos."""
+    c = _resolver_concurso(db, u, concurso_id)
+    return {"bloco": _bloco_adaptado_out(db, u.id, c)}
 
 
 @app.get(f"{API}/bloco/{{bloco_id}}")
