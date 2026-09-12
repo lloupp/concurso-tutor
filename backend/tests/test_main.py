@@ -138,6 +138,35 @@ def test_responder_mcq_incorreta_retorna_feedback_com_gabarito(client, db, aluno
     assert "Gabarito" in resultado["feedback"]
 
 
+@pytest.mark.parametrize("tipo,gabarito,resposta,correta", [
+    ("verdadeiro_falso", "true", "Certo", True),
+    ("verdadeiro_falso", "false", "true", False),
+    ("numerica", "12.5", "12,50", True),
+    ("numerica", "12.5", "12.52", False),
+])
+def test_responder_tipos_automaticos(client, db, aluno_headers, aluno_user, topico,
+                                     tipo, gabarito, resposta, correta):
+    bloco = models.Bloco(concurso_id=aluno_user.concurso_id, titulo="Automáticas", data=date.today())
+    db.add(bloco)
+    db.commit()
+    db.refresh(bloco)
+    q = models.Questao(bloco_id=bloco.id, topico_id=topico.id, tipo=tipo,
+                       enunciado="Questão automática", gabarito=gabarito,
+                       explicacao="Explicação didática.", tolerancia=0.01 if tipo == "numerica" else None,
+                       unidade="mL" if tipo == "numerica" else None)
+    db.add(q)
+    db.commit()
+    db.refresh(q)
+
+    resp = client.post("/api/bloco/responder", headers=aluno_headers,
+                       json={"respostas": [{"questao_id": q.id, "resposta": resposta}]})
+    assert resp.status_code == 200
+    resultado = resp.json()["resultados"][0]
+    assert resultado["correta"] is correta
+    assert resultado["explicacao"] == "Explicação didática."
+    assert "Resposta correta" in resultado["feedback"] or correta
+
+
 def test_responder_discursiva_fica_pendente_de_correcao(client, db, aluno_headers, aluno_user, topico):
     bloco = models.Bloco(concurso_id=aluno_user.concurso_id, titulo="B", data=date.today())
     db.add(bloco)

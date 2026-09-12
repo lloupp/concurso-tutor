@@ -1,5 +1,6 @@
 """API FastAPI da plataforma de estudo para concursos."""
 from datetime import date, datetime
+import re
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -29,6 +30,43 @@ app.add_middleware(
 )
 
 API = "/api"
+
+TIPOS_AUTOMATICOS = {"mcq", "verdadeiro_falso", "numerica"}
+
+
+def _numero(valor):
+    """Aceita números digitados com ponto ou vírgula decimal."""
+    if isinstance(valor, (int, float)):
+        return float(valor)
+    texto = str(valor or "").strip().replace(" ", "").replace(",", ".")
+    if not re.fullmatch(r"[-+]?\d+(?:\.\d+)?", texto):
+        return None
+    return float(texto)
+
+
+def _corrigir_automaticamente(q, resposta):
+    """Retorna (correta, nota, feedback) sem depender de IA."""
+    recebido = str(resposta or "").strip()
+    if q.tipo == "mcq":
+        correta = recebido == str(q.gabarito).strip()
+        esperado = str(q.gabarito).strip()
+    elif q.tipo == "verdadeiro_falso":
+        normalizado = recebido.lower() in {"true", "verdadeiro", "v", "sim", "1", "certo"}
+        esperado_bool = str(q.gabarito).strip().lower() in {"true", "verdadeiro", "v", "sim", "1"}
+        correta = normalizado == esperado_bool
+        esperado = "Verdadeiro" if esperado_bool else "Falso"
+    elif q.tipo == "numerica":
+        valor = _numero(recebido)
+        esperado_num = _numero(q.gabarito)
+        tolerancia = q.tolerancia if q.tolerancia is not None else 0.01
+        correta = valor is not None and esperado_num is not None and abs(valor - esperado_num) <= tolerancia
+        esperado = f"{q.gabarito}{(' ' + q.unidade) if q.unidade else ''}"
+    else:
+        return None, None, "Questão legada sem correção automática."
+    feedback = "Correto." if correta else f"Gabarito: {esperado}. Resposta correta."
+    if q.explicacao:
+        feedback += f" {q.explicacao}"
+    return correta, (1.0 if correta else 0.0), feedback
 
 
 # ---------- Auth ----------
@@ -83,6 +121,12 @@ def _bloco_out(db, bloco):
             "topico_id": q.topico_id,
             "explicacao": q.explicacao,
             "fonte_id": q.fonte_id,
+            "tolerancia": q.tolerancia,
+            "unidade": q.unidade,
+            "banca_estilo": q.banca_estilo,
+            "materia": q.materia,
+            "trilha": q.trilha,
+            "texto_base": q.texto_base,
             # correção 3: não expõe gabarito/resposta_modelo no payload do aluno.
             # A checagem continua no backend; o front só confirma após responder.
             "resposta_modelo": None,
@@ -148,23 +192,25 @@ def responder(concurso_id: int = None,
         if not bloco or bloco.concurso_id != c.id:
             raise HTTPException(403, "Questão não pertence ao perfil selecionado")
         correta, nota, feedback = None, None, None
-        if q.tipo == "mcq":
-            correta = str(r["resposta"]).strip() == str(q.gabarito)
-            feedback = "Correto!" if correta else f"Gabarito: {q.gabarito}"
+        if q.tipo in TIPOS_AUTOMATICOS:
+            correta, nota, feedback = _corrigir_automaticamente(q, r["resposta"])
         else:
-            # discursiva: pendente de correção por Hermes/admin
+            # Compatibilidade: dados discursivos antigos continuam preservados,
+            # mas não participam do fluxo normal após a migração de conversão.
             correta, nota, feedback = None, None, "Aguardando correção."
         res = models.Resposta(
             questao_id=q.id, user_id=u.id, resposta=str(r["resposta"]),
             correta=correta, nota=nota, feedback=feedback,
-            corrigido_por="auto" if q.tipo == "mcq" else None,
+            corrigido_por="auto" if q.tipo in TIPOS_AUTOMATICOS else None,
             tempo_seg=r.get("tempo_seg"),
         )
         db.add(res)
         db.commit()
         planner.atualizar_progresso(db, u.id, q.topico_id, correta, nota)
         resultados.append({"questao_id": q.id, "correta": correta,
-                           "nota": nota, "feedback": feedback})
+                           "nota": nota, "feedback": feedback,
+                           "gabarito": q.gabarito if q.tipo in TIPOS_AUTOMATICOS else None,
+                           "explicacao": q.explicacao})
     return {"resultados": resultados}
 
 
@@ -251,10 +297,19 @@ def gerar_bloco(payload: GerarBlocoIn,
     db.commit()
     db.refresh(bloco)
     for q in bloco_data.get("questoes", []):
+        tipo = q.get("tipo", "mcq")
+        if tipo not in TIPOS_AUTOMATICOS:
+            raise HTTPException(400, "Novos blocos aceitam apenas questões corrigíveis automaticamente")
+        banca_estilo = q.get("banca_estilo")
+        alternativas = q.get("alternativas")
+        if banca_estilo == "Cebraspe" and tipo != "verdadeiro_falso":
+            raise HTTPException(400, "Questões no estilo Cebraspe devem usar certo/errado")
+        if banca_estilo in {"FUNDATEC", "FAURGS"} and tipo == "mcq" and len(alternativas or []) not in {4, 5}:
+            raise HTTPException(400, "Questões objetivas desse estilo devem ter 4 ou 5 alternativas")
         questao = models.Questao(
             bloco_id=bloco.id,
             topico_id=q.get("topico_id"),
-            tipo=q.get("tipo", "mcq"),
+            tipo=tipo,
             enunciado=q.get("enunciado", ""),
             alternativas=q.get("alternativas"),
             gabarito=q.get("gabarito"),
@@ -262,6 +317,12 @@ def gerar_bloco(payload: GerarBlocoIn,
             rubric=q.get("rubric"),
             explicacao=q.get("explicacao"),
             fonte_id=q.get("fonte_id"),
+            tolerancia=q.get("tolerancia"),
+            unidade=q.get("unidade"),
+            banca_estilo=q.get("banca_estilo"),
+            materia=q.get("materia"),
+            trilha=q.get("trilha"),
+            texto_base=q.get("texto_base"),
             dificuldade=q.get("dificuldade", 2),
         )
         db.add(questao)

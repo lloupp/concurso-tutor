@@ -118,8 +118,9 @@ async function carregarBloco(blocoId = null) {
       let inner = `
         <div class="q-head">
           <span class="q-num">Q${i + 1}</span>
-          <span class="q-type">${q.tipo === "mcq" ? "Objetiva" : "Discursiva"}</span>
+          <span class="q-type">${q.tipo === "mcq" ? "Objetiva" : q.tipo === "verdadeiro_falso" ? "Certo ou errado" : q.tipo === "numerica" ? "Resposta numérica" : "Legada"}</span>
         </div>
+        ${q.texto_base ? `<div class="texto-base">${q.texto_base}</div>` : ""}
         <p class="q-body">${q.enunciado}</p>`;
       if (q.tipo === "mcq") {
         inner += `<div class="bubbles">`;
@@ -133,6 +134,13 @@ async function carregarBloco(blocoId = null) {
           </label>`;
         });
         inner += `</div>`;
+      } else if (q.tipo === "verdadeiro_falso") {
+        inner += `<div class="bubbles">
+          <label class="bubble-option"><input type="radio" name="q${q.id}" value="true" hidden /><span class="bubble">C</span><span class="opt-text">Certo</span></label>
+          <label class="bubble-option"><input type="radio" name="q${q.id}" value="false" hidden /><span class="bubble">E</span><span class="opt-text">Errado</span></label>
+        </div>`;
+      } else if (q.tipo === "numerica") {
+        inner += `<input class="numeric-answer" type="text" inputmode="decimal" name="q${q.id}" placeholder="Sua resposta${q.unidade ? ` (${q.unidade})` : ""}" />`;
       } else {
         inner += `<textarea class="ruled" name="q${q.id}" placeholder="Sua resposta discursiva..."></textarea>`;
       }
@@ -170,8 +178,9 @@ async function enviarRespostas() {
   form.querySelectorAll(".q").forEach(qdiv => {
     const radio = qdiv.querySelector('input[type=radio]:checked');
     const anyRadio = qdiv.querySelector("input[type=radio]");
-    const ta = qdiv.querySelector("textarea");
-    const ref = radio || anyRadio || ta;
+      const ta = qdiv.querySelector("textarea");
+      const numeric = qdiv.querySelector(".numeric-answer");
+      const ref = radio || anyRadio || ta || numeric;
     if (!ref) return;
     const id = parseInt(ref.name.replace("q", ""));
     const val = radio ? radio.value : (ta ? ta.value : "");
@@ -182,7 +191,7 @@ async function enviarRespostas() {
     let html = `<div class="correcao"><p class="eyebrow">Gabarito</p>`;
     out.resultados.forEach(r => {
       const cls = r.correta === true ? "stamp-ok" : (r.correta === false ? "stamp-bad" : "stamp-pending");
-      const label = r.correta === true ? "Correto" : (r.correta === false ? "A revisar" : "Aguardando correção");
+      const label = r.correta === true ? "Correto" : (r.correta === false ? "A revisar" : "Legada");
       html += `<div class="stamp-row"><span class="stamp ${cls}">${label}</span><span class="stamp-detail">Q${r.questao_id}${r.feedback ? " · " + r.feedback : ""}</span></div>`;
     });
     html += "</div>";

@@ -44,6 +44,14 @@ class Concurso(Base):
     banca = Column(String(100))
     edital_url = Column(String(500), nullable=True)
     edital_text = Column(Text, nullable=True)
+    ano = Column(Integer, nullable=True)
+    tipo_prova = Column(String(80), nullable=True)
+    n_alternativas = Column(Integer, nullable=True)
+    usa_certo_errado = Column(Boolean, default=False)
+    tem_texto_base = Column(Boolean, default=False)
+    estilo_enunciado = Column(Text, nullable=True)
+    dificuldade_tipica = Column(String(80), nullable=True)
+    distribuicao_materias = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -90,7 +98,7 @@ class Questao(Base):
     id = Column(Integer, primary_key=True)
     bloco_id = Column(Integer, ForeignKey("blocos.id"))
     topico_id = Column(Integer, ForeignKey("topicos.id"))
-    tipo = Column(String(20))  # mcq | discursiva
+    tipo = Column(String(20))  # mcq | verdadeiro_falso | numerica | discursiva (legado)
     enunciado = Column(Text)
     alternativas = Column(JSON, nullable=True)   # list[str] (mcq)
     gabarito = Column(String(10), nullable=True)  # índice "0".."n" (mcq)
@@ -98,6 +106,12 @@ class Questao(Base):
     rubric = Column(Text, nullable=True)            # critérios de correção
     explicacao = Column(Text, nullable=True)       # explicação didática
     fonte_id = Column(Integer, ForeignKey("fontes.id"), nullable=True)
+    tolerancia = Column(Float, nullable=True)
+    unidade = Column(String(30), nullable=True)
+    banca_estilo = Column(String(40), nullable=True)
+    materia = Column(String(120), nullable=True)
+    trilha = Column(String(120), nullable=True)
+    texto_base = Column(Text, nullable=True)
     dificuldade = Column(Integer, default=2)
 
 
