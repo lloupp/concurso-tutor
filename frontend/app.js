@@ -123,13 +123,14 @@ async function carregarBloco(blocoId = null) {
         </div>
         ${q.texto_base ? `<div class="texto-base">${q.texto_base}</div>` : ""}
         <p class="q-body">${q.enunciado}</p>`;
+      const anterior = q.resposta_anterior;
       if (q.tipo === "mcq") {
         inner += `<div class="bubbles">`;
         q.alternativas.forEach((a, ai) => {
           const letra = String.fromCharCode(65 + ai);
           const texto = a.replace(/^[A-Za-z]\)\s*/, "");
           inner += `<label class="bubble-option">
-            <input type="radio" name="q${q.id}" value="${ai}" hidden />
+            <input type="radio" name="q${q.id}" value="${ai}" ${anterior && anterior.resposta === String(ai) ? "checked" : ""} hidden />
             <span class="bubble">${letra}</span>
             <span class="opt-text">${texto}</span>
           </label>`;
@@ -137,13 +138,17 @@ async function carregarBloco(blocoId = null) {
         inner += `</div>`;
       } else if (q.tipo === "verdadeiro_falso") {
         inner += `<div class="bubbles">
-          <label class="bubble-option"><input type="radio" name="q${q.id}" value="true" hidden /><span class="bubble">C</span><span class="opt-text">Certo</span></label>
-          <label class="bubble-option"><input type="radio" name="q${q.id}" value="false" hidden /><span class="bubble">E</span><span class="opt-text">Errado</span></label>
+          <label class="bubble-option"><input type="radio" name="q${q.id}" value="true" ${anterior && anterior.resposta === "true" ? "checked" : ""} hidden /><span class="bubble">C</span><span class="opt-text">Certo</span></label>
+          <label class="bubble-option"><input type="radio" name="q${q.id}" value="false" ${anterior && anterior.resposta === "false" ? "checked" : ""} hidden /><span class="bubble">E</span><span class="opt-text">Errado</span></label>
         </div>`;
       } else if (q.tipo === "numerica") {
-        inner += `<input class="numeric-answer" type="text" inputmode="decimal" name="q${q.id}" placeholder="Sua resposta${q.unidade ? ` (${q.unidade})` : ""}" />`;
+        inner += `<input class="numeric-answer" type="text" inputmode="decimal" name="q${q.id}" value="${anterior ? anterior.resposta : ""}" placeholder="Sua resposta${q.unidade ? ` (${q.unidade})` : ""}" />`;
       } else {
         inner += `<textarea class="ruled" name="q${q.id}" placeholder="Sua resposta discursiva..."></textarea>`;
+      }
+      if (anterior) {
+        const estado = anterior.correta ? "Correto" : "A revisar";
+        inner += `<div class="answer-history"><b>${estado}</b> · ${anterior.feedback || "Resposta registrada."}</div>`;
       }
       div.innerHTML = inner;
       form.appendChild(div);
@@ -184,7 +189,7 @@ async function enviarRespostas() {
       const ref = radio || anyRadio || ta || numeric;
     if (!ref) return;
     const id = parseInt(ref.name.replace("q", ""));
-    const val = radio ? radio.value : (ta ? ta.value : "");
+    const val = radio ? radio.value : (numeric ? numeric.value : (ta ? ta.value : ""));
     respostas.push({ questao_id: id, resposta: val });
   });
   try {

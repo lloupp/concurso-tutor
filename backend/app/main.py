@@ -5,6 +5,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 import os
 
 from .db import get_db, engine
@@ -132,10 +133,15 @@ def _resolver_concurso(db, u, concurso_id):
 
 
 # ---------- Bloco de estudo ----------
-def _bloco_out(db, bloco):
+def _bloco_out(db, bloco, user_id=None):
     questoes = db.query(models.Questao).filter_by(bloco_id=bloco.id).all()
     qs = []
     for q in questoes:
+        anterior = None
+        if user_id is not None:
+            anterior = (db.query(models.Resposta)
+                        .filter_by(user_id=user_id, questao_id=q.id)
+                        .order_by(models.Resposta.id.desc()).first())
         qs.append({
             "id": q.id, "tipo": q.tipo, "enunciado": q.enunciado,
             "alternativas": q.alternativas, "dificuldade": q.dificuldade,
@@ -152,6 +158,11 @@ def _bloco_out(db, bloco):
             # A checagem continua no backend; o front só confirma após responder.
             "resposta_modelo": None,
             "rubric": None,
+            "resposta_anterior": ({
+                "resposta": anterior.resposta, "correta": anterior.correta,
+                "nota": anterior.nota, "feedback": anterior.feedback,
+                "gabarito": q.gabarito if q.tipo in TIPOS_AUTOMATICOS else None,
+            } if anterior else None),
         })
     return {"id": bloco.id, "titulo": bloco.titulo,
             "introducao": bloco.introducao, "duracao_min": bloco.duracao_min,
@@ -168,7 +179,7 @@ def bloco_hoje(concurso_id: int = None,
              .order_by(models.Bloco.id.desc()).first())
     if not bloco:
         return {"bloco": None, "msg": f"Nenhum bloco para hoje em {c.nome}. Peça ao Hermes gerar."}
-    return {"bloco": _bloco_out(db, bloco)}
+    return {"bloco": _bloco_out(db, bloco, u.id)}
 
 
 @app.get(f"{API}/bloco/{{bloco_id}}")
@@ -183,7 +194,7 @@ def bloco_por_id(bloco_id: int,
         raise HTTPException(404, "Bloco não encontrado")
     if bloco.concurso_id != c.id:
         raise HTTPException(403, "Bloco não pertence ao perfil selecionado")
-    return {"bloco": _bloco_out(db, bloco)}
+    return {"bloco": _bloco_out(db, bloco, u.id)}
 
 
 @app.get(f"{API}/blocos")
@@ -212,6 +223,15 @@ def responder(concurso_id: int = None,
         bloco = db.query(models.Bloco).filter_by(id=q.bloco_id).first()
         if not bloco or bloco.concurso_id != c.id:
             raise HTTPException(403, "Questão não pertence ao perfil selecionado")
+        anterior = (db.query(models.Resposta)
+                    .filter_by(questao_id=q.id, user_id=u.id)
+                    .order_by(models.Resposta.id.desc()).first())
+        if anterior:
+            resultados.append({"questao_id": q.id, "correta": anterior.correta,
+                               "nota": anterior.nota, "feedback": anterior.feedback,
+                               "gabarito": q.gabarito if q.tipo in TIPOS_AUTOMATICOS else None,
+                               "explicacao": q.explicacao, "duplicada": True})
+            continue
         correta, nota, feedback = None, None, None
         if q.tipo in TIPOS_AUTOMATICOS:
             correta, nota, feedback = _corrigir_automaticamente(q, r["resposta"])
@@ -226,7 +246,18 @@ def responder(concurso_id: int = None,
             tempo_seg=r.get("tempo_seg"),
         )
         db.add(res)
-        db.commit()
+        try:
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            anterior = (db.query(models.Resposta)
+                        .filter_by(questao_id=q.id, user_id=u.id)
+                        .order_by(models.Resposta.id.desc()).first())
+            resultados.append({"questao_id": q.id, "correta": anterior.correta,
+                               "nota": anterior.nota, "feedback": anterior.feedback,
+                               "gabarito": q.gabarito if q.tipo in TIPOS_AUTOMATICOS else None,
+                               "explicacao": q.explicacao, "duplicada": True})
+            continue
         planner.atualizar_progresso(db, u.id, q.topico_id, correta, nota)
         resultados.append({"questao_id": q.id, "correta": correta,
                            "nota": nota, "feedback": feedback,

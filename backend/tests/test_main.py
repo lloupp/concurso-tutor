@@ -62,6 +62,21 @@ def test_dashboard_tem_metricas_individuais(client, aluno_headers, aluno_user, c
     assert body["materias_total"] >= 1
 
 
+def test_responder_repetido_nao_duplica_progresso(client, db, aluno_headers, aluno_user, topico):
+    bloco = models.Bloco(concurso_id=aluno_user.concurso_id, titulo="Idempotência", data=date.today())
+    db.add(bloco); db.commit(); db.refresh(bloco)
+    q = models.Questao(bloco_id=bloco.id, topico_id=topico.id, tipo="mcq",
+                       enunciado="?", alternativas=["a", "b"], gabarito="1", explicacao="Teste")
+    db.add(q); db.commit(); db.refresh(q)
+    corpo = {"respostas": [{"questao_id": q.id, "resposta": "1"}]}
+    assert client.post("/api/bloco/responder", headers=aluno_headers, json=corpo).status_code == 200
+    repetida = client.post("/api/bloco/responder", headers=aluno_headers, json=corpo)
+    assert repetida.status_code == 200
+    assert repetida.json()["resultados"][0]["duplicada"] is True
+    assert db.query(models.Resposta).filter_by(user_id=aluno_user.id, questao_id=q.id).count() == 1
+    assert db.query(models.Progresso).filter_by(user_id=aluno_user.id, topico_id=topico.id).one().tentativas == 1
+
+
 # ---------- bloco/hoje, blocos ----------
 
 def test_bloco_hoje_aluno_sem_concurso_retorna_400(client, db):

@@ -1,0 +1,32 @@
+update public.questoes
+set explicacao = case id
+  when 12 then 'Há erro em “A casa estão limpas”: o núcleo do sujeito é singular e exige “A casa está limpa”.'
+  when 13 then '“Porque”, junto e sem acento, é usado principalmente em respostas e explicações, introduzindo causa ou justificativa.'
+  when 14 then 'A relação “maior que” é transitiva: se A é maior que B e B é maior que C, então A é maior que C.'
+  when 15 then 'A sequência dobra a cada termo: 2, 4, 8, 16 e 32.'
+  when 16 then 'Pela legalidade administrativa, o agente público atua dentro das competências e autorizações previstas em lei.'
+  when 17 then 'A Constituição da República Federativa do Brasil foi promulgada em 5 de outubro de 1988.'
+  when 18 then 'HTTP significa HyperText Transfer Protocol, protocolo usado na comunicação entre cliente e servidor na Web.'
+  when 22 then 'Universalidade assegura que todas as pessoas têm direito de acesso às ações e aos serviços de saúde.'
+  when 23 then 'Integralidade reúne ações preventivas e assistenciais, individuais e coletivas, conforme as necessidades de saúde.'
+  when 24 then 'Equidade busca reduzir desigualdades, oferecendo mais a quem mais necessita para alcançar cuidado justo.'
+  when 25 then 'O técnico de enfermagem atua na equipe de enfermagem, sob orientação e supervisão legalmente previstas, dentro de suas atribuições.'
+  when 26 then 'A identificação correta confirma que o cuidado, exame ou medicamento será destinado ao paciente certo e previne eventos adversos.'
+  when 27 then 'Temperatura, pulso, frequência respiratória e pressão arterial são sinais vitais tradicionalmente aferidos.'
+  when 28 then 'O sigilo protege as informações obtidas no cuidado, respeitadas as exceções legais e éticas aplicáveis.'
+  when 32 then 'Divide-se a dose prescrita pela apresentação: 500 mg ÷ 250 mg por comprimido = 2 comprimidos.'
+  when 33 then 'Cálculo: 1000 mL × 20 gotas/mL ÷ 480 min = 41,7, aproximadamente 42 gotas por minuto.'
+  when 34 then 'Na via intramuscular, o medicamento é depositado no tecido muscular, respeitando técnica, local e volume indicados.'
+  when 35 then 'A administração segura exige conferências como paciente, medicamento, dose, via, horário, registro e orientação, conforme o protocolo.'
+  when 36 then 'Volume = 750 mg × 5 mL ÷ 250 mg = 15 mL. As unidades de mg se cancelam e resta o volume em mL.'
+  when 37 then 'A higienização das mãos reduz a transmissão de microrganismos e é medida essencial de prevenção de infecções.'
+  when 38 then 'Esterilização é o processo que elimina todas as formas de vida microbiana, inclusive esporos, quando corretamente executado.'
+  when 42 then 'A atenção básica é a porta de entrada preferencial do SUS e organiza cuidado contínuo, coordenado e próximo do território.'
+  when 43 then 'A vacinação é ação de prevenção e proteção individual e coletiva contra doenças imunopreveníveis.'
+  when 44 then 'A notificação compulsória permite à vigilância detectar agravos, monitorar ocorrências e organizar medidas de controle.'
+  when 45 then 'Na suspeita de parada cardiorrespiratória, deve-se reconhecer rapidamente a emergência, acionar ajuda e iniciar as medidas de suporte básico conforme protocolo.'
+  when 46 then 'O suporte básico de vida integra reconhecimento precoce, acionamento de ajuda, compressões de qualidade e uso do DEA quando disponível.'
+  when 47 then 'Na avaliação inicial do trauma, a sequência ABCDE prioriza via aérea, respiração, circulação, estado neurológico e exposição.'
+end
+where id between 12 and 47
+  and (explicacao is null or btrim(explicacao) = '');
