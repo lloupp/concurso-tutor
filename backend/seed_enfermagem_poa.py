@@ -59,13 +59,18 @@ def get_or_create(db, model, filters, values):
 
 def main():
     db = SessionLocal()
-    concurso = get_or_create(
+    concurso = db.query(models.Concurso).filter(
+        (models.Concurso.nome == NOME) |
+        (models.Concurso.cargo == "Técnico em Enfermagem")
+    ).order_by(models.Concurso.id).first()
+    if not concurso:
+        concurso = get_or_create(
         db, models.Concurso, {"nome": NOME},
         {"nome": NOME, "cargo": "Técnico em Enfermagem",
          "banca": "FUNDATEC (editais-base 2020 e 2021)",
          "edital_url": FONTES[0][1],
          "edital_text": "Trilha comparativa baseada em editais oficiais e protocolos vigentes; não substitui edital específico."},
-    )
+        )
     fontes = {}
     for titulo, url, tipo, orgao, ano in FONTES:
         fontes[titulo] = get_or_create(
@@ -84,9 +89,9 @@ def main():
         if not db.query(models.TopicoFonte).filter_by(topico_id=top.id, fonte_id=fonte.id).first():
             db.add(models.TopicoFonte(topico_id=top.id, fonte_id=fonte.id))
     db.commit()
-    get_or_create(db, models.User, {"username": "aluno_enf_poa"},
-                  {"username": "aluno_enf_poa", "full_name": "Aluno Técnico Enfermagem",
-                   "password_hash": auth._hash("estudar123", "seed-enf-pao"),
+    get_or_create(db, models.User, {"username": "aluno_enf"},
+                  {"username": "aluno_enf", "full_name": "Aluno Enfermagem",
+                   "password_hash": auth._hash("123456", "seed-enf-pao"),
                    "salt": "seed-enf-pao", "role": "aluno", "concurso_id": concurso.id})
 
     def add_block(offset, title, intro, items, topic_names):
