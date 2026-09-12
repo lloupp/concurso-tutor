@@ -497,18 +497,18 @@ def test_listar_alunos_filtra_por_concurso(client, admin_headers, aluno_user, co
 
 def test_criar_usuario_bloqueado_para_aluno(client, aluno_headers):
     resp = client.post("/api/admin/usuario", headers=aluno_headers,
-                       params={"username": "novo", "password": "senha123"})
+                       json={"username": "novo", "password": "senha123"})
     assert resp.status_code == 403
 
 
 def test_criar_usuario_duplicado_retorna_400(client, admin_headers, aluno_user):
     resp = client.post("/api/admin/usuario", headers=admin_headers,
-                       params={"username": aluno_user.username, "password": "senha123"})
+                       json={"username": aluno_user.username, "password": "senha123"})
     assert resp.status_code == 400
 
 
 def test_criar_usuario_admin_ok(client, admin_headers):
     resp = client.post("/api/admin/usuario", headers=admin_headers,
-                       params={"username": "novo_aluno", "password": "senha123"})
+                       json={"username": "novo_aluno", "password": "senha123"})
     assert resp.status_code == 200
     assert "user_id" in resp.json()

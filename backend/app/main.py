@@ -8,14 +8,20 @@ import os
 
 from .db import get_db, engine
 from . import models, auth, planner
-from .schemas import LoginIn, ResponderIn, GerarBlocoIn
+from .schemas import LoginIn, ResponderIn, GerarBlocoIn, CriarUsuarioIn
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Concurso Tutor", version="0.1.0")
+
+# CORS_ORIGINS: lista separada por vírgula (ex.: "http://localhost:8000,https://meuapp.com").
+# A auth usa Bearer token (não cookie), então allow_credentials fica False mesmo com
+# origens abertas — não há cookie de sessão para vazar entre origens.
+_cors_origins = os.environ.get("CORS_ORIGINS", "*")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], allow_credentials=True,
+    allow_origins=[o.strip() for o in _cors_origins.split(",")] if _cors_origins != "*" else ["*"],
+    allow_credentials=False,
     allow_methods=["*"], allow_headers=["*"],
 )
 
@@ -310,15 +316,15 @@ def listar_alunos(concurso_id: int = None,
 
 
 @app.post(f"{API}/admin/usuario")
-def criar_usuario(username: str, password: str, full_name: str = "",
-                  concurso_id: int = None,
+def criar_usuario(payload: CriarUsuarioIn,
                   db: Session = Depends(get_db),
                   u: models.User = Depends(auth.get_current_user)):
     if u.role != "admin":
         raise HTTPException(403, "Apenas admin")
-    if db.query(models.User).filter_by(username=username).first():
+    if db.query(models.User).filter_by(username=payload.username).first():
         raise HTTPException(400, "Usuário já existe")
-    user = auth.criar_usuario(db, username, password, full_name, "aluno", concurso_id)
+    user = auth.criar_usuario(db, payload.username, payload.password,
+                              payload.full_name, "aluno", payload.concurso_id)
     return {"user_id": user.id}
 
 

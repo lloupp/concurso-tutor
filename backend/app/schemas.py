@@ -22,3 +22,10 @@ class GerarBlocoIn(BaseModel):
     concurso_id: int
     bloco: Optional[dict] = None
     n_topicos: Optional[int] = 2
+
+
+class CriarUsuarioIn(BaseModel):
+    username: str
+    password: str
+    full_name: str = ""
+    concurso_id: Optional[int] = None
