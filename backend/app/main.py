@@ -204,9 +204,6 @@ def bloco_hoje(concurso_id: int = None,
     bloco = (db.query(models.Bloco)
              .filter_by(concurso_id=c.id, data=date.today())
              .order_by(models.Bloco.id.desc()).first())
-    ja_estudou = db.query(models.Resposta).filter_by(user_id=u.id).first()
-    if ja_estudou:
-        return {"bloco": _bloco_adaptado_out(db, u.id, c)}
     if not bloco:
         adaptado = _bloco_adaptado_out(db, u.id, c)
         if not adaptado["questoes"]:
