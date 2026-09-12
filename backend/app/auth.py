@@ -59,7 +59,10 @@ def get_current_user(authorization: str = Header(None),
     s = db.query(Sessao).filter_by(token=token).first()
     if not s:
         raise HTTPException(401, "Token inválido")
-    if s.expires_at and s.expires_at < datetime.utcnow():
+    # Postgres (timestamptz) devolve expires_at timezone-aware; SQLite devolve
+    # naive. Normaliza os dois pra naive-UTC antes de comparar.
+    exp = s.expires_at.replace(tzinfo=None) if (s.expires_at and s.expires_at.tzinfo) else s.expires_at
+    if exp and exp < datetime.utcnow():
         raise HTTPException(401, "Sessão expirada")
     u = db.query(User).filter_by(id=s.user_id).first()
     if not u:

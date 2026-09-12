@@ -12,7 +12,13 @@ DB_PATH = os.environ.get("DB_PATH", DEFAULT_DB)
 if DATABASE_URL:
     _url = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
     _url = _url.replace("postgresql://", "postgresql+psycopg://", 1)
-    engine = create_engine(_url, poolclass=NullPool, pool_pre_ping=True)
+    # O pooler do Supabase (Supavisor, modo transaction) não suporta prepared
+    # statements nomeados entre conexões reaproveitadas; prepare_threshold=None
+    # desliga o auto-prepare do psycopg e evita erro "DuplicatePreparedStatement".
+    engine = create_engine(
+        _url, poolclass=NullPool, pool_pre_ping=True,
+        connect_args={"prepare_threshold": None},
+    )
 else:
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     engine = create_engine(
