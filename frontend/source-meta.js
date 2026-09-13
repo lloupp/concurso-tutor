@@ -4,7 +4,18 @@
     1: 'Lei nº 8.080/1990 — Lei Orgânica da Saúde',
     2: 'Lei nº 8.142/1990 — participação da comunidade e transferências',
     3: 'Caderno oficial de prova PF — Cebraspe 2021',
-    4: 'Edital Porto Alegre 77/2021 — Anexo III'
+    4: 'Edital Porto Alegre 77/2021 — Anexo III',
+    5: 'Edital nº 1/2025 — PF Administrativo',
+    15: 'RDC Anvisa nº 15/2012 — Processamento de Produtos para Saúde',
+    16: 'Resolução Cofen nº 564/2017 — Código de Ética dos Profissionais de Enfermagem',
+    17: 'Lei nº 7.498/1986 — Exercício da Enfermagem',
+    18: 'Protocolo de Segurança na Prescrição, Uso e Administração de Medicamentos',
+    19: 'Calendário Técnico Nacional de Vacinação — 2026',
+    20: 'Resolução Cofen nº 713/2022 — atendimento pré-hospitalar móvel',
+    21: 'Anvisa — Segurança do Paciente: Higienização das Mãos',
+    22: 'Protocolo de Identificação do Paciente',
+    23: 'Ministério da Saúde / SAMU 192 — Protocolos de Suporte Básico de Vida',
+    24: 'Ministério da Saúde — Exposição a Materiais Biológicos'
   };
 
   function perfilAtual() {
