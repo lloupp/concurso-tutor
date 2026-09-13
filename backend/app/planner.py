@@ -7,7 +7,7 @@ Regras de negócio (definidas com o Eduardo):
 """
 from datetime import date, timedelta
 from sqlalchemy.orm import Session
-from .models import Progresso, Topico, User, Questao, Resposta, Concurso
+from .models import Progresso, Topico, User, Questao, Resposta, Concurso, Bloco
 
 
 def atualizar_progresso(db: Session, user_id: int, topico_id: int,
@@ -22,7 +22,6 @@ def atualizar_progresso(db: Session, user_id: int, topico_id: int,
     p.tentativas += 1
     if acertou is True:
         p.acertos += 1
-    # nota 0..1 válida para discursiva; senão usa binário
     if nota is not None:
         resultado = nota
     elif acertou is True:
@@ -30,14 +29,11 @@ def atualizar_progresso(db: Session, user_id: int, topico_id: int,
     elif acertou is False:
         resultado = 0.0
     else:
-        resultado = p.dominio  # discursiva ainda não corrigida: mantém
+        resultado = p.dominio
 
-    # EMA: domínio novo = 0.3*resultado + 0.7*anterior
     p.dominio = round(0.3 * resultado + 0.7 * (p.dominio or 0.0), 3)
     p.ultima_revisao = date.today()
 
-    # Revisão espaçada simples: intervalo cresce com o domínio.
-    # fraco (<0.6) revisita em 1 dia; médio (0.6-0.85) 3 dias; forte 7 dias.
     if p.dominio < 0.6:
         intervalo = 1
     elif p.dominio < 0.85:
@@ -92,8 +88,23 @@ def painel(db: Session, user_id: int, concurso_id: int):
     for t in topicos:
         if any(p.topico_id == t.id and p.tentativas > 0 for p in progresso):
             materias_iniciadas.add(t.nome.split(" — ", 1)[0])
+
+    questoes_banco = (db.query(Questao)
+                      .join(Bloco, Bloco.id == Questao.bloco_id)
+                      .filter(Bloco.concurso_id == concurso_id)
+                      .count())
+    respondidas_ids = {r.questao_id for r in respostas}
+    questoes_perfil_ids = {
+        qid for (qid,) in (db.query(Questao.id)
+                           .join(Bloco, Bloco.id == Questao.bloco_id)
+                           .filter(Bloco.concurso_id == concurso_id).all())
+    }
+    ineditas_restantes = len(questoes_perfil_ids - respondidas_ids)
+
     return {
         "questoes_respondidas": len(respostas),
+        "questoes_banco": questoes_banco,
+        "ineditas_restantes": ineditas_restantes,
         "acertos": sum(1 for r in corrigidas if r.correta),
         "erros": sum(1 for r in corrigidas if r.correta is False),
         "taxa_acerto": round(100 * sum(1 for r in corrigidas if r.correta) / len(corrigidas), 1) if corrigidas else 0.0,
