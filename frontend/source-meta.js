@@ -20,6 +20,12 @@
     return campo ? Number(campo.name.slice(1)) : null;
   }
 
+  function nomeFonte(q) {
+    if (!q.fonte_id) return 'fonte específica não cadastrada';
+    if (CONCURSO === 52 && q.fonte_id === 3) return 'referência inconsistente — revisão pendente';
+    return FONTES[q.fonte_id] || `Fonte cadastrada #${q.fonte_id}`;
+  }
+
   function renderizarReferencias(bloco) {
     if (!bloco || !Array.isArray(bloco.questoes)) return;
     const porId = new Map(bloco.questoes.map(q => [q.id, q]));
@@ -38,8 +44,7 @@
       const banca = q.banca_estilo || perfil.banca || 'não informada';
       const concurso = perfil.nome || q.trilha || 'não informado';
       const ano = ANO_POR_TRILHA[CONCURSO] || 'não informado';
-      const fonte = q.fonte_id ? (FONTES[q.fonte_id] || `Fonte cadastrada #${q.fonte_id}`) : 'fonte específica não cadastrada';
-      tag.textContent = `Referência: ${banca} · ${concurso} · ${ano} · ${fonte}`;
+      tag.textContent = `Referência: ${banca} · ${concurso} · ${ano} · ${nomeFonte(q)}`;
     });
   }
 
@@ -59,6 +64,5 @@
     await carregarMetadados(blocoId, adaptativo);
   };
 
-  // O app.js pode ter carregado o primeiro bloco antes deste arquivo.
   if (document.querySelector('#formBloco .q')) carregarMetadados();
 })();
