@@ -1,5 +1,6 @@
 (() => {
-  const ANO_POR_TRILHA = { 51: 2025, 52: 2021 };
+  const ANO_POR_TRILHA = { 51: 2025, 52: 2021, 53: 2026, 54: 2026 };
+  const PERFIS_PUBLICOS = new Set([51, 52, 53, 54]);
   const FONTES = {
     1: 'Lei nº 8.080/1990 — Lei Orgânica da Saúde',
     2: 'Lei nº 8.142/1990 — participação da comunidade e transferências',
@@ -15,8 +16,45 @@
     21: 'Anvisa — Segurança do Paciente: Higienização das Mãos',
     22: 'Protocolo de Identificação do Paciente',
     23: 'Ministério da Saúde / SAMU 192 — Protocolos de Suporte Básico de Vida',
-    24: 'Ministério da Saúde — Exposição a Materiais Biológicos'
+    24: 'Ministério da Saúde — Exposição a Materiais Biológicos',
+    25: 'Edital nº 01/2026 — Concurso Público EPTC Porto Alegre',
+    26: 'Lei nº 9.503/1997 — Código de Trânsito Brasileiro (CTB)',
+    27: 'Lei nº 13.303/2016 — Estatuto Jurídico das Empresas Estatais',
+    28: 'Lei Municipal nº 8.133/1998 — Sistema de Transporte e Circulação de Porto Alegre',
+    29: 'Lei Orgânica do Município de Porto Alegre',
+    30: 'Estatuto Social da EPTC',
+    31: 'Lei nº 12.288/2010 — Estatuto da Igualdade Racial',
+    32: 'Lei nº 13.146/2015 — Estatuto da Pessoa com Deficiência',
+    33: 'Lei nº 8.429/1992 — Improbidade Administrativa',
+    34: 'Lei nº 12.527/2011 — Lei de Acesso à Informação',
+    35: 'Lei nº 13.709/2018 — LGPD',
+    36: 'Constituição da República Federativa do Brasil de 1988',
+    37: 'Portaria SENATRAN nº 354/2022 — Auto de Infração de Trânsito',
+    38: 'MTE — Normas Regulamentadoras NR-01, NR-04, NR-05, NR-06, NR-07 e NR-32',
+    39: 'CLT — Capítulo V: Segurança e Medicina do Trabalho',
+    40: 'Lei nº 8.213/1991 — Benefícios da Previdência Social',
+    41: 'RDC Anvisa nº 222/2018 — Resíduos de Serviços de Saúde'
   };
+
+  async function habilitarPerfisPublicos() {
+    try {
+      let perfis = Array.isArray(CONCURSOS) ? CONCURSOS : [];
+      if (!perfis.length) {
+        const r = await fetch('/api/concursos');
+        if (!r.ok) return;
+        perfis = (await r.json()).concursos || [];
+        CONCURSOS = perfis;
+      }
+      const select = document.getElementById('cadTrilha');
+      if (!select) return;
+      select.innerHTML = perfis
+        .filter(c => PERFIS_PUBLICOS.has(c.id))
+        .map(c => `<option value="${c.id}">${c.nome}</option>`)
+        .join('');
+    } catch (_) {
+      // A lista original continua disponível se esta melhoria falhar.
+    }
+  }
 
   function perfilAtual() {
     try {
@@ -75,5 +113,7 @@
     await carregarMetadados(blocoId, adaptativo);
   };
 
+  habilitarPerfisPublicos();
+  setTimeout(habilitarPerfisPublicos, 750);
   if (document.querySelector('#formBloco .q')) carregarMetadados();
 })();
