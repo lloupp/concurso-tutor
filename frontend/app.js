@@ -7,6 +7,8 @@ let SESSION_VERSION = 0;
 let BLOCK_VERSION = 0;
 let BLOCK_CONTROLLER = null;
 let CURRENT_BLOCK_IDS = [];
+const PERF_METRICS = [];
+window.__ctPerf = PERF_METRICS;
 
 const PERFIS_PUBLICOS = new Set([51, 52, 53, 54]);
 const ANO_POR_TRILHA = { 51: 2025, 52: 2021, 53: 2026, 54: 2026 };
@@ -55,20 +57,36 @@ function mensagemErro(raw, fallback = "Não foi possível concluir a operação.
   }
 }
 
+function registrarPerf(metrica) {
+  PERF_METRICS.push({ ...metrica, at: new Date().toISOString() });
+  if (PERF_METRICS.length > 100) PERF_METRICS.shift();
+  console.info("[ct-perf]", JSON.stringify(PERF_METRICS.at(-1)));
+}
+
 async function api(path, opts = {}) {
+  const inicio = performance.now();
   const skipAuth = Boolean(opts.skipAuth);
   delete opts.skipAuth;
   opts.headers = { ...(opts.headers || {}) };
   if (TOKEN && !skipAuth) opts.headers.Authorization = "Bearer " + TOKEN;
   if (opts.body) opts.headers["Content-Type"] = "application/json";
-  const r = await fetch(API + path, opts);
-  if (!r.ok) {
-    const t = await r.text();
-    const err = new Error(mensagemErro(t));
-    err.status = r.status;
-    throw err;
+  try {
+    const r = await fetch(API + path, opts);
+    registrarPerf({ tipo: "api", path, status: r.status,
+      rede_ms: Math.round(performance.now() - inicio),
+      servidor: r.headers.get("server-timing") || null });
+    if (!r.ok) {
+      const t = await r.text();
+      const err = new Error(mensagemErro(t));
+      err.status = r.status;
+      throw err;
+    }
+    return r.json();
+  } catch (erro) {
+    if (!erro.status) registrarPerf({ tipo: "api", path, status: 0,
+      rede_ms: Math.round(performance.now() - inicio), erro: erro.name || "Erro" });
+    throw erro;
   }
-  return r.json();
 }
 
 function limparTelaEstudo() {
@@ -213,6 +231,7 @@ function referenciaQuestao(q) {
 }
 
 async function carregarBloco(blocoId = null, adaptativo = false) {
+  const inicioRender = performance.now();
   const box = document.getElementById("blocoInfo");
   const form = document.getElementById("formBloco");
   const resultado = document.getElementById("resultado");
@@ -306,6 +325,9 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
     btn.textContent = "Enviar respostas";
     btn.onclick = enviarRespostas;
     form.appendChild(btn);
+    registrarPerf({ tipo: "ui", evento: "bloco_renderizado", adaptativo,
+      questoes: bloco.questoes.length,
+      total_ms: Math.round(performance.now() - inicioRender) });
   } catch (e) {
     if (versao !== BLOCK_VERSION || sessao !== SESSION_VERSION || perfil !== CONCURSO) return;
     if (expirou) {

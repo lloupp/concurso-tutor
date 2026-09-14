@@ -1,6 +1,8 @@
 """API FastAPI da plataforma de estudo para concursos."""
 from datetime import date, datetime
+import json
 import re
+from time import perf_counter
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -29,6 +31,35 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["*"], allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def registrar_tempo_requisicao(request: Request, call_next):
+    """Expõe e registra a duração do app sem incluir dados de alunos."""
+    inicio = perf_counter()
+    try:
+        resposta = await call_next(request)
+    except Exception as exc:
+        if request.url.path.startswith(API):
+            print(json.dumps({
+                "level": "error", "event": "api_request", "path": request.url.path,
+                "method": request.method, "status": 500,
+                "duration_ms": round((perf_counter() - inicio) * 1000, 1),
+                "error": type(exc).__name__,
+                "request_id": request.headers.get("x-vercel-id"),
+            }))
+        raise
+
+    duracao_ms = round((perf_counter() - inicio) * 1000, 1)
+    if request.url.path.startswith(API):
+        resposta.headers["Server-Timing"] = f"app;dur={duracao_ms}"
+        print(json.dumps({
+            "level": "info", "event": "api_request", "path": request.url.path,
+            "method": request.method, "status": resposta.status_code,
+            "duration_ms": duracao_ms,
+            "request_id": request.headers.get("x-vercel-id"),
+        }))
+    return resposta
 
 API = "/api"
 
