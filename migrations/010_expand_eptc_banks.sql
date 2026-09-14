@@ -315,6 +315,12 @@ where b.id=q.bloco_id and b.concurso_id in (53,54)
   and b.titulo='Banco editorial EPTC — expansão 2026'
   and q.fonte_id=3;
 
+update public.questoes q
+set explicacao='As grafias têm funções distintas: “senão” pode equivaler a “caso contrário”; “se não” forma uma condição negativa.'
+from public.blocos b
+where b.id=q.bloco_id and b.concurso_id=53
+  and q.enunciado='Certo ou errado: “senão” pode significar “caso contrário”, enquanto “se não” introduz condição negativa.';
+
 do $$
 begin
   if exists (
