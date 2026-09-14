@@ -332,18 +332,35 @@ def responder(concurso_id: int = None,
                u: models.User = Depends(auth.get_current_user),
                db: Session = Depends(get_db)):
     c = _resolver_concurso(db, u, concurso_id)
+    recebidas = payload.respostas if payload else []
+    por_id = {}
+    for item in recebidas:
+        por_id.setdefault(item["questao_id"], item)
+    ids = list(por_id)
+    if not ids:
+        return {"resultados": []}
+
+    linhas = (db.query(models.Questao, models.Bloco.concurso_id)
+              .join(models.Bloco, models.Bloco.id == models.Questao.bloco_id)
+              .filter(models.Questao.id.in_(ids)).all())
+    questoes = {q.id: q for q, _ in linhas}
+    if any(cid != c.id for _, cid in linhas):
+        raise HTTPException(403, "Questão não pertence ao perfil selecionado")
+
+    anteriores = {
+        r.questao_id: r
+        for r in (db.query(models.Resposta)
+                  .filter(models.Resposta.user_id == u.id,
+                          models.Resposta.questao_id.in_(ids))
+                  .order_by(models.Resposta.id.desc()).all())
+    }
     resultados = []
-    for r in payload.respostas:
-        q = db.query(models.Questao).filter_by(id=r["questao_id"]).first()
+    progressos = []
+    for questao_id, r in por_id.items():
+        q = questoes.get(questao_id)
         if not q:
             continue
-        # valida que a questão pertence ao perfil ativo escolhido
-        bloco = db.query(models.Bloco).filter_by(id=q.bloco_id).first()
-        if not bloco or bloco.concurso_id != c.id:
-            raise HTTPException(403, "Questão não pertence ao perfil selecionado")
-        anterior = (db.query(models.Resposta)
-                    .filter_by(questao_id=q.id, user_id=u.id)
-                    .order_by(models.Resposta.id.desc()).first())
+        anterior = anteriores.get(q.id)
         if anterior:
             resultados.append({"questao_id": q.id, "correta": anterior.correta,
                                "nota": anterior.nota, "feedback": anterior.feedback,
@@ -364,23 +381,34 @@ def responder(concurso_id: int = None,
             tempo_seg=r.get("tempo_seg"),
         )
         db.add(res)
-        try:
-            db.commit()
-        except IntegrityError:
-            db.rollback()
-            anterior = (db.query(models.Resposta)
-                        .filter_by(questao_id=q.id, user_id=u.id)
-                        .order_by(models.Resposta.id.desc()).first())
-            resultados.append({"questao_id": q.id, "correta": anterior.correta,
-                               "nota": anterior.nota, "feedback": anterior.feedback,
-                               "gabarito": q.gabarito if q.tipo in TIPOS_AUTOMATICOS else None,
-                               "explicacao": q.explicacao, "duplicada": True})
-            continue
-        planner.atualizar_progresso(db, u.id, q.topico_id, correta, nota)
+        progressos.append((q.topico_id, correta, nota))
         resultados.append({"questao_id": q.id, "correta": correta,
                            "nota": nota, "feedback": feedback,
                            "gabarito": q.gabarito if q.tipo in TIPOS_AUTOMATICOS else None,
                            "explicacao": q.explicacao})
+    planner.atualizar_progressos_lote(db, u.id, progressos)
+    try:
+        db.commit()
+    except IntegrityError:
+        # Uma submissão concorrente pode vencer a restrição idempotente.
+        # A transação vencedora já gravou resposta e progresso; devolvemos-a.
+        db.rollback()
+        persistidas = {
+            r.questao_id: r for r in db.query(models.Resposta).filter(
+                models.Resposta.user_id == u.id,
+                models.Resposta.questao_id.in_(ids),
+            ).all()
+        }
+        resultados = []
+        for questao_id in ids:
+            q = questoes.get(questao_id)
+            anterior = persistidas.get(questao_id)
+            if not q or not anterior:
+                continue
+            resultados.append({"questao_id": q.id, "correta": anterior.correta,
+                               "nota": anterior.nota, "feedback": anterior.feedback,
+                               "gabarito": q.gabarito if q.tipo in TIPOS_AUTOMATICOS else None,
+                               "explicacao": q.explicacao, "duplicada": True})
     return {"resultados": resultados}
 
 

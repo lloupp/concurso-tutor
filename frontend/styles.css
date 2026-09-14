@@ -19,6 +19,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
@@ -258,6 +259,22 @@ header#topbar .perfil-select {
   cursor: pointer;
 }
 .bubble-option:hover { background: var(--paper-3); }
+.sr-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.bubble-option:has(.sr-radio:focus-visible) {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  background: var(--paper-3);
+}
 .bubble {
   flex: none;
   width: 1.9rem; height: 1.9rem;

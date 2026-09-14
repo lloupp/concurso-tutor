@@ -46,6 +46,44 @@ def atualizar_progresso(db: Session, user_id: int, topico_id: int,
     return p
 
 
+def atualizar_progressos_lote(db: Session, user_id: int, resultados):
+    """Atualiza vários tópicos em memória; o chamador confirma uma transação só."""
+    topico_ids = {item[0] for item in resultados}
+    existentes = {
+        p.topico_id: p
+        for p in db.query(Progresso).filter(
+            Progresso.user_id == user_id,
+            Progresso.topico_id.in_(topico_ids) if topico_ids else False,
+        ).all()
+    }
+    hoje = date.today()
+    for topico_id, acertou, nota in resultados:
+        p = existentes.get(topico_id)
+        if not p:
+            p = Progresso(user_id=user_id, topico_id=topico_id,
+                          tentativas=0, acertos=0, dominio=0.0)
+            db.add(p)
+            existentes[topico_id] = p
+
+        p.tentativas += 1
+        if acertou is True:
+            p.acertos += 1
+        if nota is not None:
+            resultado = nota
+        elif acertou is True:
+            resultado = 1.0
+        elif acertou is False:
+            resultado = 0.0
+        else:
+            resultado = p.dominio
+
+        p.dominio = round(0.3 * resultado + 0.7 * (p.dominio or 0.0), 3)
+        p.ultima_revisao = hoje
+        intervalo = 1 if p.dominio < 0.6 else (3 if p.dominio < 0.85 else 7)
+        p.proxima_revisao = hoje + timedelta(days=intervalo)
+    return list(existentes.values())
+
+
 def dominancia(db: Session, user_id: int, concurso_id: int):
     """Retorna lista de tópicos com dominância e status de cobertura."""
     topicos = db.query(Topico).filter_by(concurso_id=concurso_id).all()

@@ -7,8 +7,18 @@ let SESSION_VERSION = 0;
 let BLOCK_VERSION = 0;
 let BLOCK_CONTROLLER = null;
 let CURRENT_BLOCK_IDS = [];
+let BANK_STATS = null;
 const PERF_METRICS = [];
 window.__ctPerf = PERF_METRICS;
+
+function htmlSeguro(valor) {
+  return String(valor ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 const PERFIS_PUBLICOS = new Set([51, 52, 53, 54]);
 const ANO_POR_TRILHA = { 51: 2025, 52: 2021, 53: 2026, 54: 2026 };
@@ -92,6 +102,7 @@ async function api(path, opts = {}) {
 function limparTelaEstudo() {
   BLOCK_VERSION += 1;
   CURRENT_BLOCK_IDS = [];
+  BANK_STATS = null;
   if (BLOCK_CONTROLLER) {
     BLOCK_CONTROLLER.abort();
     BLOCK_CONTROLLER = null;
@@ -118,7 +129,7 @@ async function carregarPerfis() {
   const select = document.getElementById("cadTrilha");
   if (select) {
     select.innerHTML = CONCURSOS.filter(c => PERFIS_PUBLICOS.has(c.id))
-      .map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
+      .map(c => `<option value="${Number(c.id)}">${htmlSeguro(c.nome)}</option>`).join("");
   }
 }
 
@@ -175,6 +186,11 @@ async function cadastro() {
       })
     });
     msg.textContent = "Perfil criado. Agora entre com seu usuário e senha.";
+    ["cadNome", "cadUsuario", "cadSenha"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("cadTrilha").selectedIndex = 0;
+    document.getElementById("cadTempo").value = "60";
   } catch (e) {
     msg.textContent = "Não foi possível criar: " + e.message;
   }
@@ -216,11 +232,8 @@ async function showApp() {
     return;
   }
 
-  await carregarBloco();
+  await Promise.all([carregarBloco(), carregarProgresso(), carregarPlano()]);
   if (sessao !== SESSION_VERSION) return;
-  await carregarProgresso();
-  if (sessao !== SESSION_VERSION) return;
-  await carregarPlano();
 }
 
 function referenciaQuestao(q) {
@@ -228,6 +241,22 @@ function referenciaQuestao(q) {
   const partes = [q.banca_estilo || perfil.banca, perfil.nome, ANO_POR_TRILHA[CONCURSO], FONTES[q.fonte_id]]
     .filter(Boolean);
   return partes.length ? `Referência: ${partes.join(" · ")}` : "Referência não cadastrada";
+}
+
+function atualizarBotaoMais() {
+  const botao = document.getElementById("btnMaisQuestoes");
+  if (!botao || !BANK_STATS) return;
+  const ineditas = Math.max(0, Number(BANK_STATS.ineditas || 0));
+  if (ineditas === 0) {
+    botao.textContent = "Revisar 10 questões";
+    botao.title = "Não há questões inéditas; será montado um bloco de revisão.";
+  } else if (ineditas < 10) {
+    botao.textContent = `Fazer mais ${ineditas} inéditas`;
+    botao.title = `Há ${ineditas} questões inéditas disponíveis nesta trilha.`;
+  } else {
+    botao.textContent = "Fazer mais 10 questões";
+    botao.removeAttribute("title");
+  }
 }
 
 async function carregarBloco(blocoId = null, adaptativo = false) {
@@ -268,28 +297,32 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
     box.innerHTML = `
       <div class="protocolo">
         <p class="eyebrow">Bloco de estudo</p>
-        <h2>${bloco.titulo}</h2>
-        <p class="intro">${bloco.introducao}</p>
+        <h2>${htmlSeguro(bloco.titulo)}</h2>
+        <p class="intro">${htmlSeguro(bloco.introducao)}</p>
         <div class="protocolo-meta">
-          <div><span>Data</span><b>${bloco.data}</b></div>
-          <div><span>Duração</span><b>${bloco.duracao_min} min</b></div>
-          <div><span>Questões</span><b>${bloco.questoes.length}</b></div>
+          <div><span>Data</span><b>${htmlSeguro(bloco.data)}</b></div>
+          <div><span>Duração</span><b>${Number(bloco.duracao_min)} min</b></div>
+          <div><span>Questões</span><b>${Number(bloco.questoes.length)}</b></div>
         </div>
         <button type="button" class="btn secondary" id="btnMaisQuestoes">Fazer mais 10 questões</button>
       </div>`;
     document.getElementById("btnMaisQuestoes").onclick = () => carregarBloco(null, true);
+    atualizarBotaoMais();
 
     bloco.questoes.forEach((q, i) => {
       const div = document.createElement("div");
       div.className = "q";
+      const tituloId = `q-titulo-${Number(q.id)}`;
+      div.setAttribute("role", "group");
+      div.setAttribute("aria-labelledby", tituloId);
       let inner = `
         <div class="q-head">
           <span class="q-num">Q${i + 1}</span>
           <span class="q-type">${q.tipo === "mcq" ? "Objetiva" : q.tipo === "verdadeiro_falso" ? "Certo ou errado" : q.tipo === "numerica" ? "Resposta numérica" : "Legada"}</span>
-          <span class="q-type q-source-meta">${referenciaQuestao(q)}</span>
+          <span class="q-type q-source-meta">${htmlSeguro(referenciaQuestao(q))}</span>
         </div>
-        ${q.texto_base ? `<div class="texto-base">${q.texto_base}</div>` : ""}
-        <p class="q-body">${q.enunciado}</p>`;
+        ${q.texto_base ? `<div class="texto-base">${htmlSeguro(q.texto_base)}</div>` : ""}
+        <p class="q-body" id="${tituloId}">${htmlSeguro(q.enunciado)}</p>`;
       const anterior = q.resposta_anterior;
       if (q.tipo === "mcq") {
         inner += `<div class="bubbles">`;
@@ -297,23 +330,23 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
           const letra = String.fromCharCode(65 + ai);
           const texto = String(a).replace(/^[A-Za-z][\)\.]\s*/, "");
           inner += `<label class="bubble-option">
-            <input type="radio" name="q${q.id}" value="${ai}" ${anterior && anterior.resposta === String(ai) ? "checked" : ""} hidden />
-            <span class="bubble">${letra}</span><span class="opt-text">${texto}</span>
+            <input class="sr-radio" type="radio" name="q${Number(q.id)}" value="${ai}" ${anterior && anterior.resposta === String(ai) ? "checked" : ""} />
+            <span class="bubble">${letra}</span><span class="opt-text">${htmlSeguro(texto)}</span>
           </label>`;
         });
         inner += `</div>`;
       } else if (q.tipo === "verdadeiro_falso") {
         inner += `<div class="bubbles">
-          <label class="bubble-option"><input type="radio" name="q${q.id}" value="true" ${anterior && anterior.resposta === "true" ? "checked" : ""} hidden /><span class="bubble">C</span><span class="opt-text">Certo</span></label>
-          <label class="bubble-option"><input type="radio" name="q${q.id}" value="false" ${anterior && anterior.resposta === "false" ? "checked" : ""} hidden /><span class="bubble">E</span><span class="opt-text">Errado</span></label>
+          <label class="bubble-option"><input class="sr-radio" type="radio" name="q${Number(q.id)}" value="true" ${anterior && anterior.resposta === "true" ? "checked" : ""} /><span class="bubble">C</span><span class="opt-text">Certo</span></label>
+          <label class="bubble-option"><input class="sr-radio" type="radio" name="q${Number(q.id)}" value="false" ${anterior && anterior.resposta === "false" ? "checked" : ""} /><span class="bubble">E</span><span class="opt-text">Errado</span></label>
         </div>`;
       } else if (q.tipo === "numerica") {
-        inner += `<input class="numeric-answer" type="text" inputmode="decimal" name="q${q.id}" value="${anterior ? anterior.resposta : ""}" placeholder="Sua resposta${q.unidade ? ` (${q.unidade})` : ""}" />`;
+        inner += `<input class="numeric-answer" type="text" inputmode="decimal" name="q${Number(q.id)}" aria-label="Resposta da questão ${i + 1}" value="${htmlSeguro(anterior ? anterior.resposta : "")}" placeholder="Sua resposta${q.unidade ? ` (${htmlSeguro(q.unidade)})` : ""}" />`;
       }
       if (anterior) {
         const estado = anterior.correta ? "Correto" : "A revisar";
         const detalhe = anterior.feedback || "Resposta registrada.";
-        inner += `<div class="answer-history"><b>${estado}</b> · ${detalhe}</div>`;
+        inner += `<div class="answer-history"><b>${htmlSeguro(estado)}</b> · ${htmlSeguro(detalhe)}</div>`;
       }
       div.innerHTML = inner;
       form.appendChild(div);
@@ -335,7 +368,7 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
       return;
     }
     if (e.name === "AbortError" || signal.aborted) return;
-    box.innerHTML = `<p class='errbox'>Não foi possível carregar este bloco: ${e.message}</p>`;
+    box.innerHTML = `<p class='errbox'>Não foi possível carregar este bloco: ${htmlSeguro(e.message)}</p>`;
   } finally {
     clearTimeout(limite);
   }
@@ -375,7 +408,7 @@ async function enviarRespostas() {
       const cls = r.correta === true ? "stamp-ok" : (r.correta === false ? "stamp-bad" : "stamp-pending");
       const label = r.correta === true ? "Correto" : (r.correta === false ? "A revisar" : "Pendente");
       const detalhe = r.feedback || "";
-      html += `<div class="stamp-row"><span class="stamp ${cls}">${label}</span><span class="stamp-detail">Q${r.questao_id}${detalhe ? " · " + detalhe : ""}</span></div>`;
+      html += `<div class="stamp-row"><span class="stamp ${cls}">${label}</span><span class="stamp-detail">Q${Number(r.questao_id)}${detalhe ? " · " + htmlSeguro(detalhe) : ""}</span></div>`;
     });
     html += "</div>";
     resultado.innerHTML = html;
@@ -385,7 +418,7 @@ async function enviarRespostas() {
     const msg = e.status === 403
       ? "Este bloco ficou desatualizado para a sua trilha. Clique em “Fazer mais 10 questões” para carregar um bloco válido."
       : e.message;
-    resultado.innerHTML = `<p class='errbox'>Não foi possível enviar as respostas: ${msg}</p>`;
+    resultado.innerHTML = `<p class='errbox'>Não foi possível enviar as respostas: ${htmlSeguro(msg)}</p>`;
   } finally {
     if (submit && sessao === SESSION_VERSION) { submit.disabled = false; submit.textContent = "Enviar respostas"; }
   }
@@ -412,12 +445,14 @@ async function carregarProgresso() {
       const pct = Math.round(d.dominio * 100);
       const row = document.createElement("div");
       row.className = "boletim-row";
-      row.innerHTML = `<span class="boletim-nome">${d.nome}</span><span class="boletim-bar"><span class="boletim-fill ${level}" style="width:${pct}%"></span></span><span class="boletim-pct ${level}">${pct}%</span><span class="boletim-tent">${d.tentativas} tent.</span>`;
+      row.innerHTML = `<span class="boletim-nome">${htmlSeguro(d.nome)}</span><span class="boletim-bar"><span class="boletim-fill ${level}" style="width:${pct}%"></span></span><span class="boletim-pct ${level}">${pct}%</span><span class="boletim-tent">${Number(d.tentativas)} tent.</span>`;
       box.appendChild(row);
     });
     const aviso = document.getElementById("bankNotice");
     const total = Number(dashboard.questoes_banco || 0);
     const ineditas = Number(dashboard.ineditas_restantes || 0);
+    BANK_STATS = { total, ineditas };
+    atualizarBotaoMais();
     if (aviso) {
       if (total > 0 && total < 50) {
         aviso.hidden = false;
@@ -430,7 +465,7 @@ async function carregarProgresso() {
     }
   } catch (e) {
     if (sessao !== SESSION_VERSION) return;
-    box.innerHTML = `<p class='errbox'>Não foi possível carregar seu boletim: ${e.message}</p>`;
+    box.innerHTML = `<p class='errbox'>Não foi possível carregar seu boletim: ${htmlSeguro(e.message)}</p>`;
   }
 }
 
@@ -443,11 +478,11 @@ async function carregarPlano() {
     const { proximos_topicos } = await api("/plano");
     if (sessao !== SESSION_VERSION || perfil !== CONCURSO) return;
     box.innerHTML = proximos_topicos.length
-      ? proximos_topicos.map((t, i) => `<div class="agenda-item"><span class="agenda-num">${String(i + 1).padStart(2, "0")}</span><span>${t.nome}</span></div>`).join("")
+      ? proximos_topicos.map((t, i) => `<div class="agenda-item"><span class="agenda-num">${String(i + 1).padStart(2, "0")}</span><span>${htmlSeguro(t.nome)}</span></div>`).join("")
       : "<p class='agenda-empty'>Tudo coberto e em dia ✓</p>";
   } catch (e) {
     if (sessao !== SESSION_VERSION) return;
-    box.innerHTML = `<p class='errbox'>Não foi possível carregar o plano de estudo: ${e.message}</p>`;
+    box.innerHTML = `<p class='errbox'>Não foi possível carregar o plano de estudo: ${htmlSeguro(e.message)}</p>`;
   }
 }
 

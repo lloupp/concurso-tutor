@@ -25,6 +25,7 @@ def validar(dados, minimo=20, maximo=50):
         erros.append(f"lote deve ter entre {minimo} e {maximo} questões (tem {len(questoes)})")
     topicos = set(bloco.get("topicos_ids", []))
     enunciados = []
+    distribuicao = {}
     for i, q in enumerate(questoes, 1):
         prefixo = f"questão {i}"
         tipo = q.get("tipo", "mcq")
@@ -42,12 +43,27 @@ def validar(dados, minimo=20, maximo=50):
             erros.append(f"{prefixo}: dificuldade deve ser 1, 2 ou 3")
         if not q.get("banca_estilo"):
             erros.append(f"{prefixo}: banca_estilo ausente")
+        if q.get("fonte_id") is None:
+            erros.append(f"{prefixo}: fonte_id ausente")
+        if not str(q.get("materia", "")).strip():
+            erros.append(f"{prefixo}: matéria ausente")
+        if tipo == "mcq" and re.match(r"^\s*(explique|discorra|justifique)\b",
+                                      str(q.get("enunciado", "")), re.I):
+            erros.append(f"{prefixo}: comando discursivo incompatível com MCQ")
         if tipo == "mcq":
             alternativas = q.get("alternativas") or []
             if len(alternativas) not in {4, 5}:
                 erros.append(f"{prefixo}: MCQ deve ter 4 ou 5 alternativas")
             if str(q.get("gabarito")) not in {str(x) for x in range(len(alternativas))}:
                 erros.append(f"{prefixo}: gabarito MCQ fora do intervalo")
+            else:
+                chave = str(q.get("gabarito"))
+                distribuicao[chave] = distribuicao.get(chave, 0) + 1
+            normalizadas = [normalizar(a) for a in alternativas]
+            if len(set(normalizadas)) != len(normalizadas):
+                erros.append(f"{prefixo}: alternativas duplicadas")
+            if any(re.fullmatch(r"[a-z]", a or "") for a in normalizadas):
+                erros.append(f"{prefixo}: alternativa aparentemente truncada")
         elif tipo == "verdadeiro_falso":
             if str(q.get("gabarito")).lower() not in {"true", "false", "certo", "errado", "verdadeiro", "falso"}:
                 erros.append(f"{prefixo}: gabarito C/E inválido")
@@ -62,6 +78,10 @@ def validar(dados, minimo=20, maximo=50):
         elif any(SequenceMatcher(None, enunciado, anterior).ratio() >= 0.92 for anterior in enunciados):
             erros.append(f"{prefixo}: enunciado quase duplicado no lote")
         enunciados.append(enunciado)
+    if len(questoes) >= 20 and distribuicao:
+        contagens = [distribuicao.get(str(i), 0) for i in range(4)]
+        if max(contagens) > len(questoes) * 0.45:
+            erros.append(f"lote: gabaritos excessivamente concentrados {contagens}")
     return erros
 
 
