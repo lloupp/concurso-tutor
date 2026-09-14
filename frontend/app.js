@@ -1,41 +1,117 @@
 const API = "/api";
 let TOKEN = localStorage.getItem("ct_token") || null;
 let ME = null;
-let CONCURSOS = [];              // trilhas disponíveis apenas para cadastro
-let CONCURSO = null;             // trilha fixa do aluno
+let CONCURSOS = [];
+let CONCURSO = null;
+let SESSION_VERSION = 0;
+let BLOCK_VERSION = 0;
+let BLOCK_CONTROLLER = null;
+let CURRENT_BLOCK_IDS = [];
 
-// carrega trilhas somente para o cadastro
-async function carregarPerfis() {
+const PERFIS_PUBLICOS = new Set([51, 52, 53, 54]);
+const ANO_POR_TRILHA = { 51: 2025, 52: 2021, 53: 2026, 54: 2026 };
+const FONTES = {
+  1: "Lei nº 8.080/1990 — Lei Orgânica da Saúde",
+  2: "Lei nº 8.142/1990 — participação da comunidade e transferências",
+  3: "Caderno oficial de prova PF — Cebraspe 2021",
+  4: "Edital Porto Alegre 77/2021 — Anexo III",
+  5: "Edital nº 1/2025 — PF Administrativo",
+  15: "RDC Anvisa nº 15/2012 — Processamento de Produtos para Saúde",
+  16: "Resolução Cofen nº 564/2017 — Código de Ética dos Profissionais de Enfermagem",
+  17: "Lei nº 7.498/1986 — Exercício da Enfermagem",
+  18: "Protocolo de Segurança na Prescrição, Uso e Administração de Medicamentos",
+  19: "Calendário Técnico Nacional de Vacinação — 2026",
+  20: "Resolução Cofen nº 713/2022 — atendimento pré-hospitalar móvel",
+  21: "Anvisa — Segurança do Paciente: Higienização das Mãos",
+  22: "Protocolo de Identificação do Paciente",
+  23: "Ministério da Saúde / SAMU 192 — Protocolos de Suporte Básico de Vida",
+  24: "Ministério da Saúde — Exposição a Materiais Biológicos",
+  25: "Edital nº 01/2026 — Concurso Público EPTC Porto Alegre",
+  26: "Lei nº 9.503/1997 — Código de Trânsito Brasileiro (CTB)",
+  27: "Lei nº 13.303/2016 — Estatuto Jurídico das Empresas Estatais",
+  28: "Lei Municipal nº 8.133/1998 — Sistema de Transporte e Circulação de Porto Alegre",
+  29: "Lei Orgânica do Município de Porto Alegre",
+  30: "Estatuto Social da EPTC",
+  31: "Lei nº 12.288/2010 — Estatuto da Igualdade Racial",
+  32: "Lei nº 13.146/2015 — Estatuto da Pessoa com Deficiência",
+  33: "Lei nº 8.429/1992 — Improbidade Administrativa",
+  34: "Lei nº 12.527/2011 — Lei de Acesso à Informação",
+  35: "Lei nº 13.709/2018 — LGPD",
+  36: "Constituição da República Federativa do Brasil de 1988",
+  37: "Portaria SENATRAN nº 354/2022 — Auto de Infração de Trânsito",
+  38: "MTE — Normas Regulamentadoras NR-01, NR-04, NR-05, NR-06, NR-07 e NR-32",
+  39: "CLT — Capítulo V: Segurança e Medicina do Trabalho",
+  40: "Lei nº 8.213/1991 — Benefícios da Previdência Social",
+  41: "RDC Anvisa nº 222/2018 — Resíduos de Serviços de Saúde"
+};
+
+function mensagemErro(raw, fallback = "Não foi possível concluir a operação.") {
+  if (!raw) return fallback;
   try {
-    const data = await fetch(API + "/concursos").then(r => { if (!r.ok) throw new Error("erro"); return r.json(); });
-    CONCURSOS = data.concursos;
-  } catch (e) { console.error("perfis", e); return; }
-  if (CONCURSOS.length) {
-    document.getElementById("cadTrilha").innerHTML =
-      CONCURSOS.filter(c => c.id === 51 || c.id === 52).map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
+    const obj = JSON.parse(raw);
+    return obj.detail || obj.message || fallback;
+  } catch (_) {
+    return raw.length < 180 ? raw : fallback;
   }
 }
 
-// define o perfil ativo e sincroniza o select do topo
-function setPerfil(id) {
-  CONCURSO = id;
-  localStorage.setItem("ct_concurso", id);
-}
-
-function novoTomarPerfil() {
-  localStorage.removeItem("ct_concurso");
-}
-
 async function api(path, opts = {}) {
-  opts.headers = opts.headers || {};
-  if (TOKEN) opts.headers["Authorization"] = "Bearer " + TOKEN;
+  const skipAuth = Boolean(opts.skipAuth);
+  delete opts.skipAuth;
+  opts.headers = { ...(opts.headers || {}) };
+  if (TOKEN && !skipAuth) opts.headers.Authorization = "Bearer " + TOKEN;
   if (opts.body) opts.headers["Content-Type"] = "application/json";
   const r = await fetch(API + path, opts);
   if (!r.ok) {
     const t = await r.text();
-    throw new Error(t || r.status);
+    const err = new Error(mensagemErro(t));
+    err.status = r.status;
+    throw err;
   }
   return r.json();
+}
+
+function limparTelaEstudo() {
+  BLOCK_VERSION += 1;
+  CURRENT_BLOCK_IDS = [];
+  if (BLOCK_CONTROLLER) {
+    BLOCK_CONTROLLER.abort();
+    BLOCK_CONTROLLER = null;
+  }
+  ["blocoInfo", "formBloco", "resultado", "cobertura", "dashboardCards", "heatmap", "planoLista"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = "";
+  });
+  const aviso = document.getElementById("bankNotice");
+  if (aviso) { aviso.hidden = true; aviso.textContent = ""; }
+}
+
+async function carregarPerfis() {
+  try {
+    const data = await fetch(API + "/concursos").then(async r => {
+      if (!r.ok) throw new Error(mensagemErro(await r.text(), "Erro ao carregar perfis"));
+      return r.json();
+    });
+    CONCURSOS = data.concursos || [];
+  } catch (e) {
+    console.error("perfis", e);
+    return;
+  }
+  const select = document.getElementById("cadTrilha");
+  if (select) {
+    select.innerHTML = CONCURSOS.filter(c => PERFIS_PUBLICOS.has(c.id))
+      .map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
+  }
+}
+
+function setPerfil(id) {
+  CONCURSO = id == null ? null : Number(id);
+  if (CONCURSO == null || Number.isNaN(CONCURSO)) localStorage.removeItem("ct_concurso");
+  else localStorage.setItem("ct_concurso", String(CONCURSO));
+}
+
+function perfilAtual() {
+  return CONCURSOS.find(c => c.id === CONCURSO) || {};
 }
 
 function domLevel(d) {
@@ -45,62 +121,125 @@ function domLevel(d) {
 }
 
 async function login(u, p) {
+  const versao = ++SESSION_VERSION;
+  limparTelaEstudo();
+  document.getElementById("loginErr").textContent = "";
   try {
-    const data = await api("/login", { method: "POST", body: JSON.stringify({ username: u, password: p }) });
-    TOKEN = data.token; ME = data.user;
+    const data = await api("/login", {
+      method: "POST",
+      skipAuth: true,
+      body: JSON.stringify({ username: u, password: p })
+    });
+    if (versao !== SESSION_VERSION) return;
+    TOKEN = data.token;
+    ME = data.user;
     localStorage.setItem("ct_token", TOKEN);
     setPerfil(ME.concurso_id);
-    showApp();
+    await showApp();
   } catch (e) {
-    document.getElementById("loginErr").textContent = "Falha: " + e.message;
+    if (versao !== SESSION_VERSION) return;
+    document.getElementById("loginErr").textContent = "Não foi possível entrar: " + e.message;
   }
 }
 
 async function cadastro() {
   const msg = document.getElementById("cadastroMsg");
   try {
-    await api("/cadastro", { method: "POST", body: JSON.stringify({
-      full_name: document.getElementById("cadNome").value,
-      username: document.getElementById("cadUsuario").value,
-      password: document.getElementById("cadSenha").value,
-      concurso_id: parseInt(document.getElementById("cadTrilha").value, 10),
-      tempo_diario: parseInt(document.getElementById("cadTempo").value, 10),
-    }) });
+    await api("/cadastro", {
+      method: "POST",
+      skipAuth: true,
+      body: JSON.stringify({
+        full_name: document.getElementById("cadNome").value,
+        username: document.getElementById("cadUsuario").value,
+        password: document.getElementById("cadSenha").value,
+        concurso_id: parseInt(document.getElementById("cadTrilha").value, 10),
+        tempo_diario: parseInt(document.getElementById("cadTempo").value, 10)
+      })
+    });
     msg.textContent = "Perfil criado. Agora entre com seu usuário e senha.";
-  } catch (e) { msg.textContent = "Não foi possível criar: " + e.message; }
+  } catch (e) {
+    msg.textContent = "Não foi possível criar: " + e.message;
+  }
 }
 
 function logout() {
-  TOKEN = null; ME = null; localStorage.removeItem("ct_token"); novoTomarPerfil();
+  SESSION_VERSION += 1;
+  limparTelaEstudo();
+  TOKEN = null;
+  ME = null;
+  setPerfil(null);
+  localStorage.removeItem("ct_token");
   document.getElementById("app").hidden = true;
   document.getElementById("login").hidden = false;
   document.getElementById("topbar").hidden = true;
+  const tabs = document.querySelector(".tabs");
+  if (tabs) tabs.hidden = false;
 }
 
 async function showApp() {
+  const sessao = SESSION_VERSION;
+  limparTelaEstudo();
   document.getElementById("login").hidden = true;
   document.getElementById("app").hidden = false;
   document.getElementById("topbar").hidden = false;
   document.getElementById("userinfo").textContent = `${ME.full_name} (${ME.role})`;
+  const tabs = document.querySelector(".tabs");
+
+  if (ME.role === "admin") {
+    if (tabs) tabs.hidden = true;
+    document.getElementById("blocoInfo").innerHTML =
+      "<div class='warn-box'><b>Área administrativa não disponível nesta interface.</b><br>Este acesso não possui uma trilha de aluno. Use as ferramentas administrativas do projeto para gerenciar conteúdo; nenhuma trilha anterior será exibida aqui.</div>";
+    return;
+  }
+
+  if (tabs) tabs.hidden = false;
+  if (!CONCURSO) {
+    document.getElementById("blocoInfo").innerHTML = "<p class='errbox'>Seu usuário não possui uma trilha de estudo configurada.</p>";
+    return;
+  }
+
   await carregarBloco();
-  await carregarBlocos();
+  if (sessao !== SESSION_VERSION) return;
   await carregarProgresso();
+  if (sessao !== SESSION_VERSION) return;
   await carregarPlano();
 }
 
-// renderiza o bloco (do dia ou escolhido) no form; aceita bloco_id opcional
+function referenciaQuestao(q) {
+  const perfil = perfilAtual();
+  const partes = [q.banca_estilo || perfil.banca, perfil.nome, ANO_POR_TRILHA[CONCURSO], FONTES[q.fonte_id]]
+    .filter(Boolean);
+  return partes.length ? `Referência: ${partes.join(" · ")}` : "Referência não cadastrada";
+}
+
 async function carregarBloco(blocoId = null, adaptativo = false) {
   const box = document.getElementById("blocoInfo");
   const form = document.getElementById("formBloco");
-  document.getElementById("resultado").innerHTML = "";
+  const resultado = document.getElementById("resultado");
+  const sessao = SESSION_VERSION;
+  const perfil = CONCURSO;
+  const versao = ++BLOCK_VERSION;
+
+  if (BLOCK_CONTROLLER) BLOCK_CONTROLLER.abort();
+  BLOCK_CONTROLLER = new AbortController();
+  const signal = BLOCK_CONTROLLER.signal;
+
+  resultado.innerHTML = "";
+  box.innerHTML = "<p class='hint'>Carregando questões...</p>";
+  form.innerHTML = "";
+
   try {
     const path = blocoId ? "/bloco/" + blocoId : (adaptativo ? "/bloco/proximo" : "/bloco/hoje");
-    const { bloco } = await api(path);
+    const { bloco } = await api(path, { signal });
+    if (signal.aborted || versao !== BLOCK_VERSION || sessao !== SESSION_VERSION || perfil !== CONCURSO) return;
+
     if (!bloco) {
-      box.innerHTML = "<p class='warn-box'>Nenhum bloco para hoje. Peça ao Hermes para gerar.</p>";
-      form.innerHTML = "";
+      CURRENT_BLOCK_IDS = [];
+      box.innerHTML = "<p class='warn-box'>Ainda não há questões disponíveis para esta trilha. Em breve teremos mais questões.</p>";
       return;
     }
+
+    CURRENT_BLOCK_IDS = bloco.questoes.map(q => q.id);
     box.innerHTML = `
       <div class="protocolo">
         <p class="eyebrow">Bloco de estudo</p>
@@ -111,9 +250,10 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
           <div><span>Duração</span><b>${bloco.duracao_min} min</b></div>
           <div><span>Questões</span><b>${bloco.questoes.length}</b></div>
         </div>
-        <button type="button" class="btn secondary" onclick="carregarBloco(null, true)">Gerar próximo bloco adaptativo</button>
+        <button type="button" class="btn secondary" id="btnMaisQuestoes">Fazer mais 10 questões</button>
       </div>`;
-    form.innerHTML = "";
+    document.getElementById("btnMaisQuestoes").onclick = () => carregarBloco(null, true);
+
     bloco.questoes.forEach((q, i) => {
       const div = document.createElement("div");
       div.className = "q";
@@ -121,19 +261,19 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
         <div class="q-head">
           <span class="q-num">Q${i + 1}</span>
           <span class="q-type">${q.tipo === "mcq" ? "Objetiva" : q.tipo === "verdadeiro_falso" ? "Certo ou errado" : q.tipo === "numerica" ? "Resposta numérica" : "Legada"}</span>
+          <span class="q-type q-source-meta">${referenciaQuestao(q)}</span>
         </div>
         ${q.texto_base ? `<div class="texto-base">${q.texto_base}</div>` : ""}
         <p class="q-body">${q.enunciado}</p>`;
       const anterior = q.resposta_anterior;
       if (q.tipo === "mcq") {
         inner += `<div class="bubbles">`;
-        q.alternativas.forEach((a, ai) => {
+        (q.alternativas || []).forEach((a, ai) => {
           const letra = String.fromCharCode(65 + ai);
-          const texto = a.replace(/^[A-Za-z]\)\s*/, "");
+          const texto = String(a).replace(/^[A-Za-z][\)\.]\s*/, "");
           inner += `<label class="bubble-option">
             <input type="radio" name="q${q.id}" value="${ai}" ${anterior && anterior.resposta === String(ai) ? "checked" : ""} hidden />
-            <span class="bubble">${letra}</span>
-            <span class="opt-text">${texto}</span>
+            <span class="bubble">${letra}</span><span class="opt-text">${texto}</span>
           </label>`;
         });
         inner += `</div>`;
@@ -144,88 +284,92 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
         </div>`;
       } else if (q.tipo === "numerica") {
         inner += `<input class="numeric-answer" type="text" inputmode="decimal" name="q${q.id}" value="${anterior ? anterior.resposta : ""}" placeholder="Sua resposta${q.unidade ? ` (${q.unidade})` : ""}" />`;
-      } else {
-        inner += `<textarea class="ruled" name="q${q.id}" placeholder="Sua resposta discursiva..."></textarea>`;
       }
       if (anterior) {
         const estado = anterior.correta ? "Correto" : "A revisar";
         const detalhe = anterior.feedback || "Resposta registrada.";
-        const explicacao = q.explicacao && !detalhe.includes(q.explicacao) ? ` ${q.explicacao}` : "";
-        inner += `<div class="answer-history"><b>${estado}</b> · ${detalhe}${explicacao}</div>`;
+        inner += `<div class="answer-history"><b>${estado}</b> · ${detalhe}</div>`;
       }
       div.innerHTML = inner;
       form.appendChild(div);
     });
+
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "btn-stamp";
     btn.textContent = "Enviar respostas";
     btn.onclick = enviarRespostas;
     form.appendChild(btn);
-  } catch (e) { box.innerHTML = "<p class='errbox'>" + e.message + "</p>"; }
-}
-
-// lista os blocos do perfil no seletor (conteúdo completo)
-async function carregarBlocos() {
-  const sel = document.getElementById("seletorBloco");
-  try {
-    const { blocos } = await api("/blocos");
-    sel.innerHTML = `<option value="">— hoje —</option>` +
-      blocos.map(b => `<option value="${b.id}">${b.data} · ${b.titulo}</option>`).join("");
-  } catch (e) { sel.innerHTML = "<option value=''>—</option>"; }
-}
-
-async function abrirBlocoSelecionado() {
-  const sel = document.getElementById("seletorBloco");
-  if (!sel.value) { await carregarBloco(); return; }
-  await carregarBloco(sel.value);
+  } catch (e) {
+    if (e.name === "AbortError" || signal.aborted || versao !== BLOCK_VERSION || sessao !== SESSION_VERSION) return;
+    box.innerHTML = `<p class='errbox'>Não foi possível carregar este bloco: ${e.message}</p>`;
+  }
 }
 
 async function enviarRespostas() {
   const form = document.getElementById("formBloco");
+  const resultado = document.getElementById("resultado");
+  const sessao = SESSION_VERSION;
+  const perfil = CONCURSO;
+  const idsNaTela = [...CURRENT_BLOCK_IDS];
   const respostas = [];
+
   form.querySelectorAll(".q").forEach(qdiv => {
-    const radio = qdiv.querySelector('input[type=radio]:checked');
-    const anyRadio = qdiv.querySelector("input[type=radio]");
-      const ta = qdiv.querySelector("textarea");
+    const radio = qdiv.querySelector('input[type="radio"]:checked');
+    const anyRadio = qdiv.querySelector('input[type="radio"]');
     const numeric = qdiv.querySelector(".numeric-answer");
-    const ref = radio || anyRadio || ta || numeric;
-    if (!ref) return;
-    if (anyRadio && !radio) return;
-    if (numeric && !numeric.value.trim()) return;
-    if (ta && !ta.value.trim()) return;
-    const id = parseInt(ref.name.replace("q", ""));
-    const val = radio ? radio.value : (numeric ? numeric.value : (ta ? ta.value : ""));
-    respostas.push({ questao_id: id, resposta: val });
+    const ref = radio || anyRadio || numeric;
+    if (!ref || (anyRadio && !radio) || (numeric && !numeric.value.trim())) return;
+    const id = parseInt(ref.name.replace("q", ""), 10);
+    if (!idsNaTela.includes(id)) return;
+    respostas.push({ questao_id: id, resposta: radio ? radio.value : numeric.value });
   });
+
+  if (!respostas.length) {
+    resultado.innerHTML = "<p class='warn-box'>Selecione pelo menos uma resposta antes de enviar.</p>";
+    return;
+  }
+
+  const submit = form.querySelector(".btn-stamp");
+  if (submit) { submit.disabled = true; submit.textContent = "Enviando..."; }
   try {
     const out = await api("/bloco/responder", { method: "POST", body: JSON.stringify({ respostas }) });
-    let html = `<div class="correcao"><p class="eyebrow">Gabarito</p>`;
+    if (sessao !== SESSION_VERSION || perfil !== CONCURSO || idsNaTela.join(",") !== CURRENT_BLOCK_IDS.join(",")) return;
+    let html = `<div class="correcao"><p class="eyebrow">Resultado</p>`;
     out.resultados.forEach(r => {
       const cls = r.correta === true ? "stamp-ok" : (r.correta === false ? "stamp-bad" : "stamp-pending");
-      const label = r.correta === true ? "Correto" : (r.correta === false ? "A revisar" : "Legada");
+      const label = r.correta === true ? "Correto" : (r.correta === false ? "A revisar" : "Pendente");
       const detalhe = r.feedback || "";
-      const explicacao = r.explicacao && !detalhe.includes(r.explicacao) ? " " + r.explicacao : "";
-      html += `<div class="stamp-row"><span class="stamp ${cls}">${label}</span><span class="stamp-detail">Q${r.questao_id}${detalhe ? " · " + detalhe : ""}${explicacao}</span></div>`;
+      html += `<div class="stamp-row"><span class="stamp ${cls}">${label}</span><span class="stamp-detail">Q${r.questao_id}${detalhe ? " · " + detalhe : ""}</span></div>`;
     });
     html += "</div>";
-    document.getElementById("resultado").innerHTML = html;
+    resultado.innerHTML = html;
     await carregarProgresso();
   } catch (e) {
-    document.getElementById("resultado").innerHTML = "<p class='errbox'>" + e.message + "</p>";
+    if (sessao !== SESSION_VERSION) return;
+    const msg = e.status === 403
+      ? "Este bloco ficou desatualizado para a sua trilha. Clique em “Fazer mais 10 questões” para carregar um bloco válido."
+      : e.message;
+    resultado.innerHTML = `<p class='errbox'>Não foi possível enviar as respostas: ${msg}</p>`;
+  } finally {
+    if (submit && sessao === SESSION_VERSION) { submit.disabled = false; submit.textContent = "Enviar respostas"; }
   }
 }
 
 async function carregarProgresso() {
+  if (!ME || ME.role === "admin") return;
+  const sessao = SESSION_VERSION;
+  const perfil = CONCURSO;
   const box = document.getElementById("heatmap");
   const cov = document.getElementById("cobertura");
   try {
     const { dominancia, cobertura, dashboard } = await api("/progresso");
+    if (sessao !== SESSION_VERSION || perfil !== CONCURSO) return;
     cov.innerHTML = `<p class="cobertura-valor">${cobertura.pct}%<span>cobertura do edital · ${cobertura.estudados}/${cobertura.total} tópicos</span></p>`;
     document.getElementById("dashboardCards").innerHTML = [
       ["Domínio médio", `${dashboard.dominio_medio}%`], ["Respondidas", dashboard.questoes_respondidas],
       ["Acertos", dashboard.acertos], ["Taxa de acerto", `${dashboard.taxa_acerto}%`],
-      ["Revisões pendentes", dashboard.revisoes_pendentes], ["Matérias iniciadas", `${dashboard.materias_iniciadas}/${dashboard.materias_total}`],
+      ["Revisões pendentes", dashboard.revisoes_pendentes], ["Matérias iniciadas", `${dashboard.materias_iniciadas}/${dashboard.materias_total}`]
     ].map(([label, value]) => `<div class="dashboard-card"><span>${label}</span><b>${value}</b></div>`).join("");
     box.innerHTML = "";
     dominancia.forEach(d => {
@@ -233,30 +377,46 @@ async function carregarProgresso() {
       const pct = Math.round(d.dominio * 100);
       const row = document.createElement("div");
       row.className = "boletim-row";
-      row.innerHTML = `
-        <span class="boletim-nome">${d.nome}</span>
-        <span class="boletim-bar"><span class="boletim-fill ${level}" style="width:${pct}%"></span></span>
-        <span class="boletim-pct ${level}">${pct}%</span>
-        <span class="boletim-tent">${d.tentativas} tent.</span>`;
+      row.innerHTML = `<span class="boletim-nome">${d.nome}</span><span class="boletim-bar"><span class="boletim-fill ${level}" style="width:${pct}%"></span></span><span class="boletim-pct ${level}">${pct}%</span><span class="boletim-tent">${d.tentativas} tent.</span>`;
       box.appendChild(row);
     });
-  } catch (e) { box.innerHTML = "<p class='errbox'>" + e.message + "</p>"; }
+    const aviso = document.getElementById("bankNotice");
+    const total = Number(dashboard.questoes_banco || 0);
+    const ineditas = Number(dashboard.ineditas_restantes || 0);
+    if (aviso) {
+      if (total > 0 && total < 50) {
+        aviso.hidden = false;
+        aviso.className = "warn-box";
+        aviso.textContent = `Este banco ainda está em expansão. Há ${total} questões disponíveis no momento, sendo ${ineditas} inéditas para você. Em breve teremos mais questões.`;
+      } else {
+        aviso.hidden = true;
+        aviso.textContent = "";
+      }
+    }
+  } catch (e) {
+    if (sessao !== SESSION_VERSION) return;
+    box.innerHTML = `<p class='errbox'>Não foi possível carregar seu boletim: ${e.message}</p>`;
+  }
 }
 
 async function carregarPlano() {
+  if (!ME || ME.role === "admin") return;
+  const sessao = SESSION_VERSION;
+  const perfil = CONCURSO;
   const box = document.getElementById("planoLista");
   try {
     const { proximos_topicos } = await api("/plano");
+    if (sessao !== SESSION_VERSION || perfil !== CONCURSO) return;
     box.innerHTML = proximos_topicos.length
       ? proximos_topicos.map((t, i) => `<div class="agenda-item"><span class="agenda-num">${String(i + 1).padStart(2, "0")}</span><span>${t.nome}</span></div>`).join("")
       : "<p class='agenda-empty'>Tudo coberto e em dia ✓</p>";
-  } catch (e) { box.innerHTML = "<p class='errbox'>" + e.message + "</p>"; }
+  } catch (e) {
+    if (sessao !== SESSION_VERSION) return;
+    box.innerHTML = `<p class='errbox'>Não foi possível carregar o plano de estudo: ${e.message}</p>`;
+  }
 }
 
-// Eventos
-document.getElementById("btnLogin").onclick = () => {
-  login(document.getElementById("username").value, document.getElementById("password").value);
-};
+document.getElementById("btnLogin").onclick = () => login(document.getElementById("username").value, document.getElementById("password").value);
 document.getElementById("btnCadastro").onclick = cadastro;
 document.getElementById("logout").onclick = logout;
 document.querySelectorAll(".tabs button").forEach(b => {
@@ -268,14 +428,20 @@ document.querySelectorAll(".tabs button").forEach(b => {
   };
 });
 
-// boot: carrega trilhas e restaura sessão
+window.addEventListener("storage", event => {
+  if (event.key === "ct_token" && event.newValue !== TOKEN) logout();
+});
+
 (async function boot() {
   await carregarPerfis();
-  const salvo = parseInt(localStorage.getItem("ct_concurso"), 10);
-  if (CONCURSOS.length) {
-    if (CONCURSOS.some(c => c.id === salvo)) setPerfil(salvo);
-  }
   if (TOKEN) {
-    api("/me").then(u => { ME = u; showApp(); }).catch(() => logout());
+    try {
+      const u = await api("/me");
+      ME = u;
+      setPerfil(u.concurso_id);
+      await showApp();
+    } catch (_) {
+      logout();
+    }
   }
 })();
