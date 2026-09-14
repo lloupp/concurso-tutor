@@ -308,6 +308,13 @@ update public.blocos set criado_por='revisao-editorial-balanceado'
 where concurso_id in (53,54) and titulo='Banco editorial EPTC — expansão 2026'
   and criado_por='revisao-editorial';
 
+-- Itens genéricos herdados da PF devem referenciar a trilha atual.
+update public.questoes q set fonte_id=25
+from public.blocos b
+where b.id=q.bloco_id and b.concurso_id in (53,54)
+  and b.titulo='Banco editorial EPTC — expansão 2026'
+  and q.fonte_id=3;
+
 do $$
 begin
   if exists (
