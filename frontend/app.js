@@ -54,7 +54,8 @@ const FONTES = {
   38: "MTE — Normas Regulamentadoras NR-01, NR-04, NR-05, NR-06, NR-07 e NR-32",
   39: "CLT — Capítulo V: Segurança e Medicina do Trabalho",
   40: "Lei nº 8.213/1991 — Benefícios da Previdência Social",
-  41: "RDC Anvisa nº 222/2018 — Resíduos de Serviços de Saúde"
+  41: "RDC Anvisa nº 222/2018 — Resíduos de Serviços de Saúde",
+  46: "Edital nº 01/2026 — Anexo III, EPTC Porto Alegre"
 };
 
 function mensagemErro(raw, fallback = "Não foi possível concluir a operação.") {
