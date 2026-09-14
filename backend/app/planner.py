@@ -78,32 +78,42 @@ def cobertura(db: Session, concurso_id: int, user_id: int | None = None):
 
 
 def painel(db: Session, user_id: int, concurso_id: int):
-    respostas = db.query(Resposta).filter_by(user_id=user_id).all()
-    corrigidas = [r for r in respostas if r.correta is not None]
-    progresso = db.query(Progresso).filter_by(user_id=user_id).all()
+    """Métricas estritamente limitadas ao concurso ativo do aluno."""
     topicos = db.query(Topico).filter_by(concurso_id=concurso_id).all()
-    hoje = date.today()
-    materias = {t.nome.split(" — ", 1)[0] for t in topicos}
-    materias_iniciadas = set()
-    for t in topicos:
-        if any(p.topico_id == t.id and p.tentativas > 0 for p in progresso):
-            materias_iniciadas.add(t.nome.split(" — ", 1)[0])
+    topico_ids = {t.id for t in topicos}
 
-    questoes_banco = (db.query(Questao)
-                      .join(Bloco, Bloco.id == Questao.bloco_id)
-                      .filter(Bloco.concurso_id == concurso_id)
-                      .count())
-    respondidas_ids = {r.questao_id for r in respostas}
     questoes_perfil_ids = {
         qid for (qid,) in (db.query(Questao.id)
                            .join(Bloco, Bloco.id == Questao.bloco_id)
                            .filter(Bloco.concurso_id == concurso_id).all())
     }
+    respostas = (db.query(Resposta)
+                 .join(Questao, Questao.id == Resposta.questao_id)
+                 .join(Bloco, Bloco.id == Questao.bloco_id)
+                 .filter(Resposta.user_id == user_id,
+                         Bloco.concurso_id == concurso_id)
+                 .all())
+    corrigidas = [r for r in respostas if r.correta is not None]
+    progresso = (db.query(Progresso)
+                 .filter(Progresso.user_id == user_id,
+                         Progresso.topico_id.in_(topico_ids) if topico_ids else False)
+                 .all())
+
+    hoje = date.today()
+    materias = {t.nome.split(" — ", 1)[0] for t in topicos}
+    materias_iniciadas = set()
+    progresso_por_topico = {p.topico_id: p for p in progresso}
+    for t in topicos:
+        p = progresso_por_topico.get(t.id)
+        if p and p.tentativas > 0:
+            materias_iniciadas.add(t.nome.split(" — ", 1)[0])
+
+    respondidas_ids = {r.questao_id for r in respostas}
     ineditas_restantes = len(questoes_perfil_ids - respondidas_ids)
 
     return {
         "questoes_respondidas": len(respostas),
-        "questoes_banco": questoes_banco,
+        "questoes_banco": len(questoes_perfil_ids),
         "ineditas_restantes": ineditas_restantes,
         "acertos": sum(1 for r in corrigidas if r.correta),
         "erros": sum(1 for r in corrigidas if r.correta is False),
