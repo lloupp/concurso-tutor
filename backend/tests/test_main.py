@@ -115,6 +115,25 @@ def test_bloco_hoje_retorna_bloco_com_questoes(client, db, aluno_headers, aluno_
     assert body["questoes"][0]["rubric"] is None
 
 
+def test_bloco_banco_nao_e_exibido_inteiro_como_bloco_do_dia(
+        client, db, aluno_headers, aluno_user, topico):
+    banco = models.Bloco(concurso_id=aluno_user.concurso_id, titulo="Banco editorial",
+                         introducao="Acervo", data=date.today(), status="banco")
+    db.add(banco)
+    db.commit()
+    db.add(models.Questao(bloco_id=banco.id, topico_id=topico.id, tipo="mcq",
+                          enunciado="Questão do acervo", alternativas=["a", "b"], gabarito="1"))
+    db.commit()
+
+    resp = client.get("/api/bloco/hoje", headers=aluno_headers)
+    assert resp.status_code == 200
+    assert resp.json()["bloco"]["titulo"] == "Próximo bloco adaptativo"
+    assert len(resp.json()["bloco"]["questoes"]) == 1
+
+    listagem = client.get("/api/blocos", headers=aluno_headers).json()["blocos"]
+    assert all(item["titulo"] != "Banco editorial" for item in listagem)
+
+
 def test_listar_blocos_retorna_apenas_do_concurso_do_usuario(client, db, aluno_headers, aluno_user, concurso):
     outro_concurso = models.Concurso(nome="Outro", cargo="X", banca="Y")
     db.add(outro_concurso)

@@ -281,7 +281,7 @@ def bloco_hoje(concurso_id: int = None,
                db: Session = Depends(get_db)):
     c = _resolver_concurso(db, u, concurso_id)
     bloco = (db.query(models.Bloco)
-             .filter_by(concurso_id=c.id, data=date.today())
+             .filter_by(concurso_id=c.id, data=date.today(), status="ativo")
              .order_by(models.Bloco.id.desc()).first())
     if not bloco:
         adaptado = _bloco_adaptado_out(db, u.id, c)
@@ -320,7 +320,7 @@ def listar_blocos(concurso_id: int = None,
                   u: models.User = Depends(auth.get_current_user),
                   db: Session = Depends(get_db)):
     c = _resolver_concurso(db, u, concurso_id)
-    blocos = db.query(models.Bloco).filter_by(concurso_id=c.id) \
+    blocos = db.query(models.Bloco).filter_by(concurso_id=c.id, status="ativo") \
         .order_by(models.Bloco.data.desc(), models.Bloco.id.desc()).all()
     return {"blocos": [{"id": b.id, "titulo": b.titulo, "data": b.data.isoformat(),
                         "introducao": b.introducao} for b in blocos]}

@@ -4,7 +4,7 @@
 insert into public.blocos (concurso_id, data, titulo, introducao, duracao_min, criado_por, status)
 select c.id, current_date, 'Banco editorial EPTC — expansão 2026',
        'Questões de cobertura do edital, revisadas por tópico e vinculadas a fontes oficiais.',
-       60, 'revisao-editorial', 'ativo'
+       60, 'revisao-editorial', 'banco'
 from public.concursos c
 where c.id in (53, 54)
   and not exists (
