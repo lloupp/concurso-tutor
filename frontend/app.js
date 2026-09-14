@@ -221,8 +221,14 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
   const versao = ++BLOCK_VERSION;
 
   if (BLOCK_CONTROLLER) BLOCK_CONTROLLER.abort();
-  BLOCK_CONTROLLER = new AbortController();
-  const signal = BLOCK_CONTROLLER.signal;
+  const controller = new AbortController();
+  BLOCK_CONTROLLER = controller;
+  const signal = controller.signal;
+  let expirou = false;
+  const limite = setTimeout(() => {
+    expirou = true;
+    controller.abort();
+  }, 15000);
 
   resultado.innerHTML = "";
   box.innerHTML = "<p class='hint'>Carregando questões...</p>";
@@ -301,8 +307,15 @@ async function carregarBloco(blocoId = null, adaptativo = false) {
     btn.onclick = enviarRespostas;
     form.appendChild(btn);
   } catch (e) {
-    if (e.name === "AbortError" || signal.aborted || versao !== BLOCK_VERSION || sessao !== SESSION_VERSION) return;
+    if (versao !== BLOCK_VERSION || sessao !== SESSION_VERSION || perfil !== CONCURSO) return;
+    if (expirou) {
+      box.innerHTML = "<p class='errbox'>O servidor demorou mais que o esperado para preparar as questões. Tente novamente em alguns instantes.</p>";
+      return;
+    }
+    if (e.name === "AbortError" || signal.aborted) return;
     box.innerHTML = `<p class='errbox'>Não foi possível carregar este bloco: ${e.message}</p>`;
+  } finally {
+    clearTimeout(limite);
   }
 }
 

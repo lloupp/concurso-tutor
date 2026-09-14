@@ -135,15 +135,22 @@ def _resolver_concurso(db, u, concurso_id):
 
 
 # ---------- Bloco de estudo ----------
-def _bloco_out(db, bloco, user_id=None):
-    questoes = db.query(models.Questao).filter_by(bloco_id=bloco.id).all()
+def _questoes_out(db, questoes, user_id=None):
+    """Serializa questões sem fazer uma consulta de respostas por item."""
+    anteriores = {}
+    if user_id is not None and questoes:
+        ids = [q.id for q in questoes]
+        # A ordenação descendente permite preservar somente a última tentativa
+        # de cada questão em uma única consulta.
+        for resposta in (db.query(models.Resposta)
+                         .filter(models.Resposta.user_id == user_id,
+                                 models.Resposta.questao_id.in_(ids))
+                         .order_by(models.Resposta.id.desc()).all()):
+            anteriores.setdefault(resposta.questao_id, resposta)
+
     qs = []
     for q in questoes:
-        anterior = None
-        if user_id is not None:
-            anterior = (db.query(models.Resposta)
-                        .filter_by(user_id=user_id, questao_id=q.id)
-                        .order_by(models.Resposta.id.desc()).first())
+        anterior = anteriores.get(q.id)
         qs.append({
             "id": q.id, "tipo": q.tipo, "enunciado": q.enunciado,
             "alternativas": q.alternativas, "dificuldade": q.dificuldade,
@@ -166,9 +173,15 @@ def _bloco_out(db, bloco, user_id=None):
                 "gabarito": q.gabarito if q.tipo in TIPOS_AUTOMATICOS else None,
             } if anterior else None),
         })
+    return qs
+
+
+def _bloco_out(db, bloco, user_id=None):
+    questoes = db.query(models.Questao).filter_by(bloco_id=bloco.id).all()
     return {"id": bloco.id, "titulo": bloco.titulo,
             "introducao": bloco.introducao, "duracao_min": bloco.duracao_min,
-            "data": bloco.data.isoformat(), "questoes": qs}
+            "data": bloco.data.isoformat(),
+            "questoes": _questoes_out(db, questoes, user_id)}
 
 
 def _bloco_adaptado_out(db, user_id, concurso):
@@ -176,9 +189,15 @@ def _bloco_adaptado_out(db, user_id, concurso):
     hoje = date.today()
     topicos = planner.proximo_plano(db, user_id, concurso.id, n_topicos=1000)
     prioridade_topico = {t.id: i for i, t in enumerate(topicos)}
-    progresso = {p.topico_id: p for p in db.query(models.Progresso).filter_by(user_id=user_id).all()}
+    topico_ids = [t.id for t in topicos]
+    progresso = {p.topico_id: p for p in db.query(models.Progresso)
+                 .filter(models.Progresso.user_id == user_id,
+                         models.Progresso.topico_id.in_(topico_ids) if topico_ids else False).all()}
     respostas = (db.query(models.Resposta)
-                 .filter_by(user_id=user_id)
+                 .join(models.Questao, models.Questao.id == models.Resposta.questao_id)
+                 .join(models.Bloco, models.Bloco.id == models.Questao.bloco_id)
+                 .filter(models.Resposta.user_id == user_id,
+                         models.Bloco.concurso_id == concurso.id)
                  .order_by(models.Resposta.id.desc()).all())
     ultima = {}
     for r in respostas:
@@ -216,11 +235,7 @@ def _bloco_adaptado_out(db, user_id, concurso):
         escolhidas = {q.id for q in selecionadas}
         selecionadas.extend(q for q in base if q.id not in escolhidas)
         selecionadas = selecionadas[:10]
-    questoes = []
-    for q in selecionadas:
-        bloco_origem = db.query(models.Bloco).filter_by(id=q.bloco_id).first()
-        item = _bloco_out(db, bloco_origem, user_id)["questoes"]
-        questoes.extend(x for x in item if x["id"] == q.id)
+    questoes = _questoes_out(db, selecionadas, user_id)
     return {"id": None, "titulo": "Próximo bloco adaptativo",
             "introducao": "Prioriza tópicos inéditos, revisões vencidas e menor domínio sem excluir as demais matérias.",
             "duracao_min": 60, "data": hoje.isoformat(), "questoes": questoes,

@@ -49,9 +49,17 @@ def atualizar_progresso(db: Session, user_id: int, topico_id: int,
 def dominancia(db: Session, user_id: int, concurso_id: int):
     """Retorna lista de tópicos com dominância e status de cobertura."""
     topicos = db.query(Topico).filter_by(concurso_id=concurso_id).all()
+    topico_ids = [t.id for t in topicos]
+    progresso_por_topico = {
+        p.topico_id: p
+        for p in db.query(Progresso).filter(
+            Progresso.user_id == user_id,
+            Progresso.topico_id.in_(topico_ids) if topico_ids else False,
+        ).all()
+    }
     out = []
     for t in topicos:
-        p = db.query(Progresso).filter_by(user_id=user_id, topico_id=t.id).first()
+        p = progresso_por_topico.get(t.id)
         out.append({
             "topico_id": t.id,
             "nome": t.nome,
@@ -134,10 +142,18 @@ def proximo_plano(db: Session, user_id: int, concurso_id: int, n_topicos: int = 
     (3) menor dominância. Tudo estudado, nada esquecido.
     """
     topicos = db.query(Topico).filter_by(concurso_id=concurso_id).all()
+    topico_ids = [t.id for t in topicos]
+    progresso_por_topico = {
+        p.topico_id: p
+        for p in db.query(Progresso).filter(
+            Progresso.user_id == user_id,
+            Progresso.topico_id.in_(topico_ids) if topico_ids else False,
+        ).all()
+    }
     hoje = date.today()
 
     def score(t):
-        p = db.query(Progresso).filter_by(user_id=user_id, topico_id=t.id).first()
+        p = progresso_por_topico.get(t.id)
         if not p or p.tentativas == 0:
             return (0, 0)
         if p and p.proxima_revisao and p.proxima_revisao <= hoje:
