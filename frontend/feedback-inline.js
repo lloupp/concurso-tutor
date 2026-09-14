@@ -17,6 +17,22 @@
       .replace(/'/g, "&#039;");
   }
 
+  function normalizarHistorico() {
+    document.querySelectorAll(".answer-history:not(.submitted-feedback)").forEach(el => {
+      const texto = (el.textContent || "").trim();
+      const prefixo = "Correto · Correto.";
+      if (!texto.startsWith(prefixo)) return;
+      const detalhe = texto.slice(prefixo.length).trim() || "Resposta correta.";
+      el.innerHTML = `<b>Correto</b> · ${escaparHtml(detalhe)}`;
+    });
+  }
+
+  const formBloco = document.getElementById("formBloco");
+  if (formBloco) {
+    new MutationObserver(normalizarHistorico).observe(formBloco, { childList: true, subtree: true });
+    normalizarHistorico();
+  }
+
   enviarRespostas = async function () {
     const form = document.getElementById("formBloco");
     const resultado = document.getElementById("resultado");
