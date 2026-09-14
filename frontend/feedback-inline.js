@@ -1,4 +1,13 @@
 (() => {
+  if (typeof FONTES !== "undefined") {
+    Object.assign(FONTES, {
+      42: "PROFAE — Anatomia e Fisiologia (Ministério da Saúde / Fiocruz)",
+      43: "PROFAE — Fundamentos de Enfermagem (Ministério da Saúde / Fiocruz)",
+      44: "Protocolo de Prevenção de Quedas — MS / Anvisa / Fiocruz",
+      45: "Protocolo de Prevenção de Lesão por Pressão — MS / Anvisa / Fiocruz"
+    });
+  }
+
   function escaparHtml(valor) {
     return String(valor ?? "")
       .replace(/&/g, "&amp;")
@@ -60,7 +69,9 @@
         if (r.correta === true) corretas += 1;
 
         let detalhe = r.feedback || "Resposta registrada.";
-        if (r.explicacao && !detalhe.includes(r.explicacao)) detalhe += ` ${r.explicacao}`;
+        if (r.correta === true) detalhe = detalhe.replace(/^Correto\.\s*/i, "");
+        if (r.explicacao && !detalhe.includes(r.explicacao)) detalhe += `${detalhe ? " " : ""}${r.explicacao}`;
+        if (!detalhe) detalhe = "Resposta correta.";
         const feedback = document.createElement("div");
         feedback.className = "answer-history submitted-feedback";
         feedback.innerHTML = `<b>${escaparHtml(estado)}</b> · ${escaparHtml(detalhe)}`;
