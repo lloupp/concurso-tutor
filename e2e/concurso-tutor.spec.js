@@ -86,9 +86,9 @@ async function answerAll(page, timings) {
   await measured(timings, 'preencher_respostas_ms', async () => {
     for (let i = 0; i < count; i += 1) {
       const q = questions.nth(i);
-      const radios = q.locator('input[type="radio"]');
-      if (await radios.count()) {
-        await radios.first().check({ force: true });
+      const options = q.locator('.bubble-option');
+      if (await options.count()) {
+        await options.first().click();
       } else {
         const numeric = q.locator('.numeric-answer');
         if (await numeric.count()) await numeric.fill('1');
