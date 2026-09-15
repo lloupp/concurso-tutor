@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- frontend backend api requirements.txt vercel.json Dockerfile",
   "functions": {
     "api/**/*.py": {
       "excludeFiles": "{backend/tests/**,**/__pycache__/**,docs/**,*.json,*.md}"
