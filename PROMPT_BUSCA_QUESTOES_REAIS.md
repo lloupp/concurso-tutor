@@ -23,6 +23,12 @@ for a transcrição de um item que caiu numa prova real.
 Se não achar questão real para um tópico: **não cadastre nada nesse tópico.**
 Ficar com menos questões é o resultado desejado. Inventar é falha total.
 
+**Atenção — não confunda "não adaptar" com "não aproveitar".** Esta regra
+proíbe você de *criar ou alterar* questão. Ela NÃO manda descartar questão
+real que você já encontrou. Se a prova é oficial e tem gabarito definitivo, a
+questão entra — mesmo que o número de alternativas, a banca ou o ano sejam
+diferentes do que a trilha pedia. Ver "Convenções de gabarito" adiante.
+
 ## Acesso
 
 - Supabase MCP, project_id: `supibsarclnlhsgjukrh` (`mcp__Supabase__execute_sql`).
@@ -33,7 +39,7 @@ Ficar com menos questões é o resultado desejado. Inventar é falha total.
 | concurso_id | Trilha | Banca | Formato | Em quarentena | Válidas |
 |---|---|---|---|---|---|
 | 51 | PF Agente Administrativo | Cebraspe | Certo/Errado (`usa_certo_errado=true`) | 580 | 12 |
-| 52 | Técnico em Enfermagem | (genérica) | MCQ, 4 alternativas | 600 | 0 |
+| 52 | Técnico em Enfermagem | (genérica) | MCQ, **formato livre** (`n_alternativas=0`) | 600 | 0 |
 | 53 | EPTC Porto Alegre 2026 — Nível Médio | Instituto Objetiva | MCQ, 5 alternativas | 111 | 0 |
 | 54 | EPTC 2026 — Téc. Enfermagem do Trabalho | Instituto Objetiva | MCQ, 5 alternativas | 156 | 0 |
 | 55 | Alvorada 2026 — Técnico em Enfermagem | Instituto Legalle | MCQ, 5 alternativas | 121 | 0 |
@@ -156,7 +162,17 @@ INSERT INTO questoes (
   `'false'` (Errado); `alternativas` fica NULL.
 - `gabarito_oficial` guarda a letra/sigla **como está no gabarito da banca**
   (`A`…`E`, ou `C`/`E`).
-- Respeite o `n_alternativas` da trilha (5 para Objetiva/Legalle, 4 para a 52).
+- **O formato da prova real manda — `n_alternativas` NUNCA descarta questão.**
+  Transcreva a questão com o número de alternativas que ela tem. O
+  `n_alternativas` da trilha serve para você **priorizar a busca** (comece
+  pelas provas da banca-alvo), não para filtrar o que já encontrou. Achou
+  questão real, oficial, com gabarito definitivo, mas com 5 alternativas onde
+  a trilha dizia 4 (ou o contrário)? **Cadastre como está.** O banco convive
+  com formatos mistos e a trilha 52 está com `n_alternativas=0` (livre).
+  O proibido continua sendo o oposto: cortar, acrescentar ou remanejar
+  alternativa para a questão "caber" no formato — isso falsifica a prova.
+  Descartar questão real comprovada por causa da contagem de alternativas é
+  perda pura e **não é o comportamento desejado**.
 
 ### Bloqueio técnico — não tente contornar
 A tabela tem a constraint `chk_valida_exige_comprovacao`: qualquer INSERT com
@@ -196,7 +212,8 @@ não reordene.** Só normalização técnica (encoding, espaço duplo) é permit
 SELECT c.id, c.nome, c.n_alternativas,
        count(*) FILTER (WHERE q.situacao='valida') AS validas,
        count(*) FILTER (WHERE q.situacao='valida' AND q.tipo='mcq'
-         AND jsonb_array_length(q.alternativas) <> c.n_alternativas) AS alternativas_erradas,
+         AND c.n_alternativas > 0
+         AND jsonb_array_length(q.alternativas) <> c.n_alternativas) AS fora_do_formato_alvo,
        count(*) FILTER (WHERE q.situacao='valida' AND q.tipo='mcq'
          AND (q.gabarito::int < 0 OR q.gabarito::int >= jsonb_array_length(q.alternativas))) AS gabarito_fora
 FROM questoes q
@@ -206,7 +223,11 @@ GROUP BY c.id, c.nome, c.n_alternativas ORDER BY c.id;
 
 SELECT count(*) FROM questoes_verificadas;
 ```
-`alternativas_erradas` e `gabarito_fora` devem ser 0.
+`gabarito_fora` deve ser 0 — é erro real (gabarito apontando para alternativa
+inexistente). Já `fora_do_formato_alvo` é apenas **informativo**: mostra
+quantas questões reais vieram em formato diferente do da banca-alvo, para você
+saber onde ainda vale procurar mais provas daquela banca. **Não é erro e não
+deve ser "corrigido"** — nunca apague nem altere questão real por causa dele.
 
 ## Relatório final (obrigatório)
 
