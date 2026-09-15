@@ -3,14 +3,22 @@
 Plataforma web (Python + FastAPI + SQLite + front vanilla) que funciona como um
 **professor de concurso autônomo assistido por IA (Hermes)**.
 
+## Regra fundamental sobre questões
+
+O Concurso Tutor **não cria questões**.
+
+Toda questão apresentada ao aluno deve ser uma **questão real já aplicada em prova de concurso público**, reproduzida fielmente e com origem verificável.
+
+É proibido usar IA para inventar, adaptar, reescrever, parafrasear ou produzir questões apenas "no estilo" de uma banca. A IA pode localizar, classificar e explicar questões reais, mas não alterar o conteúdo original.
+
+A especificação obrigatória está em [`MANUAL_QUESTOES_REAIS.md`](MANUAL_QUESTOES_REAIS.md).
+
 ## Conceito (definido com o Eduardo)
 - **2 alunos**, concursos diferentes:
   - PF — Agente Administrativo (banca Cebraspe)
   - Técnico em Enfermagem
-- O **Hermes** (IA) gera, **todos os dias**, um bloco de estudo com base no **edital
-  real + pesquisa** (sem invenção): mini-aula + **10 questões** (1h de estudo).
-- Exercícios **mistos**: múltipla escolha (correção automática) + discursiva/cálculo
-  (correção por IA/Hermes com rubrica).
+- O **Hermes** (IA) monta, **todos os dias**, um bloco de estudo com base no **edital real + pesquisa**, selecionando **questões reais de provas anteriores** do banco validado.
+- Exercícios podem incluir múltipla escolha, certo/errado e outros formatos existentes nas provas de origem. A correção e a explicação pedagógica podem ser assistidas por IA, sem alterar a questão original.
 - A plataforma mede **progresso e dominância por tópico** (mapa de calor) e aplica
   **revisão espaçada**, mas **estuda tudo** (cobertura 100% do edital).
 - Fluxo **assíncrono**: Hermes monta o bloco e avisa no Telegram; o aluno resolve
@@ -20,7 +28,7 @@ Plataforma web (Python + FastAPI + SQLite + front vanilla) que funciona como um
 ## Stack
 - Backend: FastAPI + SQLAlchemy + SQLite local ou PostgreSQL Supabase
 - Front: HTML/CSS/JS puro (SPA, sem build)
-- IA: Hermes Agent (skill `tutor-concurso`) gera conteúdo e corrige discursivas
+- IA: Hermes Agent (skill `tutor-concurso`) seleciona/organiza conteúdo e pode corrigir discursivas ou gerar explicações pedagógicas
 
 ## Como rodar (Docker — qualquer lugar)
 ```bash
@@ -42,7 +50,7 @@ uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 ## Usuários demo
 | usuário | senha | papel |
 |---|---|---|
-| admin | admin123 | gera conteúdo (Hermes) |
+| admin | admin123 | administra conteúdo |
 | aluno_pf | 123456 | PF Agente Administrativo |
 | aluno_enf | 123456 | Técnico em Enfermagem |
 
@@ -51,43 +59,27 @@ uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 |---|---|---|
 | POST | `/api/login` | autenticação |
 | GET | `/api/bloco/hoje` | bloco do dia do aluno |
-| POST | `/api/bloco/responder` | envia respostas (corrige MCQ) |
+| POST | `/api/bloco/responder` | envia respostas |
 | GET | `/api/progresso` | dominância + cobertura |
 | GET | `/api/plano` | próximos tópicos (revisão espaçada) |
-| POST | `/api/bloco/gerar` | admin/Hermes cria bloco (JSON) |
+| POST | `/api/bloco/gerar` | admin/Hermes monta bloco usando questões reais validadas |
 | POST | `/api/admin/*` | admin cria concurso/tópico/aluno |
 
-## Integração com o Hermes / Pi (geração de conteúdo)
-A geração de blocos é feita por um "professor" IA que pesquisa o edital real e
-chama a API. Dois caminhos:
+## Integração com o Hermes / Pi
 
-- **Hermes (cron diário 07:00):** usa a skill `tutor-concurso` (em
-  `skills/tutor-concurso/SKILL.md`) para gerar o bloco de cada aluno e avisar no
-  Telegram. Job já criado e testado.
-- **Pi orquestrado (população em massa):** para encher a plataforma de uma vez,
-  orquestramos N instâncias do Pi (`~/.pi/agent`) — uma por concurso — via `tmux`,
-  cada uma guiada pela skill `tutor-concurso` (web research + `curl` na API local).
-  Exemplo usado: 2 sessões (`pipf`, `pienf`) geraram PF (7 blocos/42 questões,
-  cobertura 100%) e Enfermagem (3 blocos/30 questões). Ver skills
-  `pi-coding-agent-orchestrator`.
-- **Grok CLI:** há `grok_populate_prompt.md` com o prompt equivalente, mas o CLI
-  `grok` neste ambiente não está autenticado (XAI_API_KEY=dummy, sessão vazia);
-  o backend (shim→OpenRouter) funciona. Falta `grok login --device-code`.
+Hermes pode pesquisar o edital, localizar provas, classificar questões reais, montar blocos e produzir explicações pedagógicas. **Não pode criar questões inéditas.**
 
-Conteúdo NUNCA é inventado: sempre ancorado em fontes (Estratégia, Gran, Direção,
-Cofen, Planalto/CF88, editais UFMG/UFES).
+Qualquer processo de população em massa deve seguir [`MANUAL_QUESTOES_REAIS.md`](MANUAL_QUESTOES_REAIS.md): cada questão precisa ter origem rastreável e ser conferida com a prova/gabarito correspondente antes de entrar no banco.
 
 ## Simulado estático (GitHub Pages)
-Além da plataforma completa (backend), há um **simulado estático** em `docs/`
-com questões no estilo de concursos públicos de nível médio (Português,
-Matemática/Raciocínio Lógico, Informática, Direito Constitucional, Direito
-Administrativo, Atualidades) — roda 100% no navegador, sem backend. Publicado
-em: **https://lloupp.github.io/concurso-tutor/**
+Além da plataforma completa (backend), há um **simulado estático** em `docs/`.
+As questões desse simulado também devem ser **questões reais de provas**, nunca perguntas criadas apenas para imitar concursos.
+
+Publicado em: **https://lloupp.github.io/concurso-tutor/**
 
 **Ativar o Pages (uma vez, nas configurações do repositório):**
 Settings → Pages → Build and deployment → Source: `Deploy from a branch` →
-Branch: `main` / pasta `/docs` → Save. O site fica disponível em
-`https://<usuário>.github.io/concurso-tutor/`.
+Branch: `main` / pasta `/docs` → Save.
 
 **Testar localmente:**
 ```bash
@@ -96,16 +88,20 @@ python3 -m http.server 8080
 # abra http://localhost:8080
 ```
 
-Para adicionar mais questões (inclusive pedindo a outra IA), veja o manual em
-[`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md).
+Para adicionar questões, veja [`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md) e, obrigatoriamente, [`MANUAL_QUESTOES_REAIS.md`](MANUAL_QUESTOES_REAIS.md).
 
 ## Modelo de dados
 `Concurso → Topico (árvore) → Bloco → Questao → Resposta → Progresso (dominância)`
 Usuários têm papel `aluno` (1 concurso) ou `admin`.
 
+O modelo de `Questao` deve evoluir para manter proveniência suficiente para auditoria, incluindo banca, órgão/concurso, cargo, ano, número da questão, fonte da prova e fonte do gabarito.
+
 ## Roadmap
+- [ ] Banco auditável de questões reais com metadados de proveniência
+- [ ] Importação de provas e gabaritos oficiais
+- [ ] Validação automática/manual contra a fonte antes de publicar
 - [ ] Upload de PDF de edital + extração automática de tópicos
 - [ ] Endpoint de correção discursiva pelo Hermes (webhook)
-- [ ] Cron real de geração diária + notificação Telegram
+- [ ] Cron real de montagem diária + notificação Telegram
 - [ ] Multi-dispositivo (deploy VPS/túnel)
 - [ ] Estatísticas por banca e simulados completos
