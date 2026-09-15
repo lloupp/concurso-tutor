@@ -13,6 +13,7 @@ import os
 from .db import get_db, engine
 from . import models, auth, planner
 from .schemas import LoginIn, ResponderIn, GerarBlocoIn, CriarUsuarioIn, CadastroIn
+from .quest_api_routes import router as quest_api_router
 
 # Em PostgreSQL/Supabase, o schema é aplicado por migration, não em cada
 # cold start da Function. O create_all continua útil no SQLite local/demo.
@@ -601,6 +602,9 @@ def criar_usuario(payload: CriarUsuarioIn,
     user = auth.criar_usuario(db, payload.username, payload.password,
                               payload.full_name, "aluno", payload.concurso_id)
     return {"user_id": user.id}
+
+
+app.include_router(quest_api_router)
 
 
 # ---------- Frontend (estático) ----------

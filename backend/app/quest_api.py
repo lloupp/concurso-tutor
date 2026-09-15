@@ -6,9 +6,12 @@ as questões localmente e nunca expõe a API key ao navegador.
 from __future__ import annotations
 
 import os
+import re
 from typing import Any
 
 import httpx
+
+_PROPRIEDADE_INVALIDA_RE = re.compile(r"^property (\w+) should not exist$")
 
 DEFAULT_BASE_URL = "https://api.quest.api.br"
 
@@ -36,6 +39,27 @@ def _v2_search_indisponivel(response: httpx.Response) -> bool:
     except ValueError:
         return False
     return isinstance(body, dict) and body.get("message") == "Search V2 não está configurado."
+
+
+def _propriedades_nao_suportadas(response: httpx.Response) -> set[str]:
+    """Propriedades que o fornecedor rejeitou com 422 (schema difere entre v1/v2)."""
+    if response.status_code != 422:
+        return set()
+    try:
+        body = response.json()
+    except ValueError:
+        return set()
+    mensagens = body.get("message") if isinstance(body, dict) else None
+    if isinstance(mensagens, str):
+        mensagens = [mensagens]
+    if not isinstance(mensagens, list):
+        return set()
+    propriedades = set()
+    for mensagem in mensagens:
+        m = _PROPRIEDADE_INVALIDA_RE.match(str(mensagem))
+        if m:
+            propriedades.add(m.group(1))
+    return propriedades
 
 
 def _validar_resposta(response: httpx.Response) -> dict[str, Any]:
@@ -105,6 +129,12 @@ def buscar_questoes(filtros: dict[str, Any] | None = None, *, client: httpx.Clie
         if _v2_search_indisponivel(response):
             api_version = "v1"
             response = http.get(f"{base_url}/v1/questoes", params=params, headers=headers)
+        propriedades_invalidas = _propriedades_nao_suportadas(response)
+        if propriedades_invalidas:
+            # v1 e v2 aceitam conjuntos de filtros diferentes; remove o que o
+            # fornecedor rejeitou e tenta de novo em vez de falhar a importação.
+            params_compativeis = {k: v for k, v in params.items() if k not in propriedades_invalidas}
+            response = http.get(f"{base_url}/{api_version}/questoes", params=params_compativeis, headers=headers)
         resultado = _validar_resposta(response)
     except httpx.RequestError as exc:
         raise QuestApiError("Falha de comunicação com a Quest API", 502) from exc
@@ -206,13 +236,13 @@ def normalizar_questao(item: dict[str, Any]) -> dict[str, Any]:
         "enunciado": enunciado,
         "alternativas": alternativas,
         "gabarito": gabarito_local,
-        "banca_estilo": banca or None,
-        "materia": materia or None,
-        "trilha": assunto or None,
+        "banca_estilo": banca[:40] or None,
+        "materia": materia[:120] or None,
+        "trilha": assunto[:120] or None,
         "texto_base": "\n\n".join(textos_associados) or None,
         "dificuldade": _dificuldade(item.get("dificuldade")),
         "fonte_titulo": referencia[:300],
-        "fonte_orgao": orgao or None,
+        "fonte_orgao": orgao[:200] or None,
         "fonte_ano": int(ano) if ano.isdigit() else None,
         "prova_id": prova_id or None,
         "numero": numero or None,

@@ -1,10 +1,7 @@
 """Testes da integração com a Quest API."""
 import httpx
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
 
 from app import models, quest_api
-from app.quest_api_routes import router as quest_router
 
 
 def _item_mcq(questao_id="2500000001"):
@@ -154,15 +151,48 @@ def test_cliente_nao_faz_fallback_para_outro_503(monkeypatch):
     assert chamadas == ["/v2/questoes"]
 
 
-def test_importacao_admin_persiste_e_deduplica(monkeypatch, db, concurso, topico, admin_headers):
+def test_cliente_remove_propriedade_rejeitada_e_tenta_de_novo(monkeypatch):
+    monkeypatch.setenv("QUEST_API_KEY", "qk_teste")
+    monkeypatch.setenv("QUEST_API_BASE_URL", "https://api.quest.test")
+    chamadas = []
+
+    def responder(request: httpx.Request):
+        chamadas.append(dict(request.url.params))
+        if request.url.path == "/v2/questoes":
+            return httpx.Response(
+                503,
+                request=request,
+                json={"message": "Search V2 não está configurado."},
+            )
+        if "uf" in request.url.params or "anulada" in request.url.params:
+            return httpx.Response(
+                422,
+                request=request,
+                json={"message": ["property uf should not exist", "property anulada should not exist"]},
+            )
+        return httpx.Response(
+            200,
+            request=request,
+            json={"data": {"total": 1, "next_cursor": None, "items": [_item_mcq()]}},
+        )
+
+    client = httpx.Client(transport=httpx.MockTransport(responder))
+    try:
+        out = quest_api.buscar_questoes({"cargo": "Técnico em Enfermagem", "uf": "RS", "per_page": 5}, client=client)
+    finally:
+        client.close()
+    assert out["api_version"] == "v1"
+    assert len(out["items"]) == 1
+    assert "uf" in chamadas[1] and "anulada" in chamadas[1]
+    assert "uf" not in chamadas[2] and "anulada" not in chamadas[2]
+
+
+def test_importacao_admin_persiste_e_deduplica(monkeypatch, client, db, concurso, topico, admin_headers):
     monkeypatch.setattr(
         quest_api,
         "buscar_questoes",
         lambda filtros: {"items": [_item_mcq()], "total": 1, "next_cursor": None, "api_version": "v2"},
     )
-    test_app = FastAPI()
-    test_app.include_router(quest_router)
-    client = TestClient(test_app)
 
     params = {
         "concurso_id": concurso.id,
@@ -196,7 +226,7 @@ def test_importacao_admin_persiste_e_deduplica(monkeypatch, db, concurso, topico
     assert db.query(models.Questao).count() == 1
 
 
-def test_importacao_v1_deduplica_fonte_v2(monkeypatch, db, concurso, topico, admin_headers):
+def test_importacao_v1_deduplica_fonte_v2(monkeypatch, client, db, concurso, topico, admin_headers):
     fonte = models.Fonte(
         titulo="Quest API existente",
         url="https://api.quest.api.br/v2/questoes/2500000001",
@@ -215,8 +245,6 @@ def test_importacao_v1_deduplica_fonte_v2(monkeypatch, db, concurso, topico, adm
         "buscar_questoes",
         lambda filtros: {"items": [_item_mcq()], "total": 1, "next_cursor": None, "api_version": "v1"},
     )
-    test_app = FastAPI(); test_app.include_router(quest_router)
-    client = TestClient(test_app)
     r = client.post(
         "/api/admin/quest/importar",
         params={"concurso_id": concurso.id, "topico_id": topico.id, "limite": 5},
