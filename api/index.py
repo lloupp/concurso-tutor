@@ -33,7 +33,7 @@ def _validar_bootstrap(key: str):
 def _resumo_resposta(response: httpx.Response):
     try:
         body = response.json()
-        return {
+        resumo = {
             "status": response.status_code,
             "message": body.get("message") if isinstance(body, dict) else None,
             "error": body.get("error") if isinstance(body, dict) else None,
@@ -41,6 +41,17 @@ def _resumo_resposta(response: httpx.Response):
             "path": body.get("path") if isinstance(body, dict) else None,
             "tem_data": isinstance(body, dict) and "data" in body,
         }
+        if response.status_code < 400 and isinstance(body, dict):
+            resumo["top_keys"] = list(body.keys())[:20]
+            data = body.get("data")
+            if isinstance(data, dict):
+                resumo["data_keys"] = list(data.keys())[:20]
+                items = data.get("items") or data.get("questoes") or []
+                if isinstance(items, list) and items and isinstance(items[0], dict):
+                    resumo["item_keys"] = list(items[0].keys())[:30]
+            elif isinstance(data, list) and data and isinstance(data[0], dict):
+                resumo["item_keys"] = list(data[0].keys())[:30]
+        return resumo
     except ValueError:
         return {"status": response.status_code, "message": response.text[:300]}
 
@@ -55,6 +66,7 @@ def quest_diagnose_rs_20260915(key: str):
     headers = {"X-API-Key": api_key, "Accept": "application/json"}
     try:
         with httpx.Client(timeout=15.0) as client:
+            v1 = client.get(f"{base}/v1/questoes", params={"per_page": 1}, headers=headers)
             minimo = client.get(f"{base}/v2/questoes", params={"per_page": 1}, headers=headers)
             completo = client.get(
                 f"{base}/v2/questoes",
@@ -72,8 +84,9 @@ def quest_diagnose_rs_20260915(key: str):
     return {
         "key_configurada": True,
         "base_padrao": base == "https://api.quest.api.br",
-        "minimo": _resumo_resposta(minimo),
-        "completo": _resumo_resposta(completo),
+        "v1": _resumo_resposta(v1),
+        "v2_minimo": _resumo_resposta(minimo),
+        "v2_completo": _resumo_resposta(completo),
     }
 
 
