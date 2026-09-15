@@ -56,7 +56,6 @@ def importar_questoes(
     if not topico or topico.concurso_id != concurso_id:
         raise HTTPException(400, "Tópico não pertence ao perfil informado")
 
-    # Cargo aceita busca parcial na Quest API e é um bom fallback do perfil.
     cargo_consulta = _texto_filtro(cargo) or _texto_filtro(concurso.cargo)
     filtros = {
         "banca": _texto_filtro(banca),
@@ -78,6 +77,7 @@ def importar_questoes(
     except quest_api.QuestApiError as exc:
         raise HTTPException(exc.status_code, str(exc)) from exc
 
+    api_version = resultado.get("api_version") if resultado.get("api_version") in {"v1", "v2"} else "v2"
     bloco = None
     importadas = 0
     duplicadas = 0
@@ -85,10 +85,14 @@ def importar_questoes(
 
     for item in resultado["items"]:
         quest_id = str(item.get("id") or "").strip()
-        source_url = f"https://api.quest.api.br/v2/questoes/{quest_id}" if quest_id else ""
+        urls_questao = [
+            f"https://api.quest.api.br/v1/questoes/{quest_id}",
+            f"https://api.quest.api.br/v2/questoes/{quest_id}",
+        ] if quest_id else []
+        source_url = f"https://api.quest.api.br/{api_version}/questoes/{quest_id}" if quest_id else ""
 
-        if source_url:
-            fonte_existente = db.query(models.Fonte).filter_by(url=source_url).first()
+        if urls_questao:
+            fonte_existente = db.query(models.Fonte).filter(models.Fonte.url.in_(urls_questao)).first()
             if fonte_existente and db.query(models.Questao).filter_by(fonte_id=fonte_existente.id).first():
                 duplicadas += 1
                 continue
@@ -112,7 +116,7 @@ def importar_questoes(
             db.add(bloco)
             db.flush()
 
-        fonte = db.query(models.Fonte).filter_by(url=source_url).first() if source_url else None
+        fonte = db.query(models.Fonte).filter(models.Fonte.url.in_(urls_questao)).first() if urls_questao else None
         if fonte is None:
             fonte = models.Fonte(
                 titulo=normalizada["fonte_titulo"] or f"Quest API · {normalizada['quest_api_id']}",
@@ -154,5 +158,6 @@ def importar_questoes(
         "duplicadas": duplicadas,
         "rejeitadas": rejeitadas,
         "next_cursor": resultado["next_cursor"],
+        "api_version": api_version,
         "bloco_banco_id": bloco.id if bloco else None,
     }
