@@ -6,6 +6,8 @@ const PROFILES = [
   { id: 52, slug: 'tecnico-enfermagem', label: 'Técnico em Enfermagem' },
   { id: 53, slug: 'eptc-medio', label: 'EPTC Porto Alegre — Nível Médio' },
   { id: 54, slug: 'eptc-enfermagem-trabalho', label: 'EPTC — Técnico de Enfermagem do Trabalho' },
+  { id: 55, slug: 'alvorada-tecnico-enfermagem', label: 'Alvorada 2026 — Técnico em Enfermagem' },
+  { id: 56, slug: 'alvorada-auxiliar-administrativo', label: 'Alvorada 2026 — Auxiliar Administrativo' },
 ];
 
 function creds(profile) {
@@ -31,7 +33,7 @@ async function openClean(page, timings = {}) {
   await page.evaluate(() => localStorage.clear());
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#login')).toBeVisible();
-  await expect.poll(async () => page.locator('#cadTrilha option').count()).toBeGreaterThanOrEqual(4);
+  await expect.poll(async () => page.locator('#cadTrilha option').count()).toBeGreaterThanOrEqual(6);
 }
 
 async function ensureAccount(page, request, profile, timings = {}) {
@@ -187,9 +189,9 @@ for (const profile of PROFILES) {
     await submitAnswers(page, answered, timings);
     const nextIds = await loadNextBlock(page, timings);
 
-    if (profile.id === 51 || profile.id === 52) {
+    if ([51, 52, 55, 56].includes(profile.id)) {
       const overlap = firstIds.filter(id => nextIds.includes(id));
-      expect(overlap, 'Perfis com banco amplo devem priorizar questões inéditas').toEqual([]);
+      expect(overlap, 'Perfis com banco suficiente devem priorizar questões inéditas').toEqual([]);
     }
 
     await exerciseTabs(page, timings);
