@@ -11,16 +11,11 @@ from backend.app.db import get_db
 from backend.app import models
 from backend.app.quest_api_routes import router as quest_api_router, importar_questoes
 
-# main.py monta o frontend estático em "/" por último. Para registrar novas
-# rotas depois da importação sem deixá-las atrás desse catch-all, removemos o
-# mount, incluímos as rotas e recolocamos o frontend no fim.
 _front_routes = [route for route in app.router.routes if getattr(route, "name", None) == "front"]
 if _front_routes:
     app.router.routes = [route for route in app.router.routes if route not in _front_routes]
 app.include_router(quest_api_router)
 
-# Gatilho temporário e de uso único para a primeira carga controlada da Quest API.
-# Apenas o SHA-256 da chave está no repositório; o texto puro não é persistido.
 _BOOTSTRAP_HASH = "bc5a55e6db18895a2f75c0738d157f74c25c343cb4968d21f916e98051dcd979"
 
 
@@ -42,18 +37,45 @@ def _resumo_resposta(response: httpx.Response):
             "tem_data": isinstance(body, dict) and "data" in body,
         }
         if response.status_code < 400 and isinstance(body, dict):
-            resumo["top_keys"] = list(body.keys())[:20]
             data = body.get("data")
             if isinstance(data, dict):
                 resumo["data_keys"] = list(data.keys())[:20]
-                items = data.get("items") or data.get("questoes") or []
-                if isinstance(items, list) and items and isinstance(items[0], dict):
+                items = data.get("items") or []
+                if items and isinstance(items[0], dict):
                     resumo["item_keys"] = list(items[0].keys())[:30]
-            elif isinstance(data, list) and data and isinstance(data[0], dict):
-                resumo["item_keys"] = list(data[0].keys())[:30]
         return resumo
     except ValueError:
         return {"status": response.status_code, "message": response.text[:300]}
+
+
+def _metadados_items(response: httpx.Response):
+    if response.status_code >= 400:
+        return {"resumo": _resumo_resposta(response), "items": []}
+    try:
+        data = response.json().get("data") or {}
+        items = data.get("items") or []
+    except (ValueError, AttributeError):
+        return {"resumo": _resumo_resposta(response), "items": []}
+    out = []
+    for item in items[:20]:
+        prova = item.get("prova") or {}
+        classificacao = item.get("classificacao") or {}
+        out.append({
+            "id": item.get("id"),
+            "orgao": prova.get("orgao"),
+            "cargo": prova.get("cargo"),
+            "ano": prova.get("ano"),
+            "banca": prova.get("banca"),
+            "prova_keys": list(prova.keys())[:30],
+            "materia": classificacao.get("materia"),
+            "assunto": classificacao.get("assunto"),
+            "classificacao_keys": list(classificacao.keys())[:20],
+            "anulada": item.get("anulada"),
+            "desatualizada": item.get("desatualizada"),
+            "n_alternativas": len(item.get("alternativas") or []),
+            "tem_gabarito": bool(item.get("gabarito")),
+        })
+    return {"resumo": _resumo_resposta(response), "total": data.get("total"), "items": out}
 
 
 @app.get("/api/internal/quest-diagnose-rs-20260915", include_in_schema=False)
@@ -67,33 +89,32 @@ def quest_diagnose_rs_20260915(key: str):
     try:
         with httpx.Client(timeout=15.0) as client:
             v1 = client.get(f"{base}/v1/questoes", params={"per_page": 1}, headers=headers)
-            minimo = client.get(f"{base}/v2/questoes", params={"per_page": 1}, headers=headers)
-            completo = client.get(
-                f"{base}/v2/questoes",
+            v1_poa = client.get(
+                f"{base}/v1/questoes",
                 params={
-                    "per_page": 1,
+                    "per_page": 20,
+                    "cargo": "Técnico em Enfermagem",
+                    "orgao": "Porto Alegre",
                     "tem_gabarito": "true",
                     "include_gabarito": "true",
-                    "anulada": "false",
-                    "desatualizada": "false",
                 },
                 headers=headers,
             )
+            minimo = client.get(f"{base}/v2/questoes", params={"per_page": 1}, headers=headers)
     except httpx.RequestError as exc:
         return {"key_configurada": True, "erro_rede": type(exc).__name__}
     return {
         "key_configurada": True,
         "base_padrao": base == "https://api.quest.api.br",
         "v1": _resumo_resposta(v1),
-        "v2_minimo": _resumo_resposta(minimo),
-        "v2_completo": _resumo_resposta(completo),
+        "v1_porto_alegre": _metadados_items(v1_poa),
+        "v2": _resumo_resposta(minimo),
     }
 
 
 @app.get("/api/internal/quest-bootstrap-rs-20260915", include_in_schema=False)
 def quest_bootstrap_rs_20260915(key: str, db=Depends(get_db)):
     _validar_bootstrap(key)
-
     existente = (
         db.query(models.Questao)
         .join(models.Fonte, models.Fonte.id == models.Questao.fonte_id)
@@ -103,11 +124,9 @@ def quest_bootstrap_rs_20260915(key: str, db=Depends(get_db)):
     )
     if existente:
         return {"status": "already_done"}
-
     admin = db.query(models.User).filter_by(role="admin").order_by(models.User.id).first()
     if not admin:
         raise HTTPException(503, "Admin indisponível")
-
     resultado = importar_questoes(
         concurso_id=52,
         topico_id=38,
