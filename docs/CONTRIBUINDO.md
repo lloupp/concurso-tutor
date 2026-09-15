@@ -1,94 +1,94 @@
-# Como adicionar mais questões ao Simulado Ensino Médio
+# Como adicionar questões reais ao Concurso Tutor
 
-Este documento é um manual para você (ou outra IA) usar como prompt/roteiro ao
-pedir para popular o simulado com mais questões. O site é 100% estático: cada
-matéria é um arquivo JSON em `docs/data/`, carregado direto pelo navegador
-(sem backend).
+> Leia primeiro [`../MANUAL_QUESTOES_REAIS.md`](../MANUAL_QUESTOES_REAIS.md). Ele é a regra obrigatória do projeto.
 
-## Prompt pronto para colar em outra IA
+O Concurso Tutor **não cria questões**. Toda questão adicionada ao simulado deve ter sido **realmente aplicada em uma prova de concurso público** e deve ser reproduzida fielmente a partir de uma fonte verificável.
 
+## Regra obrigatória
+
+É proibido:
+
+- inventar questões com IA;
+- escrever questões "no estilo" de uma banca;
+- adaptar, resumir, parafrasear ou reescrever uma questão real;
+- criar alternativas novas;
+- alterar números, nomes ou contexto para gerar variações;
+- preencher trechos ausentes por inferência;
+- inventar ou deduzir gabarito sem fonte confiável.
+
+Se não houver uma questão real adequada para determinado tópico, **não crie uma substituta**. Informe que não foi encontrada outra questão real validada.
+
+## Fluxo correto para adicionar questões
+
+1. Localize uma prova real, preferencialmente no site oficial da banca ou do órgão responsável.
+2. Localize o gabarito correspondente.
+3. Transcreva a questão preservando enunciado, alternativas/itens e materiais necessários.
+4. Confira a transcrição contra a prova original.
+5. Confira o gabarito contra fonte confiável, preferencialmente oficial.
+6. Registre os metadados de origem.
+7. Só então adicione a questão ao banco.
+
+Normalizações técnicas de encoding, espaços ou formatação são permitidas somente quando não alteram o conteúdo. Correções de OCR precisam ser verificadas contra a prova.
+
+## Prompt para usar com outra IA
+
+```text
+Você vai trabalhar no banco de questões do Concurso Tutor.
+
+REGRA ABSOLUTA: NÃO CRIE QUESTÕES.
+
+Só é permitido adicionar questões que tenham sido realmente aplicadas em provas de concurso público. Cada questão deve ser reproduzida fielmente da prova original, preservando enunciado, alternativas/itens, ordem e conteúdo necessário para resolução.
+
+Antes de adicionar qualquer questão:
+1. localize a prova real em fonte verificável, preferencialmente oficial;
+2. localize e confira o gabarito;
+3. transcreva sem adaptar, resumir, parafrasear ou completar;
+4. registre banca, órgão, concurso, cargo, ano, número da questão, fonte da prova e fonte do gabarito;
+5. se houver dúvida sobre a origem, texto ou gabarito, NÃO PUBLIQUE.
+
+É proibido escrever questões "no estilo" de Cebraspe, FGV, FCC ou qualquer outra banca. A IA pode localizar, classificar e explicar questões reais, mas não pode gerar perguntas inéditas.
+
+Tarefa: [DESCREVA AQUI quais provas, bancas, cargos, anos, disciplinas ou tópicos devem ser pesquisados]
 ```
-Você vai adicionar questões ao simulado estático em docs/ do repositório
-concurso-tutor. É um quiz de múltipla escolha no estilo de concursos
-públicos de nível médio (cargos como Assistente/Auxiliar Administrativo,
-Técnico) — atualmente cobre Português, Matemática/Raciocínio Lógico,
-Informática, Direito Constitucional (noções), Direito Administrativo
-(noções) e Atualidades/Conhecimentos Gerais — sem backend: cada matéria é
-um arquivo JSON em docs/data/.
 
-Regras:
-1. PROIBIDO INVENTAR CONTEÚDO. Antes de escrever qualquer questão, pesquise
-   (web search) o fato, a lei, o artigo ou o dado envolvido em fonte
-   confiável (Planalto/planalto.gov.br para leis e CF/88, sites de bancas
-   e cursinhos de concurso consagrados, órgãos oficiais como IBGE/ONU/SUS).
-   NÃO escreva de memória um número de artigo, data, sigla ou percentual
-   sem confirmar antes — se não encontrar uma fonte confiável para o fato,
-   descarte a questão ou avise no retorno em vez de arriscar um gabarito
-   errado. Em "Atualidades", prefira fatos institucionais estáveis (ONU,
-   Mercosul, SUS, IBGE etc.) em vez de notícias recentes que ficam
-   desatualizadas rápido.
-   Preencha o campo opcional "fonte" (URL ou nome da fonte pesquisada) em
-   cada questão nova, para permitir auditoria depois.
-2. Sempre 4 alternativas por questão, só uma correta.
-3. "gabarito" é o índice da alternativa correta, começando em 0
-   (0 = primeira alternativa, 1 = segunda, etc.).
-4. Toda questão deve ter "explicacao": 1-2 frases justificando a resposta
-   correta.
-5. Para adicionar questões a uma matéria já existente: edite o arquivo
-   docs/data/<materia>.json e acrescente objetos ao array "questoes",
-   seguindo exatamente o formato abaixo.
-6. Para criar uma matéria nova: crie docs/data/<nome>.json no mesmo formato
-   e adicione uma linha em MATERIAS no início de docs/app.js:
-   { id: "<nome>", nome: "<Nome de exibição>", arquivo: "data/<nome>.json" }
-7. Não altere a lógica do quiz (docs/app.js) além dessa linha do MATERIAS,
-   nem o layout (docs/styles.css), a menos que peçam explicitamente.
-8. Depois de editar, valide que todo JSON é válido (sem vírgula sobrando,
-   aspas corretas) antes de commitar.
+## Formato recomendado
 
-Tarefa: [DESCREVA AQUI quantas questões, quais matérias/tópicos você quer]
-```
-
-## Formato de cada arquivo `docs/data/<materia>.json`
+O schema atual pode variar conforme a parte da aplicação, mas os dados de origem precisam acompanhar a questão. Exemplo:
 
 ```json
 {
-  "materia": "Nome de exibição da matéria",
-  "questoes": [
-    {
-      "enunciado": "Texto da pergunta.",
-      "alternativas": ["Opção A", "Opção B", "Opção C", "Opção D"],
-      "gabarito": 1,
-      "explicacao": "Por que a alternativa correta está certa.",
-      "fonte": "URL ou nome da fonte pesquisada (opcional, mas recomendado)"
-    }
-  ]
+  "enunciado": "Texto exatamente conforme a prova.",
+  "alternativas": ["Opção A", "Opção B", "Opção C", "Opção D"],
+  "gabarito": 1,
+  "explicacao": "Comentário pedagógico separado do texto original.",
+  "banca": "Nome da banca",
+  "orgao": "Órgão",
+  "cargo": "Cargo",
+  "ano": 2025,
+  "numero_questao": 12,
+  "prova_fonte": "URL ou identificação da prova",
+  "gabarito_fonte": "URL ou identificação do gabarito",
+  "status": "valida"
 }
 ```
 
-- `alternativas`: sempre um array com exatamente 4 strings (sem prefixo
-  "A)", "B)" — o site adiciona a letra automaticamente).
-- `gabarito`: número inteiro (índice 0-based) da alternativa correta.
-- `explicacao`: opcional, mas recomendado — aparece na correção.
-- `fonte`: opcional — de onde veio o fato pesquisado (para auditoria).
-  Não é exibida no site, só serve de rastro.
+A `explicacao` pode ser produzida por IA, desde que fique separada e **não modifique o texto original da questão**.
 
-## Registrando uma matéria nova
+## Validação antes do commit
 
-Se for criar uma matéria que ainda não existe (ex.: Inglês, Atualidades,
-Redação/Interpretação), depois de criar o JSON adicione uma linha no array
-`MATERIAS` no topo de `docs/app.js`:
+Antes de publicar, confirme:
 
-```js
-{ id: "legislacao_especifica", nome: "Legislação Específica", arquivo: "data/legislacao_especifica.json" },
-```
+- a questão realmente foi aplicada;
+- a prova de origem está identificada;
+- o texto foi conferido com a prova;
+- as alternativas/itens correspondem ao original;
+- o gabarito foi confirmado;
+- nenhum trecho foi criado ou adaptado por IA;
+- os arquivos JSON continuam válidos.
 
-O `id` deve ser único, em minúsculas, sem espaços ou acentos.
+Se qualquer item falhar, a questão não deve entrar no banco.
 
-## Testando localmente
-
-Como é um site estático, basta servir a pasta `docs/` com qualquer servidor
-HTTP simples (abrir o `index.html` direto com `file://` pode falhar por causa
-do `fetch` dos JSONs):
+## Testando o simulado estático
 
 ```bash
 cd docs
@@ -98,6 +98,4 @@ python3 -m http.server 8080
 
 ## Publicando
 
-O site é publicado via GitHub Pages a partir da pasta `docs/` na branch
-`main` (ver instruções no README principal do repositório). Basta commitar e
-dar push nas mudanças em `docs/` — o Pages atualiza automaticamente.
+O site estático é publicado pelo GitHub Pages a partir da pasta `docs/` da branch `main`. Após validar os dados, basta commitar e enviar as alterações.
