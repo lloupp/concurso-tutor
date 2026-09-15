@@ -278,7 +278,9 @@ na tabela no futuro, não só para este backend.
   feito nesta sessão — não foram localizadas (nem buscadas
   exaustivamente) provas aplicadas correspondentes. Registrar como
   `SEM_QUESTAO_REAL_LOCALIZADA` até que alguém (Hermes, seguindo o novo
-  fluxo do SKILL.md, ou Eduardo) faça essa busca.
+  fluxo do SKILL.md, ou Eduardo) faça essa busca. O prompt operacional
+  pronto para esse trabalho está em
+  [`PROMPT_BUSCA_QUESTOES_REAIS.md`](PROMPT_BUSCA_QUESTOES_REAIS.md).
 - O código do app Vercel de produção (que efetivamente renderiza questões
   para Eduardo/Laryssa) não está neste repositório e não pôde ser alterado
   para consumir `questoes_verificadas` — isso precisa ser feito no
