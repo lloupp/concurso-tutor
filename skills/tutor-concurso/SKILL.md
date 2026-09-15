@@ -129,6 +129,10 @@ tópicos que continuam sem questão real disponível.
 ## Pitfalls
 - **Nunca formular, adaptar ou parafrasear uma questão.** Se não achar a
   prova real, não cadastre nada para aquele tópico.
+- **Mas não confunda isso com descartar questão real por causa do formato.**
+  Não adaptar ≠ não aproveitar. Prova oficial com gabarito que tenha número
+  de alternativas diferente do `n_alternativas` da trilha entra como está —
+  ver passo 6 do fluxo de concurso específico.
 - `gabarito` é índice numérico string, não a letra (exceto certo/errado).
 - Edital/lei/manual/protocolo servem para *localizar o tópico*, nunca como
   fonte de uma questão.
@@ -191,7 +195,16 @@ Passo a passo para repor questões reais em um concurso (usar
    `gabarito_oficial`, `situacao='valida'`,
    `classificacao_auditoria='VERIFICADA_REAL'`,
    `verificacao='correspondencia_textual_com_prova_original'`.
-   - Respeitar o `n_alternativas` do concurso.
+   - **A prova real manda no formato.** Transcreva a questão com o número de
+     alternativas que ela tem. `n_alternativas` do concurso é referência de
+     *preferência na busca* (procure primeiro provas no formato da banca-alvo),
+     NUNCA critério de descarte: achou questão real, oficial, com gabarito,
+     mas com 4 alternativas onde o alvo eram 5 (ou vice-versa)? **Cadastre
+     como está.** Descartar questão real comprovada por causa da contagem de
+     alternativas é perda pura — o banco já convive com formatos mistos.
+     `n_alternativas = 0` significa "formato livre" (trilhas gerais 51/52).
+     O que continua proibido é o oposto: adaptar, cortar ou acrescentar
+     alternativa para a questão "caber" no formato — isso falsifica a fonte.
    - Se qualquer campo de proveniência não puder ser comprovado, usar
      `situacao='quarentena'` e preencher `motivo_quarentena` — o INSERT com
      `situacao='valida'` incompleto será **rejeitado pelo banco**
@@ -201,18 +214,27 @@ Passo a passo para repor questões reais em um concurso (usar
    SELECT c.id, c.n_alternativas,
      count(*) FILTER (WHERE q.situacao='valida') AS validas,
      count(*) FILTER (WHERE q.situacao='valida' AND q.tipo='mcq'
-       AND jsonb_array_length(q.alternativas) <> c.n_alternativas) AS mismatched
+       AND c.n_alternativas > 0
+       AND jsonb_array_length(q.alternativas) <> c.n_alternativas) AS fora_do_formato_alvo
    FROM questoes q JOIN blocos b ON b.id=q.bloco_id JOIN concursos c ON c.id=b.concurso_id
    WHERE c.id = <concurso_id> GROUP BY c.id, c.n_alternativas;
    ```
+   `fora_do_formato_alvo` é **informativo**, não erro: diz quanto do banco
+   está no formato da banca-alvo, para orientar onde buscar mais provas
+   daquela banca. Nunca remova nem "conserte" questão real por causa dele.
    Confirmar que nenhum `enunciado` novo duplica um já existente no banco.
 8. **Nunca alterar dados de outros concursos** ao trabalhar em um específico.
 
-### Bancas conhecidas (referência, conferir sempre no edital)
+### Bancas conhecidas (referência para priorizar a busca, não para descartar)
 - Instituto Objetiva: 5 alternativas, `mcq` puro.
 - Cebraspe: certo/errado (`usa_certo_errado=true`), sem alternativas múltiplas.
 - FUNDATEC, FGV, IBFC e outras: não assumir padrão — cada edital define o
   próprio número de alternativas e estilo de enunciado.
+
+Use esta tabela para escolher **por onde começar** a procurar prova real.
+Esgotada a banca-alvo, prova real de outra banca para o mesmo tópico/nível
+vale mais do que tópico vazio (regra 9 da auditoria) — cadastre no formato
+original dela e registre a banca de origem em `banca`.
 
 ### Concorrência
 O banco Supabase de produção é editado por múltiplos agentes em paralelo —
