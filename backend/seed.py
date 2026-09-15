@@ -2,6 +2,13 @@
 
 Cria: 2 concursos (PF Agente Admin, Téc. Enfermagem), tópicos,
 1 admin, 2 alunos e 1 bloco de exemplo com 10 questões mistas.
+
+IMPORTANTE: as questões abaixo são fictícias, só para exercitar o fluxo
+técnico (login, responder, progresso). Elas NÃO têm origem_verificada=true,
+então ficam com situacao='quarentena' por padrão e não aparecem em
+/api/bloco/hoje (ver AUDITORIA_QUESTOES_REAIS.md e models.Questao). Nunca
+use este script para gerar conteúdo que um aluno real vai estudar — só
+questões reais, com proveniência comprovada, podem ser marcadas 'valida'.
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

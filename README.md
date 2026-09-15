@@ -57,32 +57,36 @@ uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 | POST | `/api/bloco/gerar` | admin/Hermes cria bloco (JSON) |
 | POST | `/api/admin/*` | admin cria concurso/tópico/aluno |
 
-## Integração com o Hermes / Pi (geração de conteúdo)
-A geração de blocos é feita por um "professor" IA que pesquisa o edital real e
-chama a API. Dois caminhos:
+## Integração com o Hermes (busca de questões reais)
 
-- **Hermes (cron diário 07:00):** usa a skill `tutor-concurso` (em
-  `skills/tutor-concurso/SKILL.md`) para gerar o bloco de cada aluno e avisar no
-  Telegram. Job já criado e testado.
-- **Pi orquestrado (população em massa):** para encher a plataforma de uma vez,
-  orquestramos N instâncias do Pi (`~/.pi/agent`) — uma por concurso — via `tmux`,
-  cada uma guiada pela skill `tutor-concurso` (web research + `curl` na API local).
-  Exemplo usado: 2 sessões (`pipf`, `pienf`) geraram PF (7 blocos/42 questões,
-  cobertura 100%) e Enfermagem (3 blocos/30 questões). Ver skills
-  `pi-coding-agent-orchestrator`.
-- **Grok CLI:** há `grok_populate_prompt.md` com o prompt equivalente, mas o CLI
-  `grok` neste ambiente não está autenticado (XAI_API_KEY=dummy, sessão vazia);
-  o backend (shim→OpenRouter) funciona. Falta `grok login --device-code`.
-
-Conteúdo NUNCA é inventado: sempre ancorado em fontes (Estratégia, Gran, Direção,
-Cofen, Planalto/CF88, editais UFMG/UFES).
+> **Atualizado em 2026-09-15 pela auditoria de questões reais** — ver
+> [`AUDITORIA_QUESTOES_REAIS.md`](AUDITORIA_QUESTOES_REAIS.md). O fluxo
+> anterior descrito aqui ("Hermes/Pi/Grok geram blocos") fazia uma IA
+> **formular** questões ancoradas em fontes gerais (editais, sites de
+> concurso, leis) — isso **não é** prova de origem de uma questão real e foi
+> desativado. Todas as questões cadastradas por esse processo (Supabase de
+> produção e bancos locais) foram colocadas em quarentena
+> (`situacao='quarentena'`) e não são mais servidas ao aluno.
+>
+> O fluxo atual é o oposto: o Hermes **busca e recupera** questões
+> efetivamente aplicadas em provas reais (com banca, órgão, concurso,
+> cargo, ano, número da questão, URL da prova e gabarito oficial
+> comprovados) — nunca formula, adapta ou parafraseia. Ver o passo a passo
+> em [`skills/tutor-concurso/SKILL.md`](skills/tutor-concurso/SKILL.md). O
+> banco tem uma constraint (`chk_valida_exige_comprovacao`) que rejeita
+> qualquer questão marcada "válida" sem essa comprovação completa.
 
 ## Simulado estático (GitHub Pages)
 Além da plataforma completa (backend), há um **simulado estático** em `docs/`
-com questões no estilo de concursos públicos de nível médio (Português,
-Matemática/Raciocínio Lógico, Informática, Direito Constitucional, Direito
-Administrativo, Atualidades) — roda 100% no navegador, sem backend. Publicado
-em: **https://lloupp.github.io/concurso-tutor/**
+(Português, Matemática/Raciocínio Lógico, Informática, Direito Constitucional,
+Direito Administrativo, Atualidades) — roda 100% no navegador, sem backend.
+Publicado em: **https://lloupp.github.io/concurso-tutor/**
+
+Desde a auditoria de 2026-09-15, os arquivos em `docs/data/` estão vazios:
+as questões anteriores não tinham comprovação de origem numa prova real
+aplicada e foram removidas (não substituídas por questões inventadas). Ver
+[`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md) para as regras de como
+adicionar questões reais.
 
 **Ativar o Pages (uma vez, nas configurações do repositório):**
 Settings → Pages → Build and deployment → Source: `Deploy from a branch` →
@@ -95,9 +99,6 @@ cd docs
 python3 -m http.server 8080
 # abra http://localhost:8080
 ```
-
-Para adicionar mais questões (inclusive pedindo a outra IA), veja o manual em
-[`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md).
 
 ## Modelo de dados
 `Concurso → Topico (árvore) → Bloco → Questao → Resposta → Progresso (dominância)`

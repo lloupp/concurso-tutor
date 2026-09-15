@@ -65,7 +65,11 @@ def _resolver_concurso(db, u, concurso_id):
 
 # ---------- Bloco de estudo ----------
 def _bloco_out(db, bloco):
-    questoes = db.query(models.Questao).filter_by(bloco_id=bloco.id).all()
+    # Só serve ao aluno questões com origem comprovada (ver
+    # AUDITORIA_QUESTOES_REAIS.md). Nunca remover este filtro.
+    questoes = db.query(models.Questao).filter_by(
+        bloco_id=bloco.id, origem_verificada=True, situacao="valida",
+    ).all()
     qs = []
     for q in questoes:
         qs.append({
@@ -239,7 +243,24 @@ def gerar_bloco(payload: GerarBlocoIn,
     db.add(bloco)
     db.commit()
     db.refresh(bloco)
+    _CAMPOS_COMPROVACAO = (
+        "banca", "orgao", "concurso_prova", "cargo", "ano_prova", "prova",
+        "numero_questao", "url_prova", "gabarito_oficial",
+    )
     for q in bloco_data.get("questoes", []):
+        situacao = q.get("situacao", "quarentena")
+        if situacao == "valida":
+            # Bloqueio técnico (regra 7 da auditoria): nunca aceitar uma
+            # questão "válida" sem origem real comprovada. Ver
+            # AUDITORIA_QUESTOES_REAIS.md.
+            faltando = [c for c in _CAMPOS_COMPROVACAO if not str(q.get(c) or "").strip()]
+            if not q.get("origem_verificada") or q.get("classificacao_auditoria") != "VERIFICADA_REAL" or faltando:
+                raise HTTPException(
+                    400,
+                    "Questão com situacao='valida' precisa de origem_verificada=true, "
+                    "classificacao_auditoria='VERIFICADA_REAL' e todos os campos de "
+                    f"comprovação preenchidos. Faltando: {faltando or ['origem_verificada/classificacao_auditoria']}",
+                )
         questao = models.Questao(
             bloco_id=bloco.id,
             topico_id=q.get("topico_id"),
@@ -250,6 +271,22 @@ def gerar_bloco(payload: GerarBlocoIn,
             resposta_modelo=q.get("resposta_modelo"),
             rubric=q.get("rubric"),
             dificuldade=q.get("dificuldade", 2),
+            origem_verificada=bool(q.get("origem_verificada", False)),
+            banca=q.get("banca"),
+            orgao=q.get("orgao"),
+            concurso_prova=q.get("concurso_prova"),
+            cargo=q.get("cargo"),
+            ano_prova=q.get("ano_prova"),
+            prova=q.get("prova"),
+            numero_questao=q.get("numero_questao"),
+            pagina=q.get("pagina"),
+            url_prova=q.get("url_prova"),
+            url_gabarito=q.get("url_gabarito"),
+            gabarito_oficial=q.get("gabarito_oficial"),
+            situacao=situacao,
+            verificacao=q.get("verificacao"),
+            classificacao_auditoria=q.get("classificacao_auditoria"),
+            motivo_quarentena=q.get("motivo_quarentena"),
         )
         db.add(questao)
     # marca tópicos como estudados (cobertura)

@@ -57,6 +57,20 @@ def test_bloco_hoje_sem_bloco_retorna_none(client, aluno_headers):
     assert resp.json()["bloco"] is None
 
 
+def _questao_verificada_kwargs(**overrides):
+    """Metadados mínimos de proveniência exigidos por chk_valida_exige_comprovacao."""
+    base = dict(
+        origem_verificada=True, situacao="valida",
+        classificacao_auditoria="VERIFICADA_REAL",
+        banca="Cebraspe", orgao="Órgão Teste", concurso_prova="Concurso Teste 2024",
+        cargo="Analista", ano_prova=2024, prova="Caderno 1", numero_questao="12",
+        url_prova="https://exemplo.org/prova.pdf", gabarito_oficial="1",
+        verificacao="correspondencia_textual_com_prova_original",
+    )
+    base.update(overrides)
+    return base
+
+
 def test_bloco_hoje_retorna_bloco_com_questoes(client, db, aluno_headers, aluno_user, topico):
     bloco = models.Bloco(concurso_id=aluno_user.concurso_id, titulo="Bloco 1",
                          introducao="Intro", data=date.today())
@@ -64,7 +78,8 @@ def test_bloco_hoje_retorna_bloco_com_questoes(client, db, aluno_headers, aluno_
     db.commit()
     db.refresh(bloco)
     q = models.Questao(bloco_id=bloco.id, topico_id=topico.id, tipo="mcq",
-                       enunciado="2+2=?", alternativas=["3", "4"], gabarito="1")
+                       enunciado="2+2=?", alternativas=["3", "4"], gabarito="1",
+                       **_questao_verificada_kwargs())
     db.add(q)
     db.commit()
 
@@ -77,6 +92,24 @@ def test_bloco_hoje_retorna_bloco_com_questoes(client, db, aluno_headers, aluno_
     assert "gabarito" not in body["questoes"][0]
     assert body["questoes"][0]["resposta_modelo"] is None
     assert body["questoes"][0]["rubric"] is None
+
+
+def test_bloco_hoje_nao_exibe_questao_sem_origem_verificada(client, db, aluno_headers, aluno_user, topico):
+    """Auditoria de questões reais: questão sem origem_verificada=true/situacao='valida'
+    nunca pode ser servida ao aluno, mesmo que exista no bloco do dia."""
+    bloco = models.Bloco(concurso_id=aluno_user.concurso_id, titulo="Bloco 1",
+                         introducao="Intro", data=date.today())
+    db.add(bloco)
+    db.commit()
+    db.refresh(bloco)
+    q = models.Questao(bloco_id=bloco.id, topico_id=topico.id, tipo="mcq",
+                       enunciado="Questão não verificada", alternativas=["3", "4"], gabarito="1")
+    db.add(q)
+    db.commit()
+
+    resp = client.get("/api/bloco/hoje", headers=aluno_headers)
+    assert resp.status_code == 200
+    assert resp.json()["bloco"]["questoes"] == []
 
 
 def test_listar_blocos_retorna_apenas_do_concurso_do_usuario(client, db, aluno_headers, aluno_user, concurso):

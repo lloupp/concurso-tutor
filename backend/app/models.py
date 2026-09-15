@@ -11,7 +11,7 @@ Design de domínio:
 from datetime import datetime, date
 from sqlalchemy import (
     Column, Integer, String, Text, Boolean, Float, DateTime, Date,
-    ForeignKey, JSON, UniqueConstraint,
+    ForeignKey, JSON, UniqueConstraint, CheckConstraint,
 )
 from .db import Base
 
@@ -70,7 +70,30 @@ class Bloco(Base):
 
 
 class Questao(Base):
+    """Uma questão só pode ser exibida ao aluno (situacao='valida') se tiver
+    origem comprovada numa prova real aplicada — ver AUDITORIA_QUESTOES_REAIS.md
+    e a CheckConstraint chk_valida_exige_comprovacao abaixo. Nunca gerar/
+    formular questões: apenas recuperar questões reais e preencher estes
+    campos de proveniência."""
     __tablename__ = "questoes"
+    __table_args__ = (
+        CheckConstraint(
+            "situacao != 'valida' OR ("
+            "origem_verificada = 1"
+            " AND classificacao_auditoria = 'VERIFICADA_REAL'"
+            " AND banca IS NOT NULL AND trim(banca) != ''"
+            " AND orgao IS NOT NULL AND trim(orgao) != ''"
+            " AND concurso_prova IS NOT NULL AND trim(concurso_prova) != ''"
+            " AND cargo IS NOT NULL AND trim(cargo) != ''"
+            " AND ano_prova IS NOT NULL"
+            " AND prova IS NOT NULL AND trim(prova) != ''"
+            " AND numero_questao IS NOT NULL AND trim(numero_questao) != ''"
+            " AND url_prova IS NOT NULL AND trim(url_prova) != ''"
+            " AND gabarito_oficial IS NOT NULL AND trim(gabarito_oficial) != ''"
+            ")",
+            name="chk_valida_exige_comprovacao",
+        ),
+    )
     id = Column(Integer, primary_key=True)
     bloco_id = Column(Integer, ForeignKey("blocos.id"))
     topico_id = Column(Integer, ForeignKey("topicos.id"))
@@ -81,6 +104,24 @@ class Questao(Base):
     resposta_modelo = Column(Text, nullable=True)  # discursiva
     rubric = Column(Text, nullable=True)            # critérios de correção
     dificuldade = Column(Integer, default=2)
+
+    # ---- Proveniência (auditoria de questões reais) ----
+    origem_verificada = Column(Boolean, default=False, nullable=False)
+    banca = Column(String(100), nullable=True)
+    orgao = Column(String(200), nullable=True)
+    concurso_prova = Column(String(200), nullable=True)
+    cargo = Column(String(200), nullable=True)
+    ano_prova = Column(Integer, nullable=True)
+    prova = Column(String(200), nullable=True)
+    numero_questao = Column(String(20), nullable=True)
+    pagina = Column(Integer, nullable=True)
+    url_prova = Column(String(500), nullable=True)
+    url_gabarito = Column(String(500), nullable=True)
+    gabarito_oficial = Column(String(10), nullable=True)
+    situacao = Column(String(20), default="quarentena", nullable=False)  # valida | quarentena | invalida
+    verificacao = Column(String(200), nullable=True)
+    classificacao_auditoria = Column(String(30), nullable=True)
+    motivo_quarentena = Column(Text, nullable=True)
 
 
 class Resposta(Base):

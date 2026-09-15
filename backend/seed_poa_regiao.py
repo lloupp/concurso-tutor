@@ -7,6 +7,15 @@ inserção) e os 3 primeiros blocos de estudo (maior incidência primeiro:
 Português + Matemática + Raciocínio Lógico + Informática, misturados).
 
 Idempotente: se o concurso já existir (mesmo nome), não duplica.
+
+AVISO (auditoria de questões reais, 2026-09-15): as questões abaixo foram
+FORMULADAS manualmente (criado_por="hermes"), não extraídas de provas
+aplicadas — não têm origem_verificada=true, então o schema atual
+(models.Questao + chk_valida_exige_comprovacao) já as bloqueia
+automaticamente de aparecer em /api/bloco/hoje (ficam situacao='quarentena').
+NÃO rode este script contra um banco que sirva alunos reais nem marque essas
+questões como 'valida' sem antes substituí-las por questões reais
+comprovadas. Ver AUDITORIA_QUESTOES_REAIS.md.
 """
 import os, sys
 from datetime import date, timedelta

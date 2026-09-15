@@ -38,11 +38,19 @@ async function carregarBanco() {
     return;
   }
   box.innerHTML = "";
+  const totalGeral = MATERIAS.reduce((soma, m) => soma + BANCO[m.id].questoes.length, 0);
+  if (totalGeral === 0) {
+    box.innerHTML = "<p class='errbox'>As questões deste simulado foram removidas em auditoria " +
+      "(2026-09-15) por não terem comprovação de origem em prova real aplicada — ver " +
+      "AUDITORIA_QUESTOES_REAIS.md. Nenhuma questão inventada será reintroduzida; o simulado " +
+      "volta a funcionar quando questões reais e verificadas forem cadastradas.</p>";
+    return;
+  }
   MATERIAS.forEach(m => {
     const total = BANCO[m.id].questoes.length;
     const label = document.createElement("label");
     label.className = "materia-check";
-    label.innerHTML = `<input type="checkbox" value="${m.id}" checked />
+    label.innerHTML = `<input type="checkbox" value="${m.id}" ${total > 0 ? "checked" : "disabled"} />
       <span>${m.nome}</span>
       <span class="count">${total} questões</span>`;
     box.appendChild(label);
@@ -70,8 +78,12 @@ function iniciarSimulado() {
     err.textContent = "Selecione ao menos uma matéria.";
     return;
   }
-  err.textContent = "";
   QUESTOES = montarQuestoes(ids);
+  if (!QUESTOES.length) {
+    err.textContent = "Nenhuma questão real disponível ainda para as matérias selecionadas.";
+    return;
+  }
+  err.textContent = "";
 
   document.getElementById("config").hidden = true;
   document.getElementById("resultado").hidden = true;
