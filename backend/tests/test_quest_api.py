@@ -74,6 +74,7 @@ def test_cliente_envia_chave_e_gabarito(monkeypatch):
     monkeypatch.setenv("QUEST_API_BASE_URL", "https://api.quest.test")
 
     def responder(request: httpx.Request):
+        assert request.url.path == "/v2/questoes"
         assert request.headers["X-API-Key"] == "qk_teste"
         assert request.url.params["include_gabarito"] == "true"
         assert request.url.params["tem_gabarito"] == "true"
@@ -92,14 +93,72 @@ def test_cliente_envia_chave_e_gabarito(monkeypatch):
         client.close()
     assert out["total"] == 1
     assert out["next_cursor"] == "abc"
+    assert out["api_version"] == "v2"
     assert len(out["items"]) == 1
+
+
+def test_cliente_fallback_v1_apenas_quando_search_v2_nao_configurado(monkeypatch):
+    monkeypatch.setenv("QUEST_API_KEY", "qk_teste")
+    monkeypatch.setenv("QUEST_API_BASE_URL", "https://api.quest.test")
+    chamadas = []
+
+    def responder(request: httpx.Request):
+        chamadas.append(request.url.path)
+        if request.url.path == "/v2/questoes":
+            return httpx.Response(
+                503,
+                request=request,
+                json={"statusCode": 503, "message": "Search V2 não está configurado.", "error": "Service Unavailable"},
+            )
+        if request.url.path == "/v1/questoes":
+            assert request.url.params["cargo"] == "Técnico em Enfermagem"
+            assert request.url.params["uf"] == "RS"
+            return httpx.Response(
+                200,
+                request=request,
+                json={"data": {"total": 1, "next_cursor": None, "items": [_item_mcq()]}},
+            )
+        raise AssertionError(f"rota inesperada: {request.url.path}")
+
+    client = httpx.Client(transport=httpx.MockTransport(responder))
+    try:
+        out = quest_api.buscar_questoes({"cargo": "Técnico em Enfermagem", "uf": "RS", "per_page": 5}, client=client)
+    finally:
+        client.close()
+    assert chamadas == ["/v2/questoes", "/v1/questoes"]
+    assert out["api_version"] == "v1"
+    assert out["total"] == 1
+    assert out["items"][0]["id"] == "2500000001"
+
+
+def test_cliente_nao_faz_fallback_para_outro_503(monkeypatch):
+    monkeypatch.setenv("QUEST_API_KEY", "qk_teste")
+    monkeypatch.setenv("QUEST_API_BASE_URL", "https://api.quest.test")
+    chamadas = []
+
+    def responder(request: httpx.Request):
+        chamadas.append(request.url.path)
+        return httpx.Response(503, request=request, json={"message": "Manutenção"})
+
+    client = httpx.Client(transport=httpx.MockTransport(responder))
+    try:
+        try:
+            quest_api.buscar_questoes({"per_page": 1}, client=client)
+        except quest_api.QuestApiError as exc:
+            assert "503" in str(exc)
+            assert "Manutenção" in str(exc)
+        else:
+            raise AssertionError("503 genérico deveria falhar")
+    finally:
+        client.close()
+    assert chamadas == ["/v2/questoes"]
 
 
 def test_importacao_admin_persiste_e_deduplica(monkeypatch, db, concurso, topico, admin_headers):
     monkeypatch.setattr(
         quest_api,
         "buscar_questoes",
-        lambda filtros: {"items": [_item_mcq()], "total": 1, "next_cursor": None},
+        lambda filtros: {"items": [_item_mcq()], "total": 1, "next_cursor": None, "api_version": "v2"},
     )
     test_app = FastAPI()
     test_app.include_router(quest_router)
@@ -116,6 +175,7 @@ def test_importacao_admin_persiste_e_deduplica(monkeypatch, db, concurso, topico
     assert r.status_code == 200, r.text
     assert r.json()["importadas"] == 1
     assert r.json()["duplicadas"] == 0
+    assert r.json()["api_version"] == "v2"
 
     questao = db.query(models.Questao).one()
     assert questao.alternativas == [
@@ -133,4 +193,36 @@ def test_importacao_admin_persiste_e_deduplica(monkeypatch, db, concurso, topico
     assert r2.status_code == 200, r2.text
     assert r2.json()["importadas"] == 0
     assert r2.json()["duplicadas"] == 1
+    assert db.query(models.Questao).count() == 1
+
+
+def test_importacao_v1_deduplica_fonte_v2(monkeypatch, db, concurso, topico, admin_headers):
+    fonte = models.Fonte(
+        titulo="Quest API existente",
+        url="https://api.quest.api.br/v2/questoes/2500000001",
+        tipo="quest_api",
+    )
+    bloco = models.Bloco(concurso_id=concurso.id, titulo="Banco", introducao="", status="banco")
+    db.add_all([fonte, bloco]); db.flush()
+    db.add(models.Questao(
+        bloco_id=bloco.id, topico_id=topico.id, tipo="mcq", enunciado="Original",
+        alternativas=["A", "B"], gabarito="0", fonte_id=fonte.id,
+    ))
+    db.commit()
+
+    monkeypatch.setattr(
+        quest_api,
+        "buscar_questoes",
+        lambda filtros: {"items": [_item_mcq()], "total": 1, "next_cursor": None, "api_version": "v1"},
+    )
+    test_app = FastAPI(); test_app.include_router(quest_router)
+    client = TestClient(test_app)
+    r = client.post(
+        "/api/admin/quest/importar",
+        params={"concurso_id": concurso.id, "topico_id": topico.id, "limite": 5},
+        headers=admin_headers,
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["importadas"] == 0
+    assert r.json()["duplicadas"] == 1
     assert db.query(models.Questao).count() == 1
