@@ -1,7 +1,9 @@
 """Entry point for Vercel Python Functions."""
 import hashlib
 import hmac
+import os
 
+import httpx
 from fastapi import Depends, HTTPException
 
 from backend.app.main import app
@@ -22,11 +24,62 @@ app.include_router(quest_api_router)
 _BOOTSTRAP_HASH = "bc5a55e6db18895a2f75c0738d157f74c25c343cb4968d21f916e98051dcd979"
 
 
-@app.get("/api/internal/quest-bootstrap-rs-20260915", include_in_schema=False)
-def quest_bootstrap_rs_20260915(key: str, db=Depends(get_db)):
+def _validar_bootstrap(key: str):
     recebido = hashlib.sha256((key or "").encode()).hexdigest()
     if not hmac.compare_digest(recebido, _BOOTSTRAP_HASH):
         raise HTTPException(404, "Não encontrado")
+
+
+def _resumo_resposta(response: httpx.Response):
+    try:
+        body = response.json()
+        return {
+            "status": response.status_code,
+            "message": body.get("message") if isinstance(body, dict) else None,
+            "error": body.get("error") if isinstance(body, dict) else None,
+            "correlation_id": body.get("correlationId") if isinstance(body, dict) else None,
+            "path": body.get("path") if isinstance(body, dict) else None,
+            "tem_data": isinstance(body, dict) and "data" in body,
+        }
+    except ValueError:
+        return {"status": response.status_code, "message": response.text[:300]}
+
+
+@app.get("/api/internal/quest-diagnose-rs-20260915", include_in_schema=False)
+def quest_diagnose_rs_20260915(key: str):
+    _validar_bootstrap(key)
+    api_key = os.environ.get("QUEST_API_KEY", "").strip()
+    if not api_key:
+        return {"key_configurada": False}
+    base = os.environ.get("QUEST_API_BASE_URL", "https://api.quest.api.br").rstrip("/")
+    headers = {"X-API-Key": api_key, "Accept": "application/json"}
+    try:
+        with httpx.Client(timeout=15.0) as client:
+            minimo = client.get(f"{base}/v2/questoes", params={"per_page": 1}, headers=headers)
+            completo = client.get(
+                f"{base}/v2/questoes",
+                params={
+                    "per_page": 1,
+                    "tem_gabarito": "true",
+                    "include_gabarito": "true",
+                    "anulada": "false",
+                    "desatualizada": "false",
+                },
+                headers=headers,
+            )
+    except httpx.RequestError as exc:
+        return {"key_configurada": True, "erro_rede": type(exc).__name__}
+    return {
+        "key_configurada": True,
+        "base_padrao": base == "https://api.quest.api.br",
+        "minimo": _resumo_resposta(minimo),
+        "completo": _resumo_resposta(completo),
+    }
+
+
+@app.get("/api/internal/quest-bootstrap-rs-20260915", include_in_schema=False)
+def quest_bootstrap_rs_20260915(key: str, db=Depends(get_db)):
+    _validar_bootstrap(key)
 
     existente = (
         db.query(models.Questao)
