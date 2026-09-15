@@ -28,10 +28,55 @@ def _api_key() -> str:
     return key
 
 
-def buscar_questoes(filtros: dict[str, Any] | None = None, *, client: httpx.Client | None = None) -> dict[str, Any]:
-    """Consulta GET /v2/questoes com gabarito e filtros seguros.
+def _v2_search_indisponivel(response: httpx.Response) -> bool:
+    if response.status_code != 503:
+        return False
+    try:
+        body = response.json()
+    except ValueError:
+        return False
+    return isinstance(body, dict) and body.get("message") == "Search V2 não está configurado."
 
-    Retorna apenas o envelope útil da API: items, total e next_cursor.
+
+def _validar_resposta(response: httpx.Response) -> dict[str, Any]:
+    if response.status_code == 401:
+        raise QuestApiError("Chave da Quest API inválida ou não autorizada", 502)
+    if response.status_code == 402:
+        raise QuestApiError("Cota da Quest API esgotada", 503)
+    if response.status_code == 403:
+        raise QuestApiError("Plano da Quest API sem permissão para este recurso", 503)
+    if response.status_code == 429:
+        raise QuestApiError("Rate limit da Quest API atingido; tente novamente depois", 503)
+    if response.status_code >= 400:
+        try:
+            body = response.json()
+            detalhe = body.get("message") if isinstance(body, dict) else None
+        except ValueError:
+            detalhe = None
+        sufixo = f": {detalhe}" if detalhe else ""
+        raise QuestApiError(f"Quest API retornou HTTP {response.status_code}{sufixo}", 502)
+
+    try:
+        payload = response.json()
+        data = payload.get("data") or {}
+        items = data.get("items") or []
+    except (ValueError, AttributeError) as exc:
+        raise QuestApiError("Resposta inválida da Quest API", 502) from exc
+    if not isinstance(items, list):
+        raise QuestApiError("Formato inesperado da Quest API", 502)
+    return {
+        "items": items,
+        "total": int(data.get("total") or len(items)),
+        "next_cursor": data.get("next_cursor"),
+    }
+
+
+def buscar_questoes(filtros: dict[str, Any] | None = None, *, client: httpx.Client | None = None) -> dict[str, Any]:
+    """Consulta o catálogo da Quest API, preferindo V2 e usando V1 como fallback.
+
+    O fallback só ocorre para o erro explícito do fornecedor
+    ``Search V2 não está configurado.``. Outros erros continuam falhando de forma
+    segura, sem mascarar problemas de chave, cota, plano ou rate limit.
     """
     filtros = dict(filtros or {})
     permitidos = {
@@ -54,39 +99,21 @@ def buscar_questoes(filtros: dict[str, Any] | None = None, *, client: httpx.Clie
 
     owns_client = client is None
     http = client or httpx.Client(timeout=15.0)
+    api_version = "v2"
     try:
         response = http.get(f"{base_url}/v2/questoes", params=params, headers=headers)
+        if _v2_search_indisponivel(response):
+            api_version = "v1"
+            response = http.get(f"{base_url}/v1/questoes", params=params, headers=headers)
+        resultado = _validar_resposta(response)
     except httpx.RequestError as exc:
         raise QuestApiError("Falha de comunicação com a Quest API", 502) from exc
     finally:
         if owns_client:
             http.close()
 
-    if response.status_code == 401:
-        raise QuestApiError("Chave da Quest API inválida ou não autorizada", 502)
-    if response.status_code == 402:
-        raise QuestApiError("Cota da Quest API esgotada", 503)
-    if response.status_code == 403:
-        raise QuestApiError("Plano da Quest API sem permissão para este recurso", 503)
-    if response.status_code == 429:
-        raise QuestApiError("Rate limit da Quest API atingido; tente novamente depois", 503)
-    if response.status_code >= 400:
-        raise QuestApiError(f"Quest API retornou HTTP {response.status_code}", 502)
-
-    try:
-        payload = response.json()
-        data = payload.get("data") or {}
-        items = data.get("items") or []
-    except (ValueError, AttributeError) as exc:
-        raise QuestApiError("Resposta inválida da Quest API", 502) from exc
-    if not isinstance(items, list):
-        raise QuestApiError("Formato inesperado da Quest API", 502)
-
-    return {
-        "items": items,
-        "total": int(data.get("total") or len(items)),
-        "next_cursor": data.get("next_cursor"),
-    }
+    resultado["api_version"] = api_version
+    return resultado
 
 
 def _tem_imagens(item: dict[str, Any]) -> bool:
@@ -107,7 +134,7 @@ def _dificuldade(valor: Any) -> int:
 
 
 def normalizar_questao(item: dict[str, Any]) -> dict[str, Any]:
-    """Converte uma questão V2 sem alterar conteúdo ou número de alternativas.
+    """Converte uma questão da Quest API sem alterar conteúdo ou alternativas.
 
     Questões com imagens/anexos são rejeitadas por enquanto, pois a interface
     atual não garante reprodução fiel desses recursos.
@@ -154,7 +181,7 @@ def normalizar_questao(item: dict[str, Any]) -> dict[str, Any]:
             raise ValueError("gabarito não corresponde às alternativas") from exc
         tipo = "mcq"
         gabarito_local = str(indice)
-        alternativas = textos  # preserva exatamente a quantidade recebida
+        alternativas = textos
 
     textos_associados = [str(t).strip() for t in item.get("textos_associados") or [] if str(t).strip()]
     prova_id = str(prova.get("id") or "").strip()
