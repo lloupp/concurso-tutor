@@ -42,7 +42,7 @@ docker compose up --build
 ## Como rodar (Termux / Python direto)
 ```bash
 cd concurso-tutor/backend
-pip install -r ../requirements.txt
+pip install -r ../requirements-dev.txt
 python -m backend.seed          # popula dados demo
 uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 ```
